@@ -6,12 +6,21 @@
 
     <groupId>org.jetbrains.squash</groupId>
     <artifactId>squash</artifactId>
+    <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
 
     <properties>
         <kotlin.version>1.0.1</kotlin.version>
         <dokka.version>0.9.4</dokka.version>
     </properties>
+
+    <modules>
+        <module>squash-core</module>
+        <module>squash-jdbc</module>
+
+        <module>squash-h2</module>
+        <module>squash-postgres</module>
+    </modules>
 
     <repositories>
         <repository>
@@ -60,11 +69,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.6.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.191</version>
         </dependency>
     </dependencies>
 
