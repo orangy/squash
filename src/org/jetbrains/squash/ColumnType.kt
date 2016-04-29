@@ -4,14 +4,14 @@ abstract class ColumnType() {
     override fun toString(): String = "${javaClass.simpleName.removeSuffix("ColumnType")}"
 }
 
-class CharColumnType() : ColumnType()
-class IntColumnType() : ColumnType()
-class LongColumnType() : ColumnType()
-class DateColumnType() : ColumnType()
-class DateTimeColumnType() : ColumnType()
-class BlobColumnType() : ColumnType()
-class BooleanColumnType() : ColumnType()
-class UUIDColumnType() : ColumnType()
+object CharColumnType : ColumnType()
+object IntColumnType : ColumnType()
+object LongColumnType : ColumnType()
+object DateColumnType : ColumnType()
+object DateTimeColumnType : ColumnType()
+object BlobColumnType : ColumnType()
+object BooleanColumnType : ColumnType()
+object UUIDColumnType : ColumnType()
 
 class DecimalColumnType(val scale: Int, val precision: Int) : ColumnType() {
     override fun toString(): String = "Decimal($scale.$precision)"

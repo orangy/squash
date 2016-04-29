@@ -93,7 +93,7 @@ class JDBCDatabaseSchema(private val connection: Connection) : DatabaseSchema {
     class Table(override val name: String, private val schema: JDBCDatabaseSchema) : DatabaseSchema.Table {
         override fun columns(): Sequence<DatabaseSchema.Column> {
             return schema.metadata.getColumns(schema.catalogue, null, name, null).asSequence().map {
-                val dataType = it.getInt("DATA_TYPE")
+                //val dataType = it.getInt("DATA_TYPE")
                 val columnSize = it.getInt("COLUMN_SIZE")
                 val autoIncrement = it.getString("IS_AUTOINCREMENT") == "YES"
                 val columnName = it.getString("COLUMN_NAME")

@@ -20,11 +20,11 @@ fun <T> Table.reference(column: Column<T>, name: String? = null): Column<T> {
 }
 
 fun Table.integer(name: String): Column<Int> {
-    return createColumn(name, IntColumnType())
+    return createColumn(name, IntColumnType)
 }
 
 fun Table.char(name: String): Column<Char> {
-    return createColumn(name, CharColumnType())
+    return createColumn(name, CharColumnType)
 }
 
 inline fun <reified T : Enum<T>> Table.enumeration(name: String): Column<T> {
@@ -36,23 +36,23 @@ fun Table.decimal(name: String, scale: Int, precision: Int): Column<BigDecimal> 
 }
 
 fun Table.long(name: String): Column<Long> {
-    return createColumn(name, LongColumnType())
+    return createColumn(name, LongColumnType)
 }
 
 fun Table.date(name: String): Column<LocalDate> {
-    return createColumn(name, DateColumnType())
+    return createColumn(name, DateColumnType)
 }
 
 fun Table.bool(name: String): Column<Boolean> {
-    return createColumn(name, BooleanColumnType())
+    return createColumn(name, BooleanColumnType)
 }
 
 fun Table.datetime(name: String): Column<LocalDateTime> {
-    return createColumn(name, DateTimeColumnType())
+    return createColumn(name, DateTimeColumnType)
 }
 
 fun Table.blob(name: String): Column<Blob> { // TODO: It's java.sql, avoid
-    return createColumn(name, BlobColumnType())
+    return createColumn(name, BlobColumnType)
 }
 
 fun Table.text(name: String): Column<String> {
@@ -64,7 +64,7 @@ fun Table.binary(name: String, length: Int): Column<ByteArray> {
 }
 
 fun Table.uuid(name: String): Column<UUID> {
-    return createColumn(name, UUIDColumnType())
+    return createColumn(name, UUIDColumnType)
 }
 
 fun Table.varchar(name: String, length: Int, collate: String? = null): Column<String> {
