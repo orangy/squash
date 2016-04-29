@@ -29,7 +29,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
         statement.forEachParameter { column, value ->
-            val index = statementSQL.indexes[column] ?: error("SQLDialect '${connection.dialect}' didn't provide index for column '$column'")
+            val index = statementSQL.indexes[column] ?: error("${connection.dialect} didn't provide index for column '$column'")
             preparedStatement.prepareValue(index, column.type, value)
         }
         preparedStatement.execute()

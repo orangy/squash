@@ -12,10 +12,10 @@ interface SQLDialect {
 
 data class StatementSQL(val sql: String, val indexes: Map<Column<*>, Int>)
 
-open class BaseSQLDialect : SQLDialect {
+open class BaseSQLDialect(val name: String) : SQLDialect {
     override fun <T> statementSQL(statement: Statement<T>): StatementSQL = when (statement) {
         is InsertStatement<*, *> -> insertStatementSQL(statement)
-        else -> error("Statement '$statement' is not supported by SQLDialect '$this'")
+        else -> error("Statement '$statement' is not supported by $this")
     }
 
     private fun insertStatementSQL(statement: InsertStatement<*, *>): StatementSQL {
@@ -69,7 +69,7 @@ open class BaseSQLDialect : SQLDialect {
         NULLABLE, AUTOINCREMENT, DEFAULT
     }
 
-    protected open fun literalSQL(value: Any?) : String = when (value) {
+    protected open fun literalSQL(value: Any?): String = when (value) {
         null -> "NULL"
         is String -> "'$value'"
         else -> value.toString()
@@ -96,7 +96,7 @@ open class BaseSQLDialect : SQLDialect {
         is PrimaryKeyColumn -> columnTypeSQL(column.column, properties)
         is DefaultValueColumn<*> -> "${columnTypeSQL(column.column, properties + ColumnProperty.DEFAULT)} DEFAULT ${literalSQL(column.value)}"
 
-        else -> error("Column class '${column.javaClass.simpleName}' is not supported by SQLDialect '$this'")
+        else -> error("Column class '${column.javaClass.simpleName}' is not supported by $this")
     }
 
     protected open fun columnTypeSQL(type: ColumnType): String = when (type) {
@@ -120,9 +120,9 @@ open class BaseSQLDialect : SQLDialect {
             else
                 sqlType + " COLLATE ${type.collate}"
         }
-        else -> error("Column type '$type' is not supported by SQLDialect '$this'")
+        else -> error("Column type '$type' is not supported by $this")
     }
 
-    override fun toString(): String = javaClass.simpleName
+    override fun toString(): String = "SQLDialect '$name'"
 }
 
