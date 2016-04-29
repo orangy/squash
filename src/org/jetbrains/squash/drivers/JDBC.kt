@@ -2,6 +2,8 @@ package org.jetbrains.squash.drivers
 
 import org.jetbrains.squash.*
 import org.jetbrains.squash.dialects.*
+import org.jetbrains.squash.statements.*
+import org.jetbrains.squash.statements.Statement
 import java.sql.*
 
 class JDBCTransaction(override val connection: DatabaseConnection, val connector: () -> Connection) : Transaction {
@@ -10,6 +12,46 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
     val jdbcConnection: Connection get() = _jdbcConnection ?: run {
         _jdbcConnection = connector()
         _jdbcConnection!!
+    }
+
+    private fun PreparedStatement.prepareValue(index: Int, type: ColumnType, value: Any?): Unit {
+        if (value == null)
+            setObject(index + 1, null)
+        else when (type) {
+            is IntegerColumnType -> setInt(index + 1, value as Int)
+            is StringColumnType -> setString(index + 1, value as String)
+            is ReferenceColumnType<*> -> prepareValue(index, type.column.type, value)
+            else -> setObject(index, value)
+        }
+    }
+
+    override fun <T> execute(statement: Statement<T>): T {
+        val statementSQL = connection.dialect.statementSQL(statement)
+        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
+        statement.forEachParameter { column, value ->
+            preparedStatement.prepareValue(statementSQL.arguments[column]!!, column.type, value)
+        }
+        preparedStatement.execute()
+        return extractResult(preparedStatement, statement)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> extractResult(preparedStatement: PreparedStatement, statement: Statement<T>): T {
+        when (statement) {
+            is InsertStatement<*, *> -> {
+                val column = statement.fetchColumn ?: return Unit as T
+                val result = preparedStatement.generatedKeys.apply { next() }
+                return result.extractValueForColumn(0, column) as T
+            }
+            else -> error("Cannot extract result for $statement")
+        }
+    }
+
+    fun ResultSet.extractValueForColumn(index: Int, column: Column<out Any?>): Any? {
+        when (column.type) {
+            is IntegerColumnType -> return getInt(index + 1)
+            else -> error("Cannot extract result for $column")
+        }
     }
 
     override fun execute(sql: String) {
@@ -26,6 +68,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         _jdbcConnection?.close()
     }
 }
+
 
 class JDBCDatabaseSchema(private val connection: Connection) : DatabaseSchema {
     private val catalogue: String = connection.catalog

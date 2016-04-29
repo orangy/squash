@@ -1,13 +1,37 @@
 package org.jetbrains.squash.dialects
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.statements.*
 
 interface SQLDialect {
     fun tableDefinitionSQL(table: Table): String
 
+    fun <T> statementSQL(statement: Statement<T>): StatementSQL
+
 }
 
-abstract class BaseSQLDialect : SQLDialect {
+data class StatementSQL(val sql: String, val arguments: Map<Column<*>, Int>)
+
+open class BaseSQLDialect : SQLDialect {
+    override fun <T> statementSQL(statement: Statement<T>): StatementSQL = when (statement) {
+        is InsertStatement<*, *> -> insertStatementSQL(statement)
+        else -> error("Statement '$statement' is not supported by SQLDialect '$this'")
+    }
+
+    private fun insertStatementSQL(statement: InsertStatement<*, *>): StatementSQL {
+        val arguments = mutableMapOf<Column<*>, Int>()
+        val names = mutableListOf<String>()
+        val values = mutableListOf<Any?>()
+        var index = 0
+        for ((column, value) in statement.values) {
+            names.add(column.name)
+            values.add("?")
+            arguments[column] = index++
+        }
+        val sql = "INSERT INTO ${statement.table} (${names.joinToString()}) VALUES (${values.joinToString()})"
+        return StatementSQL(sql, arguments)
+    }
+
     override fun tableDefinitionSQL(table: Table): String = buildString {
         append("CREATE TABLE IF NOT EXISTS ${table.tableName}")
         if (table.tableColumns.any()) {
@@ -59,7 +83,7 @@ abstract class BaseSQLDialect : SQLDialect {
         NULLABLE, AUTOINCREMENT, DEFAULT
     }
 
-    protected open fun literalSQL(value : Any?) = when (value) {
+    protected open fun literalSQL(value: Any?) = when (value) {
         null -> "NULL"
         is String -> "'$value'"
         else -> value
@@ -86,7 +110,7 @@ abstract class BaseSQLDialect : SQLDialect {
         is PrimaryKeyColumn -> columnTypeSQL(column.column, properties)
         is DefaultValueColumn<*> -> "${columnTypeSQL(column.column, properties + ColumnProperty.DEFAULT)} DEFAULT ${literalSQL(column.value)}"
 
-        else -> error("Column class '${column.javaClass.simpleName}' is not supported by SQLDialect '${this}'")
+        else -> error("Column class '${column.javaClass.simpleName}' is not supported by SQLDialect '$this'")
     }
 
     protected open fun columnTypeSQL(type: ColumnType): String = when (type) {
@@ -110,7 +134,7 @@ abstract class BaseSQLDialect : SQLDialect {
             else
                 sqlType + " COLLATE ${type.collate}"
         }
-        else -> error("Column type '$type' is not supported by SQLDialect '${this}'")
+        else -> error("Column type '$type' is not supported by SQLDialect '$this'")
     }
 
     override fun toString(): String = javaClass.simpleName
