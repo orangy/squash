@@ -49,20 +49,6 @@ open class BaseSQLDialect : SQLDialect {
                     primaryKeyDefinitionSQL(autoIncrement, table)
                 }
             }
-/*
-            var pkey = table.columns.filter { it.indexInPK != null }.sortedBy { it.indexInPK }
-
-            if (pkey.isEmpty()) {
-                pkey = table.columns.filter { it.columnType.autoinc }
-            }
-
-            if (pkey.isNotEmpty()) {
-                append(pkey.joinToString(
-                        prefix = ", CONSTRAINT ${Transaction.current().quoteIfNecessary("pk_$tableName")} PRIMARY KEY (", postfix = ")") {
-                    Transaction.current().identity(it)
-                })
-            }
-*/
             append(")")
         }
     }
@@ -83,10 +69,10 @@ open class BaseSQLDialect : SQLDialect {
         NULLABLE, AUTOINCREMENT, DEFAULT
     }
 
-    protected open fun literalSQL(value: Any?) = when (value) {
+    protected open fun literalSQL(value: Any?) : String = when (value) {
         null -> "NULL"
         is String -> "'$value'"
-        else -> value
+        else -> value.toString()
     }
 
     protected open fun columnTypeSQL(column: Column<*>, properties: Set<ColumnProperty>): String = when (column) {
