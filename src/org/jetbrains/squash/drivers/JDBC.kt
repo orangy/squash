@@ -4,25 +4,26 @@ import org.jetbrains.squash.*
 import org.jetbrains.squash.dialects.*
 import java.sql.*
 
-class JDBCTransaction(val connector: () -> Connection) : Transaction {
-    var _connection: Connection? = null
-    val connection: Connection get() = _connection ?: run {
-        _connection = connector()
-        _connection!!
+class JDBCTransaction(override val connection: DatabaseConnection, val connector: () -> Connection) : Transaction {
+    var _jdbcConnection: Connection? = null
+
+    val jdbcConnection: Connection get() = _jdbcConnection ?: run {
+        _jdbcConnection = connector()
+        _jdbcConnection!!
     }
 
     override fun execute(sql: String) {
-        connection.prepareStatement(sql).executeUpdate()
+        jdbcConnection.prepareStatement(sql).executeUpdate()
     }
 
     override fun commit() {
-        _connection?.commit()
+        _jdbcConnection?.commit()
     }
 
-    override fun querySchema(): DatabaseSchema = JDBCDatabaseSchema(connection)
+    override fun querySchema(): DatabaseSchema = JDBCDatabaseSchema(jdbcConnection)
 
     override fun close() {
-        _connection?.close()
+        _jdbcConnection?.close()
     }
 }
 
@@ -65,7 +66,7 @@ class JDBCConnection(override val dialect: SQLDialect, val connector: () -> Conn
 
     }
 
-    override fun createTransaction(): Transaction = JDBCTransaction(connector)
+    override fun createTransaction(): Transaction = JDBCTransaction(this, connector)
 
     companion object {
         fun create(dialect: SQLDialect, url: String, driver: String, user: String = "", password: String = ""): DatabaseConnection {

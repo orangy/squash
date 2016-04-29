@@ -13,6 +13,7 @@ fun Column<Long>.autoIncrement(): Column<Long> = table.replaceColumn(this, AutoI
 
 fun <T> Column<T>.primaryKey(): Column<T> = table.replaceColumn(this, PrimaryKeyColumn(this))
 fun <T> Column<T>.nullable(): Column<T> = table.replaceColumn(this, NullableColumn(this))
+fun <T> Column<T>.default(value: T): Column<T> = table.replaceColumn(this, DefaultValueColumn(this, value))
 
 fun <T> Table.reference(column: Column<T>, name: String? = null): Column<Int> {
     return createColumn(name ?: "${column.table.tableName}_${column.name}", ReferenceColumnType(column))

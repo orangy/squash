@@ -47,15 +47,13 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
             return statements
 
         val existingTables = querySchema().tables().toList()
-        val newTables = ArrayList<Table>()
         for (table in tables) {
             if (existingTables.any { it.name == table.tableName })
                 continue
 
-            newTables.add(table)
             // create table
-            val ddl = connection.dialect.tableDefinitionSQL(table)
-            statements.add(ddl)
+            val tableDefinition = connection.dialect.tableDefinitionSQL(table)
+            statements.add(tableDefinition)
 
             // create indices
 /*

@@ -20,8 +20,10 @@ abstract class BaseSQLDialect : SQLDialect {
                 primaryKeyDefinitionSQL(primaryKeys, table)
             } else {
                 val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
-                append(", ")
-                primaryKeyDefinitionSQL(autoIncrement, table)
+                if (autoIncrement.any()) {
+                    append(", ")
+                    primaryKeyDefinitionSQL(autoIncrement, table)
+                }
             }
 /*
             var pkey = table.columns.filter { it.indexInPK != null }.sortedBy { it.indexInPK }
@@ -54,7 +56,13 @@ abstract class BaseSQLDialect : SQLDialect {
     }
 
     enum class ColumnProperty {
-        NULLABLE, AUTOINCREMENT
+        NULLABLE, AUTOINCREMENT, DEFAULT
+    }
+
+    protected open fun literalSQL(value : Any?) = when (value) {
+        null -> "NULL"
+        is String -> "'$value'"
+        else -> value
     }
 
     protected open fun columnTypeSQL(column: Column<*>, properties: Set<ColumnProperty>): String = when (column) {
@@ -76,6 +84,7 @@ abstract class BaseSQLDialect : SQLDialect {
         }
 
         is PrimaryKeyColumn -> columnTypeSQL(column.column, properties)
+        is DefaultValueColumn<*> -> "${columnTypeSQL(column.column, properties + ColumnProperty.DEFAULT)} DEFAULT ${literalSQL(column.value)}"
 
         else -> error("Column class '${column.javaClass.simpleName}' is not supported by SQLDialect '${this}'")
     }
