@@ -5,7 +5,7 @@ import org.jetbrains.squash.*
 object PostgresDialect : BaseSQLDialect() {
     override fun columnTypeSQL(column: Column<*>, properties: Set<ColumnProperty>): String = when (column) {
         is AutoIncrementColumn -> {
-            require(column.column.type is IntegerColumnType || column.column.type is LongColumnType) {
+            require(column.column.type is IntColumnType || column.column.type is LongColumnType) {
                 "Autoincrement column for '${column.column.type}' is not supported by SQLDialect '${this}'"
             }
             "SERIAL"

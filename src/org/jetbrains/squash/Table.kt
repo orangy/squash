@@ -21,8 +21,6 @@ open class Table(name: String = "") {
         return replacement
     }
 
-    override fun toString(): String = javaClass.simpleName
+    override fun toString(): String = "[$tableName]"
 }
-
-data class TableColumn<T>(override val table: Table, override val name: String, override val type: ColumnType) : Column<T>
 

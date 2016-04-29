@@ -18,7 +18,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         if (value == null)
             setObject(index + 1, null)
         else when (type) {
-            is IntegerColumnType -> setInt(index + 1, value as Int)
+            is IntColumnType -> setInt(index + 1, value as Int)
             is StringColumnType -> setString(index + 1, value as String)
             is ReferenceColumnType<*> -> prepareValue(index, type.column.type, value)
             else -> setObject(index, value)
@@ -29,18 +29,19 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
         statement.forEachParameter { column, value ->
-            preparedStatement.prepareValue(statementSQL.arguments[column]!!, column.type, value)
+            val index = statementSQL.indexes[column] ?: error("SQLDialect '${connection.dialect}' didn't provide index for column '$column'")
+            preparedStatement.prepareValue(index, column.type, value)
         }
         preparedStatement.execute()
-        return extractResult(preparedStatement, statement)
+        return preparedStatement.resultFor(statement)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> extractResult(preparedStatement: PreparedStatement, statement: Statement<T>): T {
+    private fun <T> PreparedStatement.resultFor(statement: Statement<T>): T {
         when (statement) {
             is InsertStatement<*, *> -> {
                 val column = statement.fetchColumn ?: return Unit as T
-                val result = preparedStatement.generatedKeys.apply { next() }
+                val result = generatedKeys.apply { next() }
                 return result.extractValueForColumn(0, column) as T
             }
             else -> error("Cannot extract result for $statement")
@@ -49,7 +50,9 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
 
     fun ResultSet.extractValueForColumn(index: Int, column: Column<out Any?>): Any? {
         when (column.type) {
-            is IntegerColumnType -> return getInt(index + 1)
+            is IntColumnType -> return getInt(index + 1)
+            is StringColumnType -> return getString(index + 1)
+            is LongColumnType -> return getLong(index + 1)
             else -> error("Cannot extract result for $column")
         }
     }

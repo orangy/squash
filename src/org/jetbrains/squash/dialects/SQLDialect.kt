@@ -10,7 +10,7 @@ interface SQLDialect {
 
 }
 
-data class StatementSQL(val sql: String, val arguments: Map<Column<*>, Int>)
+data class StatementSQL(val sql: String, val indexes: Map<Column<*>, Int>)
 
 open class BaseSQLDialect : SQLDialect {
     override fun <T> statementSQL(statement: Statement<T>): StatementSQL = when (statement) {
@@ -28,7 +28,7 @@ open class BaseSQLDialect : SQLDialect {
             values.add("?")
             arguments[column] = index++
         }
-        val sql = "INSERT INTO ${statement.table} (${names.joinToString()}) VALUES (${values.joinToString()})"
+        val sql = "INSERT INTO ${statement.table.tableName} (${names.joinToString()}) VALUES (${values.joinToString()})"
         return StatementSQL(sql, arguments)
     }
 
@@ -115,11 +115,11 @@ open class BaseSQLDialect : SQLDialect {
 
     protected open fun columnTypeSQL(type: ColumnType): String = when (type) {
         is ReferenceColumnType<*> -> columnTypeSQL(type.column.type)
-        is CharacterColumnType -> "CHAR"
+        is CharColumnType -> "CHAR"
         is LongColumnType -> "BIGINT"
-        is IntegerColumnType -> "INT"
+        is IntColumnType -> "INT"
         is DecimalColumnType -> "DECIMAL(${type.scale}, ${type.precision})"
-        is EnumerationColumnType<*> -> "INT"
+        is EnumColumnType<*> -> "INT"
         is DateColumnType -> "DATE"
         is DateTimeColumnType -> "DATETIME"
         is BinaryColumnType -> "VARBINARY(${type.length})"

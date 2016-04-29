@@ -20,15 +20,15 @@ fun <T> Table.reference(column: Column<T>, name: String? = null): Column<T> {
 }
 
 fun Table.integer(name: String): Column<Int> {
-    return createColumn(name, IntegerColumnType())
+    return createColumn(name, IntColumnType())
 }
 
 fun Table.char(name: String): Column<Char> {
-    return createColumn(name, CharacterColumnType())
+    return createColumn(name, CharColumnType())
 }
 
 inline fun <reified T : Enum<T>> Table.enumeration(name: String): Column<T> {
-    return createColumn(name, EnumerationColumnType(T::class.java))
+    return createColumn(name, EnumColumnType(T::class.java))
 }
 
 fun Table.decimal(name: String, scale: Int, precision: Int): Column<BigDecimal> {
@@ -51,7 +51,7 @@ fun Table.datetime(name: String): Column<LocalDateTime> {
     return createColumn(name, DateTimeColumnType())
 }
 
-fun Table.blob(name: String): Column<Blob> {
+fun Table.blob(name: String): Column<Blob> { // TODO: It's java.sql, avoid
     return createColumn(name, BlobColumnType())
 }
 
