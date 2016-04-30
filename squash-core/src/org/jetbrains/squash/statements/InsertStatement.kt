@@ -24,6 +24,10 @@ fun <T : Table, R> InsertStatement<T, Unit>.fetch(column: Column<R>, body: T.(In
     return transaction.execute(statement)
 }
 
+@JvmName("fetchBogus")
+@Deprecated("'fetch' can be used only once on an insertInto expression.", ReplaceWith(""), DeprecationLevel.ERROR)
+fun <T : Table, R> InsertStatement<T, *>.fetch(column: Column<R>, body: T.(InsertStatement<T, R>) -> Unit): R = error("'fetch' can be used only once on an insertInto expression")
+
 fun <T : Table> Transaction.insertInto(table: T): InsertStatement<T, Unit> = InsertStatement(this, table)
 
 fun <T : Table> Transaction.insertInto(table: T, body: T.(InsertStatement<T, Unit>) -> Unit) {
