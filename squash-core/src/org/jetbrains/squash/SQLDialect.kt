@@ -1,6 +1,6 @@
 package org.jetbrains.squash
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 
 interface SQLDialect {
@@ -8,11 +8,53 @@ interface SQLDialect {
 
     fun <T> statementSQL(statement: Statement<T>): StatementSQL
 
+    fun querySQL(query: Query): StatementSQL
+
+    fun <T> expressionSQL(expression: Expression<T>): String
+    fun nameSQL(name: Name): String
 }
 
 data class StatementSQL(val sql: String, val indexes: Map<Column<*>, Int>)
 
 open class BaseSQLDialect(val name: String) : SQLDialect {
+
+    override fun <T> expressionSQL(expression: Expression<T>): String = when (expression) {
+        is LiteralExpression -> literalSQL(expression.literal)
+        is NamedExpression<*, T> -> nameSQL(expression.name)
+        is BinaryExpression<*, *, *> -> "${expressionSQL(expression.left)} ${operatorSQL(expression)} ${expressionSQL(expression.right)}"
+        else -> error("Expression '$expression' is not supported by $this")
+    }
+
+    private fun operatorSQL(expression: BinaryExpression<*, *, *>): String = when(expression) {
+        is EqExpression<*> -> "="
+        else -> error("Expression '$expression' is not supported by $this")
+    }
+
+    override fun nameSQL(name: Name): String = when (name) {
+        is Identifier -> name.identifier
+        else -> error("Name '$name' is not supported by $this")
+    }
+
+    override fun querySQL(query: Query): StatementSQL {
+        val sql = buildString {
+            append("SELECT ")
+            if (query.selection.isEmpty())
+                append("*")
+            else
+                query.selection.joinTo(this) { expressionSQL(it) }
+            if (query.structure.isNotEmpty()) {
+                append(" FROM ")
+                query.structure.joinTo(this) { it.tableName }
+            }
+            if (query.filter.isNotEmpty()) {
+                append(" WHERE ")
+                query.filter.joinTo(this, separator = " AND ") { expressionSQL(it) }
+            }
+
+        }
+        return StatementSQL(sql, emptyMap())
+    }
+
     override fun <T> statementSQL(statement: Statement<T>): StatementSQL = when (statement) {
         is InsertStatement<*, *> -> insertStatementSQL(statement)
         else -> error("Statement '$statement' is not supported by $this")
@@ -20,7 +62,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     private fun insertStatementSQL(statement: InsertStatement<*, *>): StatementSQL {
         val arguments = mutableMapOf<Column<*>, Int>()
-        val names = mutableListOf<String>()
+        val names = mutableListOf<Name>()
         val values = mutableListOf<Any?>()
         var index = 0
         for ((column, value) in statement.values) {
@@ -28,7 +70,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             values.add("?")
             arguments[column] = index++
         }
-        val sql = "INSERT INTO ${statement.table.tableName} (${names.joinToString()}) VALUES (${values.joinToString()})"
+        val sql = "INSERT INTO ${statement.table.tableName} (${names.map { nameSQL(it) }.joinToString()}) VALUES (${values.joinToString()})"
         return StatementSQL(sql, arguments)
     }
 
@@ -55,12 +97,12 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     private fun StringBuilder.primaryKeyDefinitionSQL(primaryKeys: List<Column<*>>, table: Table) {
         append("CONSTRAINT pk_${table.tableName} PRIMARY KEY (")
-        append(primaryKeys.map { it.name }.joinToString())
+        append(primaryKeys.map { nameSQL(it.name) }.joinToString())
         append(")")
     }
 
     protected open fun columnDefinitionSQL(column: Column<*>): String = buildString {
-        append(column.name)
+        append(nameSQL(column.name))
         append(" ")
         append(columnTypeSQL(column, emptySet()))
     }

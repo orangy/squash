@@ -16,7 +16,7 @@ fun <T> Column<T>.nullable(): Column<T> = table.replaceColumn(this, NullableColu
 fun <T> Column<T>.default(value: T): Column<T> = table.replaceColumn(this, DefaultValueColumn(this, value))
 
 fun <T> Table.reference(column: Column<T>, name: String? = null): Column<T> {
-    return createColumn(name ?: "${column.table.tableName}_${column.name}", ReferenceColumnType(column))
+    return createColumn(name ?: "${column.table.tableName}_${column.name.identifier}", ReferenceColumnType(column))
 }
 
 fun Table.integer(name: String): Column<Int> {

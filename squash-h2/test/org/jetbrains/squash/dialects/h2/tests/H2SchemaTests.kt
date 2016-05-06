@@ -22,7 +22,7 @@ class H2SchemaTests {
     fun testSingleTableSchema() {
         JDBCConnection.create(H2Dialect, "jdbc:h2:mem:", "org.h2.Driver").use { connection ->
             connection.createTransaction().use { transaction ->
-                transaction.execute("CREATE TABLE TEST(ID INT AUTO_INCREMENT PRIMARY KEY, NAME VARCHAR(255))")
+                transaction.executeStatement("CREATE TABLE TEST(ID INT AUTO_INCREMENT PRIMARY KEY, NAME VARCHAR(255))")
 
                 val schema = transaction.querySchema()
                 val tables = schema.tables().toList()
@@ -59,8 +59,9 @@ class H2SchemaTests {
         H2Dialect.createMemoryConnection().use { connection ->
             val database = Database(connection, listOf(CitiesSchema.Cities, CitiesSchema.Citizens))
             database.createSchema()
-            database.validateSchema().forEach {
-                fail(it.message)
+            val validationResult = database.validateSchema()
+            if (validationResult.any()) {
+                fail(validationResult.joinToString("\n") { it.message })
             }
 
             connection.createTransaction().use { transaction ->

@@ -24,7 +24,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         }
     }
 
-    override fun <T> execute(statement: Statement<T>): T {
+    override fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
         statement.forEachParameter { column, value ->
@@ -39,7 +39,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
     private fun <T> PreparedStatement.resultFor(statement: Statement<T>): T {
         when (statement) {
             is InsertStatement<*, *> -> {
-                val column = statement.fetchColumn ?: return Unit as T
+                val column = statement.generatedKeyColumn ?: return Unit as T
                 val result = generatedKeys.apply { next() }
                 return result.extractValueForColumn(0, column) as T
             }
@@ -56,7 +56,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         }
     }
 
-    override fun execute(sql: String) {
+    override fun executeStatement(sql: String) {
         jdbcConnection.prepareStatement(sql).executeUpdate()
     }
 

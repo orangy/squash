@@ -8,30 +8,32 @@ open class InsertStatement<T : Table, R>(val transaction: Transaction, val table
         values.forEach { body(it.key, it.value) }
     }
 
-    var fetchColumn: Column<R>? = null
+    // TODO: there can be more than one generated key
+    var generatedKeyColumn: Column<R>? = null
 }
-
-fun <T : Table, R> InsertStatement<T, Unit>.fetch(column: Column<R>): InsertStatement<T, R> {
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    return (this as InsertStatement<T, R>).apply {
-        fetchColumn = column
-    }
-}
-
-fun <T : Table, R> InsertStatement<T, Unit>.fetch(column: Column<R>, body: T.(InsertStatement<T, R>) -> Unit): R {
-    val statement = fetch(column)
-    body(table, statement)
-    return transaction.execute(statement)
-}
-
-@JvmName("fetchBogus")
-@Deprecated("'fetch' can be used only once on an insertInto expression.", ReplaceWith(""), DeprecationLevel.ERROR)
-fun <T : Table, R> InsertStatement<T, *>.fetch(column: Column<R>, body: T.(InsertStatement<T, R>) -> Unit): R = error("'fetch' can be used only once on an insertInto expression")
 
 fun <T : Table> Transaction.insertInto(table: T): InsertStatement<T, Unit> = InsertStatement(this, table)
 
 fun <T : Table> Transaction.insertInto(table: T, body: T.(InsertStatement<T, Unit>) -> Unit) {
     val statement = InsertStatement<T, Unit>(this, table)
     body(table, statement)
-    execute(statement)
+    executeStatement(statement)
 }
+
+fun <T : Table, R> InsertStatement<T, Unit>.fetch(column: Column<R>): InsertStatement<T, R> {
+    @Suppress("CAST_NEVER_SUCCEEDS")
+    return (this as InsertStatement<T, R>).apply {
+        generatedKeyColumn = column
+    }
+}
+
+fun <T : Table, R> InsertStatement<T, Unit>.fetch(column: Column<R>, body: T.(InsertStatement<T, R>) -> Unit): R {
+    val statement = fetch(column)
+    body(table, statement)
+    return transaction.executeStatement(statement)
+}
+
+@JvmName("fetchBogus")
+@Deprecated("'fetch' cannot be used on an already bound InsertStatement.", ReplaceWith(""), DeprecationLevel.ERROR)
+fun <T : Table, R> InsertStatement<T, *>.fetch(column: Column<R>, body: T.(InsertStatement<T, R>) -> Unit): R = error("'fetch' can be used only once on an insertInto expression")
+

@@ -1,6 +1,7 @@
 package org.jetbrains.squash
 
 import kotlinx.support.jdk7.*
+import org.jetbrains.squash.expressions.*
 import java.util.*
 
 class Database(val connection: DatabaseConnection, val tables: List<Table>) {
@@ -8,6 +9,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
     data class DatabaseSchemaValidationItem(val message: String)
 
     fun validateSchema(): List<DatabaseSchemaValidationItem> = connection.createTransaction().use { transaction ->
+        val dialect = connection.dialect
         val tableMap = tables.associateBy { it.tableName.toLowerCase() }
         val validationResult = mutableListOf<DatabaseSchemaValidationItem>()
         transaction.querySchema().tables().forEach { tableSchema ->
@@ -16,7 +18,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
                 validationResult.add(DatabaseSchemaValidationItem("Table definition not found for schema table '$tableSchema"))
             else {
                 val columnsSchema = tableSchema.columns().associateBy { it.name.toLowerCase() }
-                val columnsDefinition = tableDefinition.tableColumns.associateBy { it.name.toLowerCase() }
+                val columnsDefinition = tableDefinition.tableColumns.associateBy { dialect.nameSQL(it.name).toLowerCase() }
                 val allNames = columnsDefinition.keys + columnsSchema.keys
                 for (name in allNames) {
                     val columnSchema = columnsSchema[name]
@@ -37,7 +39,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
     fun createSchema() = connection.createTransaction().use { transaction ->
         val statements = transaction.createSchemaStatements(tables)
         for (statement in statements) {
-            transaction.execute(statement)
+            transaction.executeStatement(statement)
         }
     }
 

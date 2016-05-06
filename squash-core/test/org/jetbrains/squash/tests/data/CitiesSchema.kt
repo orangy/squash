@@ -14,8 +14,8 @@ object CitiesSchema {
         val cityId = reference(Cities.id, "city_id").nullable() // Column<Int?>
     }
 
-    object UserData : Table() {
-        val user_id = reference(Citizens.id)
+    object CitizenData : Table() {
+        val citizen_id = reference(Citizens.id)
         val comment = varchar("comment", 30)
         val value = integer("value")
     }
