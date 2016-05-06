@@ -13,6 +13,8 @@ object BlobColumnType : ColumnType()
 object BooleanColumnType : ColumnType()
 object UUIDColumnType : ColumnType()
 
+class NullableColumnType(val columnType: ColumnType) : ColumnType()
+
 class DecimalColumnType(val scale: Int, val precision: Int) : ColumnType() {
     override fun toString(): String = "Decimal($scale.$precision)"
 }

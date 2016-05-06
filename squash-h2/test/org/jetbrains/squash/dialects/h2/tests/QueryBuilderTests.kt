@@ -40,7 +40,7 @@ class QueryBuilderTests {
         }
     }
 
-    @Test fun selectFromWhereSubquery() {
+    @Test fun selectFromWhereSubQuery() {
         withTables {
             val eugene = literal("eugene")
             val query = query.from(Citizens)
@@ -72,6 +72,18 @@ class QueryBuilderTests {
         }
     }
 
+    @Test fun selectFromJoinAliased() {
+        withTables {
+            val query = query
+                    .from(Citizens)
+                    .innerJoin(Cities) { Cities.id eq Citizens.cityId }
+                    .select { Citizens.name.alias("name") }
+                    .select { Cities.name.alias("city") }
+            val sql = connection.dialect.querySQL(query)
+            assertEquals("SELECT Citizens.name AS name, Cities.name AS city FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id", sql.sql)
+        }
+    }
+
     @Test fun selectFromJoinJoin() {
         withTables {
             val query = query.from(Citizens)
@@ -86,7 +98,14 @@ class QueryBuilderTests {
     @Test fun typedQuery() {
         withTables {
             val sql = connection.dialect.querySQL(Inhabitants)
-            assertEquals("SELECT Citizens.name, Cities.name FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id", sql.sql)
+            assertEquals("SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id", sql.sql)
+        }
+    }
+
+    @Test fun typedQueryAltered() {
+        withTables {
+            val sql = connection.dialect.querySQL(Inhabitants.where { Inhabitants.citizenName eq "eugene" })
+            assertEquals("SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id WHERE citizenName = 'eugene'", sql.sql)
         }
     }
 }

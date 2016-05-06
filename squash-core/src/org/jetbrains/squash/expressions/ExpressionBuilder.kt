@@ -2,8 +2,8 @@ package org.jetbrains.squash.expressions
 
 import kotlin.internal.*
 
-infix fun <T> Expression<@Exact T>.eq(other: Expression<T>): Expression<Boolean> = EqExpression(this, other)
-infix fun <T> Expression<@Exact T>.eq(literal: T): Expression<Boolean> = EqExpression(this, LiteralExpression(literal))
+infix fun <T> Expression<T>.eq(other: Expression<T>): Expression<Boolean> = EqExpression(this, other)
+infix fun <T> Expression<T>.eq(literal: T): Expression<Boolean> = EqExpression(this, LiteralExpression(literal))
 
 infix fun <T> Expression<@Exact T>.neq(other: Expression<T>): Expression<Boolean> = NotEqExpression(this, other)
 infix fun <T> Expression<@Exact T>.neq(literal: T): Expression<Boolean> = NotEqExpression(this, LiteralExpression(literal))

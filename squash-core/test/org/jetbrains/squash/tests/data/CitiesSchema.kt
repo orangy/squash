@@ -48,8 +48,8 @@ object Misc : Table() {
 }
 
 object Inhabitants : QueryBuilder() {
-    val cityName = Cities.name
-    val citizenName = Citizens.name
+    val cityName = Cities.name.alias("cityName")
+    val citizenName = Citizens.name.alias("citizenName")
 
     init {
         from(Citizens).innerJoin(Cities) { Cities.id eq Citizens.cityId }.select(citizenName, cityName)

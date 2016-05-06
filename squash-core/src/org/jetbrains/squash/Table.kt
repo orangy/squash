@@ -15,7 +15,7 @@ open class ColumnOwner() : FieldCollection {
         return column
     }
 
-    fun <T> replaceColumn(original: Column<T>, replacement: Column<T>): Column<T> {
+    fun <T1, T2> replaceColumn(original: Column<T1>, replacement: Column<T2>): Column<T2> {
         val index = _tableColumns.indexOf(original)
         if (index < 0) error("Original column `$original` not found in this table `$this`")
         _tableColumns[index] = replacement

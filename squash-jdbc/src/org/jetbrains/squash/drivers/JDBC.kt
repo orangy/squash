@@ -20,6 +20,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
             is IntColumnType -> setInt(index + 1, value as Int)
             is StringColumnType -> setString(index + 1, value as String)
             is ReferenceColumnType<*> -> prepareValue(index, type.column.type, value)
+            is NullableColumnType -> prepareValue(index, type.columnType, value)
             else -> setObject(index, value)
         }
     }

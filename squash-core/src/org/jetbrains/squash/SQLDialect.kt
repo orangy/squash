@@ -18,6 +18,11 @@ data class StatementSQL(val sql: String, val indexes: Map<Column<*>, Int>)
 
 open class BaseSQLDialect(val name: String) : SQLDialect {
 
+    fun <T> declarationExpressionSQL(expression: Expression<T>): String = when (expression) {
+        is AliasExpression<T> -> expressionSQL(expression.expression) + " AS " + nameSQL(expression.name)
+        else -> expressionSQL(expression)
+    }
+
     override fun <T> expressionSQL(expression: Expression<T>): String = when (expression) {
         is LiteralExpression -> literalSQL(expression.literal)
         is NamedExpression<*, T> -> nameSQL(expression.name)
@@ -55,7 +60,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             if (query.selection.isEmpty())
                 append("*")
             else
-                query.selection.joinTo(this) { expressionSQL(it) }
+                query.selection.joinTo(this) { declarationExpressionSQL(it) }
 
             if (query.structure.isNotEmpty()) {
                 val tables = query.structure.filterIsInstance<QueryStructure.From>()

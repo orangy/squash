@@ -13,7 +13,7 @@ fun Column<Int>.autoIncrement(): Column<Int> = owner.replaceColumn(this, AutoInc
 fun Column<Long>.autoIncrement(): Column<Long> = owner.replaceColumn(this, AutoIncrementColumn(this))
 
 fun <T> Column<T>.primaryKey(): Column<T> = owner.replaceColumn(this, PrimaryKeyColumn(this))
-fun <T> Column<T>.nullable(): Column<T> = owner.replaceColumn(this, NullableColumn(this))
+fun <T> Column<T>.nullable(): Column<T?> = owner.replaceColumn(this, NullableColumn(this))
 fun <T> Column<T>.default(value: T): Column<T> = owner.replaceColumn(this, DefaultValueColumn(this, value))
 
 fun Name.referenceName(): String = when (this) {

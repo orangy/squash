@@ -10,7 +10,7 @@ abstract class ColumnValuesBuilder() {
         if (values.containsKey(column)) {
             error("$column is already initialized")
         }
-        if (column !is NullableColumn && value == null) {
+        if (column !is NullableColumn<*> && value == null) {
             error("Trying to set null to not nullable column $column")
         }
         values[column] = value
