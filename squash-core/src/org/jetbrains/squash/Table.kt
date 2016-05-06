@@ -3,16 +3,14 @@ package org.jetbrains.squash
 import org.jetbrains.squash.expressions.*
 import java.util.*
 
-open class Table(name: String? = null) : FieldCollection {
-    open val tableName = Identifier(name ?: javaClass.simpleName.removeSuffix("Table"))
-
+open class ColumnOwner() : FieldCollection {
     private val _tableColumns = ArrayList<Column<*>>()
-    val tableColumns: List<Column<*>> get() = _tableColumns
 
+    val tableColumns: List<Column<*>> get() = _tableColumns
     override val fields: List<Expression<*>> get() = _tableColumns
 
     fun <T, C : ColumnType> createColumn(name: String, type: C): Column<T> {
-        val column = TableColumn<T>(this, QualifiedIdentifier(tableName, Identifier(name)), type)
+        val column = DataColumn<T>(this, columnName(name), type)
         _tableColumns.add(column)
         return column
     }
@@ -24,6 +22,13 @@ open class Table(name: String? = null) : FieldCollection {
         return replacement
     }
 
+    open fun columnName(name: String): Name = Identifier(name)
+}
+
+open class Table(name: String? = null) : ColumnOwner() {
+    open val tableName = Identifier(name ?: javaClass.simpleName.removeSuffix("Table"))
     override fun toString(): String = "[$tableName]"
+
+    override fun columnName(name: String): Name = QualifiedIdentifier(tableName, Identifier(name))
 }
 

@@ -1,14 +1,15 @@
 package org.jetbrains.squash.expressions
 
 interface Name {
-
+    val id: String
 }
 
-data class Identifier(val identifier: String) : Name {
-    override fun toString(): String = "[$identifier]"
+data class Identifier(override val id: String) : Name {
+    override fun toString(): String = "[$id]"
 }
 
 data class QualifiedIdentifier<N : Name>(val parent: N, val identifier: Identifier) : Name {
+    override val id: String get() = identifier.id
     override fun toString(): String = "$parent.[$identifier]"
 }
 

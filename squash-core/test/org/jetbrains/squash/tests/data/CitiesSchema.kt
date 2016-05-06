@@ -1,6 +1,7 @@
 package org.jetbrains.squash.tests.data
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.expressions.*
 
 object Cities : Table() {
     val id = integer("id").autoIncrement() // PKColumn<Int>
@@ -44,4 +45,13 @@ object Misc : Table() {
     val dc = decimal("dc", 12, 2)
     val dcn = decimal("dcn", 12, 2).nullable()
 
+}
+
+object Inhabitants : QueryBuilder() {
+    val cityName = Cities.name
+    val citizenName = Citizens.name
+
+    init {
+        from(Citizens).innerJoin(Cities) { Cities.id eq Citizens.cityId }.select(citizenName, cityName)
+    }
 }

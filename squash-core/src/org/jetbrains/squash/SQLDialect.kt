@@ -21,18 +21,31 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     override fun <T> expressionSQL(expression: Expression<T>): String = when (expression) {
         is LiteralExpression -> literalSQL(expression.literal)
         is NamedExpression<*, T> -> nameSQL(expression.name)
-        is BinaryExpression<*, *, *> -> "${expressionSQL(expression.left)} ${operatorSQL(expression)} ${expressionSQL(expression.right)}"
+        is BinaryExpression<*, *, *> -> "${expressionSQL(expression.left)} ${binaryExpressionSQL(expression)} ${expressionSQL(expression.right)}"
+        is NotExpression -> "NOT ${expressionSQL(expression.operand)}"
+        is SubQueryExpression<*> -> "(${querySQL(expression.query).sql})"
         else -> error("Expression '$expression' is not supported by $this")
     }
 
-    private fun operatorSQL(expression: BinaryExpression<*, *, *>): String = when (expression) {
+    private fun binaryExpressionSQL(expression: BinaryExpression<*, *, *>): String = when (expression) {
         is EqExpression<*> -> "="
+        is NotEqExpression<*> -> "<>"
+        is LessExpression<*> -> "<"
+        is GreaterExpression<*> -> ">"
+        is LessEqExpression<*> -> "<="
+        is GreaterEqExpression<*> -> ">="
+        is AndExpression -> "AND"
+        is OrExpression -> "OR"
+        is PlusExpression -> "+"
+        is MinusExpression -> "-"
+        is MultiplyExpression -> "*"
+        is DivideExpression -> "/"
         else -> error("Expression '$expression' is not supported by $this")
     }
 
     override fun nameSQL(name: Name): String = when (name) {
         is QualifiedIdentifier<*> -> "${nameSQL(name.parent)}.${nameSQL(name.identifier)}"
-        is Identifier -> name.identifier
+        is Identifier -> name.id
         else -> error("Name '$name' is not supported by $this")
     }
 
@@ -86,11 +99,11 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         val values = mutableListOf<Any?>()
         var index = 0
         for ((column, value) in statement.values) {
-            names.add(column.name.identifier)
+            names.add(column.name)
             values.add("?")
             arguments[column] = index++
         }
-        val sql = "INSERT INTO ${nameSQL(statement.table.tableName)} (${names.map { nameSQL(it) }.joinToString()}) VALUES (${values.joinToString()})"
+        val sql = "INSERT INTO ${nameSQL(statement.table.tableName)} (${names.map { it.id }.joinToString()}) VALUES (${values.joinToString()})"
         return StatementSQL(sql, arguments)
     }
 
@@ -117,12 +130,12 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     private fun StringBuilder.primaryKeyDefinitionSQL(primaryKeys: List<Column<*>>, table: Table) {
         append("CONSTRAINT pk_${nameSQL(table.tableName)} PRIMARY KEY (")
-        append(primaryKeys.map { nameSQL(it.name.identifier) }.joinToString())
+        append(primaryKeys.map { it.name.id }.joinToString())
         append(")")
     }
 
     protected open fun columnDefinitionSQL(column: Column<*>): String = buildString {
-        append(nameSQL(column.name.identifier))
+        append(column.name.id)
         append(" ")
         append(columnTypeSQL(column, emptySet()))
     }
@@ -138,7 +151,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     protected open fun columnTypeSQL(column: Column<*>, properties: Set<ColumnProperty>): String = when (column) {
-        is TableColumn -> {
+        is DataColumn -> {
             if (ColumnProperty.NULLABLE in properties)
                 "${columnTypeSQL(column.type)} NULL"
             else
