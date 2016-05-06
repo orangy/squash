@@ -1,10 +1,8 @@
 package org.jetbrains.squash.expressions
 
-enum class JoinType(val isInner: Boolean, val isOuter: Boolean) {
-    DEFAULT(true, false),
-    CROSS(false, false),
-    INNER(true, false),
-    LEFT(false, true),
-    RIGHT(false, true),
-    FULL(false, true)
+import org.jetbrains.squash.*
+
+sealed class QueryStructure(val target: FieldCollection) {
+    class From(table: FieldCollection) : QueryStructure(table)
+    class InnerJoin(target: FieldCollection, val condition: Expression<Boolean>) : QueryStructure(target)
 }

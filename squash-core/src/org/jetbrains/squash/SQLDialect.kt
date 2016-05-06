@@ -25,12 +25,13 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         else -> error("Expression '$expression' is not supported by $this")
     }
 
-    private fun operatorSQL(expression: BinaryExpression<*, *, *>): String = when(expression) {
+    private fun operatorSQL(expression: BinaryExpression<*, *, *>): String = when (expression) {
         is EqExpression<*> -> "="
         else -> error("Expression '$expression' is not supported by $this")
     }
 
     override fun nameSQL(name: Name): String = when (name) {
+        is QualifiedIdentifier<*> -> "${nameSQL(name.parent)}.${nameSQL(name.identifier)}"
         is Identifier -> name.identifier
         else -> error("Name '$name' is not supported by $this")
     }
@@ -42,10 +43,23 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                 append("*")
             else
                 query.selection.joinTo(this) { expressionSQL(it) }
+
             if (query.structure.isNotEmpty()) {
+                val tables = query.structure.filterIsInstance<QueryStructure.From>()
                 append(" FROM ")
-                query.structure.joinTo(this) { it.tableName }
+                tables.joinTo(this) { fieldCollectionSQL(it.target) }
+
+                val innerJoins = query.structure.filterIsInstance<QueryStructure.InnerJoin>()
+                if (innerJoins.any()) {
+                    innerJoins.forEach { join ->
+                        append(" INNER JOIN ")
+                        append(fieldCollectionSQL(join.target))
+                        append(" ON ")
+                        append(expressionSQL(join.condition))
+                    }
+                }
             }
+
             if (query.filter.isNotEmpty()) {
                 append(" WHERE ")
                 query.filter.joinTo(this, separator = " AND ") { expressionSQL(it) }
@@ -54,6 +68,12 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
         return StatementSQL(sql, emptyMap())
     }
+
+    private fun fieldCollectionSQL(target: FieldCollection): String = when (target) {
+        is Table -> nameSQL(target.tableName)
+        else -> error("FieldCollection '$target' is not supported by $this")
+    }
+
 
     override fun <T> statementSQL(statement: Statement<T>): StatementSQL = when (statement) {
         is InsertStatement<*, *> -> insertStatementSQL(statement)
@@ -66,16 +86,16 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         val values = mutableListOf<Any?>()
         var index = 0
         for ((column, value) in statement.values) {
-            names.add(column.name)
+            names.add(column.name.identifier)
             values.add("?")
             arguments[column] = index++
         }
-        val sql = "INSERT INTO ${statement.table.tableName} (${names.map { nameSQL(it) }.joinToString()}) VALUES (${values.joinToString()})"
+        val sql = "INSERT INTO ${nameSQL(statement.table.tableName)} (${names.map { nameSQL(it) }.joinToString()}) VALUES (${values.joinToString()})"
         return StatementSQL(sql, arguments)
     }
 
     override fun tableDefinitionSQL(table: Table): String = buildString {
-        append("CREATE TABLE IF NOT EXISTS ${table.tableName}")
+        append("CREATE TABLE IF NOT EXISTS ${nameSQL(table.tableName)}")
         if (table.tableColumns.any()) {
             append(" (")
             append(table.tableColumns.map { columnDefinitionSQL(it) }.joinToString())
@@ -96,13 +116,13 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     private fun StringBuilder.primaryKeyDefinitionSQL(primaryKeys: List<Column<*>>, table: Table) {
-        append("CONSTRAINT pk_${table.tableName} PRIMARY KEY (")
-        append(primaryKeys.map { nameSQL(it.name) }.joinToString())
+        append("CONSTRAINT pk_${nameSQL(table.tableName)} PRIMARY KEY (")
+        append(primaryKeys.map { nameSQL(it.name.identifier) }.joinToString())
         append(")")
     }
 
     protected open fun columnDefinitionSQL(column: Column<*>): String = buildString {
-        append(nameSQL(column.name))
+        append(nameSQL(column.name.identifier))
         append(" ")
         append(columnTypeSQL(column, emptySet()))
     }

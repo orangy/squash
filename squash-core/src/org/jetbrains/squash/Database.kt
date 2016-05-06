@@ -10,7 +10,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
 
     fun validateSchema(): List<DatabaseSchemaValidationItem> = connection.createTransaction().use { transaction ->
         val dialect = connection.dialect
-        val tableMap = tables.associateBy { it.tableName.toLowerCase() }
+        val tableMap = tables.associateBy { it.tableName.identifier.toLowerCase() }
         val validationResult = mutableListOf<DatabaseSchemaValidationItem>()
         transaction.querySchema().tables().forEach { tableSchema ->
             val tableDefinition = tableMap[tableSchema.name.toLowerCase()]
@@ -18,7 +18,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
                 validationResult.add(DatabaseSchemaValidationItem("Table definition not found for schema table '$tableSchema"))
             else {
                 val columnsSchema = tableSchema.columns().associateBy { it.name.toLowerCase() }
-                val columnsDefinition = tableDefinition.tableColumns.associateBy { dialect.nameSQL(it.name).toLowerCase() }
+                val columnsDefinition = tableDefinition.tableColumns.associateBy { dialect.nameSQL(it.name.identifier).toLowerCase() }
                 val allNames = columnsDefinition.keys + columnsSchema.keys
                 for (name in allNames) {
                     val columnSchema = columnsSchema[name]
@@ -50,7 +50,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
 
         val existingTables = querySchema().tables().toList()
         for (table in tables) {
-            if (existingTables.any { it.name == table.tableName })
+            if (existingTables.any { it.name == table.tableName.identifier })
                 continue
 
             // create table

@@ -2,12 +2,12 @@ package org.jetbrains.squash
 
 import org.jetbrains.squash.expressions.*
 
-interface Column<T> : NamedExpression<Identifier, T> {
+interface Column<T> : NamedExpression<QualifiedIdentifier<Identifier>, T> {
     val table: Table
     val type: ColumnType
 }
 
-data class TableColumn<T>(override val table: Table, override val name: Identifier, override val type: ColumnType) : Column<T> {
+data class TableColumn<T>(override val table: Table, override val name: QualifiedIdentifier<Identifier>, override val type: ColumnType) : Column<T> {
 
     override fun toString(): String = "$table.$name: $type"
 }
