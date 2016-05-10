@@ -1,6 +1,8 @@
 package org.jetbrains.squash.drivers
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
+import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.statements.Statement
 import java.sql.*
@@ -48,7 +50,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         }
     }
 
-    fun ResultSet.extractValueForColumn(index: Int, column: Column<out Any?>): Any? {
+    fun ResultSet.extractValueForColumn(index: Int, column: Column<Any?>): Any? {
         when (column.type) {
             is IntColumnType -> return getInt(index + 1)
             is StringColumnType -> return getString(index + 1)

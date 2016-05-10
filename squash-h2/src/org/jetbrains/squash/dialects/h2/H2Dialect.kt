@@ -3,6 +3,8 @@ package org.jetbrains.squash.dialects.h2
 import kotlinx.support.jdk7.*
 import org.h2.jdbcx.*
 import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
+import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.dialects.*
 import org.jetbrains.squash.drivers.*
 

@@ -1,6 +1,7 @@
 package org.jetbrains.squash.statements
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
 
 open class InsertStatement<T : Table, R>(val transaction: Transaction, val table: T) : ColumnValuesBuilder(), Statement<R> {
 
@@ -33,7 +34,8 @@ fun <T : Table, R> InsertStatement<T, Unit>.fetch(column: Column<R>, body: T.(In
     return transaction.executeStatement(statement)
 }
 
-@JvmName("fetchBogus")
+@JvmName("fetch_error")
 @Deprecated("'fetch' cannot be used on an already bound InsertStatement.", ReplaceWith(""), DeprecationLevel.ERROR)
-fun <T : Table, R> InsertStatement<T, *>.fetch(column: Column<R>, body: T.(InsertStatement<T, R>) -> Unit): R = error("'fetch' can be used only once on an insertInto expression")
+@Suppress("UNUSED_PARAMETER", "unused")
+fun <T : Table, R> InsertStatement<T, *>.fetch(column: Column<R>, body: T.(InsertStatement<T, R>) -> Unit): R = error("'fetch' cannot be used on an already bound InsertStatement.")
 

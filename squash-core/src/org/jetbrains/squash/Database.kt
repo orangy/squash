@@ -1,7 +1,7 @@
 package org.jetbrains.squash
 
 import kotlinx.support.jdk7.*
-import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.definition.*
 import java.util.*
 
 class Database(val connection: DatabaseConnection, val tables: List<Table>) {
@@ -9,7 +9,6 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
     data class DatabaseSchemaValidationItem(val message: String)
 
     fun validateSchema(): List<DatabaseSchemaValidationItem> = connection.createTransaction().use { transaction ->
-        val dialect = connection.dialect
         val tableMap = tables.associateBy { it.tableName.id.toLowerCase() }
         val validationResult = mutableListOf<DatabaseSchemaValidationItem>()
         transaction.querySchema().tables().forEach { tableSchema ->

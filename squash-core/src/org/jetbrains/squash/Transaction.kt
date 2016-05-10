@@ -1,6 +1,5 @@
 package org.jetbrains.squash
 
-import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 
 /**

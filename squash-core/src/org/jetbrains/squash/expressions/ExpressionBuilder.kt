@@ -2,29 +2,29 @@ package org.jetbrains.squash.expressions
 
 import kotlin.internal.*
 
-infix fun <T> Expression<T>.eq(other: Expression<T>): Expression<Boolean> = EqExpression(this, other)
-infix fun <T> Expression<T>.eq(literal: T): Expression<Boolean> = EqExpression(this, LiteralExpression(literal))
+infix fun <V> Expression<V>.eq(other: Expression<V>): Expression<Boolean> = EqExpression(this, other)
+infix fun <V> Expression<V>.eq(literal: V): Expression<Boolean> = EqExpression(this, LiteralExpression(literal))
 
-infix fun <T> Expression<@Exact T>.neq(other: Expression<T>): Expression<Boolean> = NotEqExpression(this, other)
-infix fun <T> Expression<@Exact T>.neq(literal: T): Expression<Boolean> = NotEqExpression(this, LiteralExpression(literal))
+infix fun <V> Expression<@Exact V>.neq(other: Expression<V>): Expression<Boolean> = NotEqExpression(this, other)
+infix fun <V> Expression<@Exact V>.neq(literal: V): Expression<Boolean> = NotEqExpression(this, LiteralExpression(literal))
 
-infix fun <T> Expression<@Exact T>.lt(other: Expression<T>): Expression<Boolean> = LessExpression(this, other)
-infix fun <T> Expression<@Exact T>.lteq(other: Expression<T>): Expression<Boolean> = LessEqExpression(this, other)
+infix fun <V> Expression<@Exact V>.lt(other: Expression<V>): Expression<Boolean> = LessExpression(this, other)
+infix fun <V> Expression<@Exact V>.lteq(other: Expression<V>): Expression<Boolean> = LessEqExpression(this, other)
 
-infix fun <T> Expression<@Exact T>.gt(literal: T): Expression<Boolean> = GreaterExpression(this, LiteralExpression(literal))
-infix fun <T> Expression<@Exact T>.gteq(literal: T): Expression<Boolean> = GreaterEqExpression(this, LiteralExpression(literal))
+infix fun <V> Expression<@Exact V>.gt(literal: V): Expression<Boolean> = GreaterExpression(this, LiteralExpression(literal))
+infix fun <V> Expression<@Exact V>.gteq(literal: V): Expression<Boolean> = GreaterEqExpression(this, LiteralExpression(literal))
 
-infix operator fun <T> Expression<@Exact T>.plus(other: Expression<T>): Expression<T> = PlusExpression(this, other)
-infix operator fun <T> Expression<@Exact T>.plus(literal: T): Expression<T> = PlusExpression(this, LiteralExpression(literal))
+infix operator fun <V> Expression<@Exact V>.plus(other: Expression<V>): Expression<V> = PlusExpression(this, other)
+infix operator fun <V> Expression<@Exact V>.plus(literal: V): Expression<V> = PlusExpression(this, LiteralExpression(literal))
 
-infix operator fun <T> Expression<@Exact T>.minus(other: Expression<T>): Expression<T> = MinusExpression(this, other)
-infix operator fun <T> Expression<@Exact T>.minus(literal: T): Expression<T> = MinusExpression(this, LiteralExpression(literal))
+infix operator fun <V> Expression<@Exact V>.minus(other: Expression<V>): Expression<V> = MinusExpression(this, other)
+infix operator fun <V> Expression<@Exact V>.minus(literal: V): Expression<V> = MinusExpression(this, LiteralExpression(literal))
 
-infix operator fun <T> Expression<@Exact T>.times(other: Expression<T>): Expression<T> = MultiplyExpression(this, other)
-infix operator fun <T> Expression<@Exact T>.times(literal: T): Expression<T> = MultiplyExpression(this, LiteralExpression(literal))
+infix operator fun <V> Expression<@Exact V>.times(other: Expression<V>): Expression<V> = MultiplyExpression(this, other)
+infix operator fun <V> Expression<@Exact V>.times(literal: V): Expression<V> = MultiplyExpression(this, LiteralExpression(literal))
 
-infix operator fun <T> Expression<@Exact T>.div(other: Expression<T>): Expression<T> = DivideExpression(this, other)
-infix operator fun <T> Expression<@Exact T>.div(literal: T): Expression<T> = DivideExpression(this, LiteralExpression(literal))
+infix operator fun <V> Expression<@Exact V>.div(other: Expression<V>): Expression<V> = DivideExpression(this, other)
+infix operator fun <V> Expression<@Exact V>.div(literal: V): Expression<V> = DivideExpression(this, LiteralExpression(literal))
 
-fun <T> literal(literal: T): Expression<T> = LiteralExpression(literal)
-fun <T> subquery(body: Query.() -> Unit): Expression<T> = SubQueryExpression(query.apply(body))
+fun <V> literal(value: V): Expression<V> = LiteralExpression(value)
+fun <V> subquery(body: Query.() -> Unit): Expression<V> = SubQueryExpression(query.apply(body))

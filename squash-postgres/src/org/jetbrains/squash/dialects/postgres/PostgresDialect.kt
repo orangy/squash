@@ -1,6 +1,8 @@
 package org.jetbrains.squash.dialects.postgres
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
+import org.jetbrains.squash.dialect.*
 
 object PostgresDialect : BaseSQLDialect("Postgres") {
     override fun columnTypeSQL(column: Column<*>, properties: Set<ColumnProperty>): String = when (column) {

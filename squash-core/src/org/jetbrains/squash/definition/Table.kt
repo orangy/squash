@@ -1,13 +1,12 @@
-package org.jetbrains.squash
+package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.*
 import java.util.*
 
-open class ColumnOwner() : FieldCollection {
+open class ColumnOwner() {
     private val _tableColumns = ArrayList<Column<*>>()
 
     val tableColumns: List<Column<*>> get() = _tableColumns
-    override val fields: List<Expression<*>> get() = _tableColumns
 
     fun <T, C : ColumnType> createColumn(name: String, type: C): Column<T> {
         val column = DataColumn<T>(this, columnName(name), type)

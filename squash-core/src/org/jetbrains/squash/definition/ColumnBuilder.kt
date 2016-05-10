@@ -1,20 +1,19 @@
-package org.jetbrains.squash
+package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.*
 import java.math.*
 import java.sql.*
 import java.time.*
 import java.util.*
-
 
 fun Column<Int>.autoIncrement(): Column<Int> = owner.replaceColumn(this, AutoIncrementColumn(this))
 
 @JvmName("autoIncrementLong")
 fun Column<Long>.autoIncrement(): Column<Long> = owner.replaceColumn(this, AutoIncrementColumn(this))
 
-fun <T> Column<T>.primaryKey(): Column<T> = owner.replaceColumn(this, PrimaryKeyColumn(this))
-fun <T> Column<T>.nullable(): Column<T?> = owner.replaceColumn(this, NullableColumn(this))
-fun <T> Column<T>.default(value: T): Column<T> = owner.replaceColumn(this, DefaultValueColumn(this, value))
+fun <V> Column<V>.primaryKey(): Column<V> = owner.replaceColumn(this, PrimaryKeyColumn(this))
+fun <V> Column<V>.nullable(): Column<V?> = owner.replaceColumn(this, NullableColumn(this))
+fun <V> Column<V>.default(value: V): Column<V> = owner.replaceColumn(this, DefaultValueColumn(this, value))
 
 fun Name.referenceName(): String = when (this) {
     is Identifier -> id
@@ -22,7 +21,7 @@ fun Name.referenceName(): String = when (this) {
     else -> error("Unknown Name '$this'")
 }
 
-fun <T> ColumnOwner.reference(column: Column<T>, name: String? = null): Column<T> {
+fun <V> ColumnOwner.reference(column: Column<V>, name: String? = null): Column<V> {
     return createColumn(name ?: "${column.name.referenceName()}", ReferenceColumnType(column))
 }
 
@@ -34,8 +33,8 @@ fun ColumnOwner.char(name: String): Column<Char> {
     return createColumn(name, CharColumnType)
 }
 
-inline fun <reified T : Enum<T>> ColumnOwner.enumeration(name: String): Column<T> {
-    return createColumn(name, EnumColumnType(T::class.java))
+inline fun <reified V : Enum<V>> ColumnOwner.enumeration(name: String): Column<V> {
+    return createColumn(name, EnumColumnType(V::class.java))
 }
 
 fun ColumnOwner.decimal(name: String, scale: Int, precision: Int): Column<BigDecimal> {

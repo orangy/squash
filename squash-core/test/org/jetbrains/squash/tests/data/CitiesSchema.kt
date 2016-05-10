@@ -1,6 +1,6 @@
 package org.jetbrains.squash.tests.data
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 
 object Cities : Table() {

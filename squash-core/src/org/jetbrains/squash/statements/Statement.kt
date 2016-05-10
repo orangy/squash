@@ -1,7 +1,7 @@
 package org.jetbrains.squash.statements
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
 
-interface Statement<T> {
+interface Statement<R> {
     fun forEachParameter(body: (Column<*>, Any?) -> Unit)
 }

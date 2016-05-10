@@ -1,5 +1,7 @@
-package org.jetbrains.squash
+package org.jetbrains.squash.dialect
 
+import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 
@@ -62,12 +64,12 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             else
                 query.selection.joinTo(this) { declarationExpressionSQL(it) }
 
-            if (query.structure.isNotEmpty()) {
-                val tables = query.structure.filterIsInstance<QueryStructure.From>()
+            if (query.schema.isNotEmpty()) {
+                val tables = query.schema.filterIsInstance<QuerySchema.From>()
                 append(" FROM ")
                 tables.joinTo(this) { fieldCollectionSQL(it.target) }
 
-                val innerJoins = query.structure.filterIsInstance<QueryStructure.InnerJoin>()
+                val innerJoins = query.schema.filterIsInstance<QuerySchema.InnerJoin>()
                 if (innerJoins.any()) {
                     innerJoins.forEach { join ->
                         append(" INNER JOIN ")
@@ -87,7 +89,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         return StatementSQL(sql, emptyMap())
     }
 
-    private fun fieldCollectionSQL(target: FieldCollection): String = when (target) {
+    private fun fieldCollectionSQL(target: ColumnOwner): String = when (target) {
         is Table -> nameSQL(target.tableName)
         else -> error("FieldCollection '$target' is not supported by $this")
     }

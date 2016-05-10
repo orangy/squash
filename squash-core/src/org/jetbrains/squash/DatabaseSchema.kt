@@ -11,7 +11,6 @@ interface DatabaseSchema {
         val size: Int
         val nullable: Boolean
         val autoIncrement: Boolean
-
     }
 
     open fun tables(): Sequence<Table>

@@ -1,6 +1,7 @@
 package org.jetbrains.squash.dialects.h2.tests
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.tests.*
 import org.junit.*
 import kotlin.test.*

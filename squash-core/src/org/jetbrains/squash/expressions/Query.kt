@@ -1,13 +1,13 @@
 package org.jetbrains.squash.expressions
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.definition.*
 
 val query: Query get() = QueryBuilder()
 
 fun Table.where(selector: () -> Expression<Boolean>) = query.from(this).where(selector)
 
 interface Query {
-    val structure: List<QueryStructure>
+    val schema: List<QuerySchema>
     val selection: List<Expression<*>>
     val filter: List<Expression<*>>
 

@@ -1,4 +1,4 @@
-package org.jetbrains.squash
+package org.jetbrains.squash.definition
 
 abstract class ColumnType() {
     override fun toString(): String = "${javaClass.simpleName.removeSuffix("ColumnType")}"
@@ -13,7 +13,9 @@ object BlobColumnType : ColumnType()
 object BooleanColumnType : ColumnType()
 object UUIDColumnType : ColumnType()
 
-class NullableColumnType(val columnType: ColumnType) : ColumnType()
+class NullableColumnType(val columnType: ColumnType) : ColumnType() {
+    override fun toString(): String = "${columnType.toString()}?"
+}
 
 class DecimalColumnType(val scale: Int, val precision: Int) : ColumnType() {
     override fun toString(): String = "Decimal($scale.$precision)"
@@ -31,7 +33,7 @@ class BinaryColumnType(val length: Int) : ColumnType() {
     override fun toString(): String = "Binary[$length]"
 }
 
-class ReferenceColumnType<T>(val column: Column<T>) : ColumnType() {
+class ReferenceColumnType<out V>(val column: Column<V>) : ColumnType() {
     override fun toString(): String = "Reference -> $column"
 }
 
