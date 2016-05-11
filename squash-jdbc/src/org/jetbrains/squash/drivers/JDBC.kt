@@ -30,7 +30,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
     override fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
-        statement.forEachParameter { column, value ->
+        statement.forEachArgument { column, value ->
             val index = statementSQL.indexes[column] ?: error("${connection.dialect} didn't provide index for column '$column'")
             preparedStatement.prepareValue(index, column.type, value)
         }
@@ -41,7 +41,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
     @Suppress("UNCHECKED_CAST")
     private fun <T> PreparedStatement.resultFor(statement: Statement<T>): T {
         when (statement) {
-            is InsertStatement<*, *> -> {
+            is InsertValuesStatement<*, *> -> {
                 val column = statement.generatedKeyColumn ?: return Unit as T
                 val result = generatedKeys.apply { next() }
                 return result.extractValueForColumn(0, column) as T

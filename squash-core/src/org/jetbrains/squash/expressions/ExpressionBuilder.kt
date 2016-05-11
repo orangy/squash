@@ -27,4 +27,4 @@ infix operator fun <V> Expression<@Exact V>.div(other: Expression<V>): Expressio
 infix operator fun <V> Expression<@Exact V>.div(literal: V): Expression<V> = DivideExpression(this, LiteralExpression(literal))
 
 fun <V> literal(value: V): Expression<V> = LiteralExpression(value)
-fun <V> subquery(body: Query.() -> Unit): Expression<V> = SubQueryExpression(query.apply(body))
+fun <V> subquery(body: QueryBuilder.() -> Unit): Expression<V> = SubQueryExpression(query().apply(body))

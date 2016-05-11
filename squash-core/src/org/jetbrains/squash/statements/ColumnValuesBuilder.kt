@@ -2,11 +2,12 @@ package org.jetbrains.squash.statements
 
 import org.jetbrains.squash.definition.*
 import java.util.*
+import kotlin.internal.*
 
-abstract class ColumnValuesBuilder() {
+open class ColumnValuesBuilder() {
     val values: MutableMap<Column<*>, Any?> = LinkedHashMap()
 
-    operator fun <V, S : V> set(column: Column<V>, value: S?) {
+    operator fun <V, S : V> set(column: Column<@Exact V>, value: S?) {
         if (values.containsKey(column)) {
             error("$column is already initialized")
         }

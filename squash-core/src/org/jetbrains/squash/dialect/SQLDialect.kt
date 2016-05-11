@@ -96,11 +96,11 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
 
     override fun <T> statementSQL(statement: Statement<T>): StatementSQL = when (statement) {
-        is InsertStatement<*, *> -> insertStatementSQL(statement)
+        is InsertValuesStatement<*, *> -> insertStatementSQL(statement)
         else -> error("Statement '$statement' is not supported by $this")
     }
 
-    private fun insertStatementSQL(statement: InsertStatement<*, *>): StatementSQL {
+    private fun insertStatementSQL(statement: InsertValuesStatement<*, *>): StatementSQL {
         val arguments = mutableMapOf<Column<*>, Int>()
         val names = mutableListOf<Name>()
         val values = mutableListOf<Any?>()

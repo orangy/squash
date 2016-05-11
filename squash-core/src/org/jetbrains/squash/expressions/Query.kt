@@ -1,38 +1,7 @@
 package org.jetbrains.squash.expressions
 
-import org.jetbrains.squash.definition.*
-
-val query: Query get() = QueryBuilder()
-
-fun Table.where(selector: () -> Expression<Boolean>) = query.from(this).where(selector)
-
 interface Query {
     val schema: List<QuerySchema>
     val selection: List<Expression<*>>
-    val filter: List<Expression<*>>
-
-    /**
-     * Adds [table] to the structure
-     */
-    fun from(table: Table): Query
-
-    /**
-     * Adds a join operation to the structure
-     */
-    fun innerJoin(target: Table, on: Expression<Boolean>): Query
-
-    /**
-     * Adds [predicate] to the Query, filtering result set by only rows matching it
-     */
-    fun where(predicate: Expression<Boolean>): Query
-
-    /**
-     * Adds [expression] to the list of fields to be retrieved from the result set
-     */
-    fun <T> select(vararg expression: Expression<T>): Query
+    val filter: List<Expression<Boolean>>
 }
-
-fun Query.innerJoin(target: Table, on: () -> Expression<Boolean>): Query = innerJoin(target, on())
-fun Query.where(predicate: () -> Expression<Boolean>): Query = where(predicate())
-fun <T> Query.select(expression: () -> Expression<T>): Query = select(expression())
-

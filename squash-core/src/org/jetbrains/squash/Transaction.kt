@@ -14,5 +14,7 @@ interface Transaction : AutoCloseable {
     //fun executeQuery(query: Query)
     fun <T> executeStatement(statement: Statement<T>): T
     fun commit()
+
+    fun <T> Statement<T>.execute(): T = executeStatement(this)
 }
 
