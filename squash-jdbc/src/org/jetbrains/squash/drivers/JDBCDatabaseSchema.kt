@@ -10,9 +10,7 @@ class JDBCDatabaseSchema(connection: Connection) : DatabaseSchema {
 
     override fun tables(): Sequence<DatabaseSchema.Table> {
         val resultSet = metadata.getTables(catalogue, null, null, arrayOf("TABLE"))
-        return JDBCResponse(resultSet).rows.map {
-            Table(it.get<String>("TABLE_NAME"), this)
-        }
+        return JDBCResponse(resultSet).rows.map { Table(it.get<String>("TABLE_NAME"), this) }
     }
 
     class Column(override val name: String,
@@ -33,7 +31,6 @@ class JDBCDatabaseSchema(connection: Connection) : DatabaseSchema {
             }
 
             return response.rows.map {
-                //val dataType = it.getInt("DATA_TYPE")
                 val columnSize = it.get<Int>("COLUMN_SIZE")
                 val autoIncrement = it.get<String>("IS_AUTOINCREMENT") == "YES"
                 val columnName = it.get<String>("COLUMN_NAME")

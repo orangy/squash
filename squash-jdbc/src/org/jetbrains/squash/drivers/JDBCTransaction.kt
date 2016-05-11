@@ -28,7 +28,7 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
 
     override fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
-        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
+        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
         statement.forEachArgument { column, value ->
             val index = statementSQL.indexes[column] ?: error("${connection.dialect} didn't provide index for column '$column'")
             preparedStatement.prepareValue(index, column.type, value)
@@ -46,6 +46,11 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
                 if (rows.empty)
                     return Unit as T
                 return rows.single()[response.tableColumns.single()] as T
+            }
+            is InsertQueryStatement<*> -> {
+                val response = JDBCResponse(generatedKeys)
+                val rows = response.rows
+                return rows.map { it[response.tableColumns.single()] } as T
             }
             else -> error("Cannot extract result for $statement")
         }

@@ -20,13 +20,17 @@ fun withCitiesAndUsers(statement: Transaction.() -> Unit) {
             it[name] = "Prague"
         }.execute()
 
-//        insertInto(Cities).from(Cities).where { Cities.name eq "Prague" }.select(Cities.id).execute()
+        /*  insertInto(Citizens).values {
+              it[id] = "andrey"
+              it[name] = "Andrey"
+              it[cityId] = spbId
+          }.execute()*/
 
-        insertInto(Citizens).values {
-            it[id] = "andrey"
-            it[name] = "Andrey"
-            it[cityId] = spbId
-        }.execute()
+        insertInto(Citizens).query()
+                .select { literal("andrey").alias("id") }
+                .select { literal("Andrey").alias("name") }
+                .select { literal(spbId).alias("cityId") }
+                .execute()
 
         insertInto(Citizens).values {
             it[id] = "sergey"

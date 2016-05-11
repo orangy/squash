@@ -48,7 +48,7 @@ class DDLTests {
         }
 
         withTables(TestTable) {
-            val ddl = connection.dialect.tableDefinitionSQL(TestTable)
+            val ddl = connection.dialect.definition.tableSQL(TestTable)
             assertEquals("CREATE TABLE IF NOT EXISTS test_named_table", ddl)
         }
     }
@@ -63,7 +63,7 @@ class DDLTests {
         }
 
         withTables(TestTable) {
-            val ddl = connection.dialect.tableDefinitionSQL(TestTable)
+            val ddl = connection.dialect.definition.tableSQL(TestTable)
             assertEquals("CREATE TABLE IF NOT EXISTS test_table_with_different_column_types (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT pk_test_table_with_different_column_types PRIMARY KEY (name))", ddl)
         }
     }
@@ -75,7 +75,7 @@ class DDLTests {
         }
 
         withTables(TestTable) {
-            val ddl = connection.dialect.tableDefinitionSQL(TestTable)
+            val ddl = connection.dialect.definition.tableSQL(TestTable)
             assertEquals("CREATE TABLE IF NOT EXISTS t (s VARCHAR(100) NOT NULL DEFAULT 'test', l BIGINT NOT NULL DEFAULT 42)", ddl)
         }
     }

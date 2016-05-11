@@ -53,7 +53,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
                 continue
 
             // create table
-            val tableDefinition = connection.dialect.tableDefinitionSQL(table)
+            val tableDefinition = connection.dialect.definition.tableSQL(table)
             statements.add(tableDefinition)
 
             // create indices
