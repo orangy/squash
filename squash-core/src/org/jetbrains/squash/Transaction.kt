@@ -16,5 +16,6 @@ interface Transaction : AutoCloseable {
     fun commit()
 
     fun <T> Statement<T>.execute(): T = executeStatement(this)
+
 }
 

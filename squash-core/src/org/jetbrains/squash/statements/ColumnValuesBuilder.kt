@@ -16,4 +16,6 @@ open class ColumnValuesBuilder() {
         }
         values[column] = value
     }
+
+    operator fun <V> get(column: Column<V>): Any? = values[column]
 }

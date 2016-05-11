@@ -20,7 +20,7 @@ fun withCitiesAndUsers(statement: Transaction.() -> Unit) {
             it[name] = "Prague"
         }.execute()
 
-        insertInto(Cities).from(Cities).where { Cities.name eq "Prague" }.select(Cities.id).execute()
+//        insertInto(Cities).from(Cities).where { Cities.name eq "Prague" }.select(Cities.id).execute()
 
         insertInto(Citizens).values {
             it[id] = "andrey"

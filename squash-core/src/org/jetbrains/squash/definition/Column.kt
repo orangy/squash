@@ -8,7 +8,7 @@ interface Column<out V> : NamedExpression<Name, V> {
 }
 
 data class DataColumn<out V>(override val owner: ColumnOwner, override val name: Name, override val type: ColumnType) : Column<V> {
-    override fun toString(): String = "$owner.$name: $type"
+    override fun toString(): String = "$name: $type"
 }
 
 class PrimaryKeyColumn<out V>(val column: Column<V>) : Column<V> by column {

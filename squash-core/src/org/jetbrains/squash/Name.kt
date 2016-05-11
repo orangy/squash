@@ -12,7 +12,7 @@ data class Identifier(override val id: String) : Name {
 
 data class QualifiedIdentifier<out N : Name>(val parent: N, val identifier: Identifier) : Name {
     override val id: String get() = identifier.id
-    override fun toString(): String = "$parent.[$identifier]"
+    override fun toString(): String = "$parent.$identifier"
 }
 
 interface NamedExpression<out N : Name, out T> : Expression<T> {
