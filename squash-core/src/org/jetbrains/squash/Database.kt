@@ -2,6 +2,7 @@ package org.jetbrains.squash
 
 import kotlinx.support.jdk7.*
 import org.jetbrains.squash.definition.*
+import org.jetbrains.squash.dialect.*
 import java.util.*
 
 class Database(val connection: DatabaseConnection, val tables: List<Table>) {
@@ -42,8 +43,8 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
         }
     }
 
-    fun Transaction.createSchemaStatements(tables: List<Table>): List<String> {
-        val statements = ArrayList<String>()
+    fun Transaction.createSchemaStatements(tables: List<Table>): List<SQLStatement> {
+        val statements = ArrayList<SQLStatement>()
         if (tables.isEmpty())
             return statements
 
@@ -53,7 +54,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
                 continue
 
             // create table
-            val tableDefinition = connection.dialect.definition.tableSQL(table).sql
+            val tableDefinition = connection.dialect.definition.tableSQL(table)
             statements.add(tableDefinition)
 
             // create indices

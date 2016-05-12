@@ -2,6 +2,7 @@ package org.jetbrains.squash.drivers
 
 import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
+import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.statements.Statement
 import java.sql.*
@@ -30,10 +31,18 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
         statementSQL.arguments.forEach { arg ->
-            preparedStatement.prepareValue(arg.index, arg.column.type, arg.value)
+            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
         }
         preparedStatement.execute()
         return preparedStatement.resultFor(statement)
+    }
+
+    override fun executeStatement(statementSQL: SQLStatement): Unit {
+        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
+        statementSQL.arguments.forEach { arg ->
+            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
+        }
+        preparedStatement.execute()
     }
 
     @Suppress("UNCHECKED_CAST")

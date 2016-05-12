@@ -20,7 +20,14 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     protected open fun appendLiteralSQL(builder: SQLBuilder, value: Any?): Unit = with(builder) {
         when (value) {
             null -> append("NULL")
-            is String -> append("'$value'")
+            is String -> {
+                append("?")
+                appendArgument(StringColumnType(), value)
+            }
+            is Int -> {
+                append("?")
+                appendArgument(IntColumnType, value)
+            }
             else -> append(value.toString())
         }
     }

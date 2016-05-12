@@ -65,10 +65,9 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
 
             is PrimaryKeyColumn -> columnTypeSQL(this, column.column, properties)
             is DefaultValueColumn<*> -> {
-                val literalSQL = dialect.literalSQL(column.value)
                 columnTypeSQL(this, column.column, properties + BaseSQLDialect.ColumnProperty.DEFAULT).toString()
                 append(" DEFAULT ")
-                append(literalSQL)
+                append(dialect.literalSQL(column.value))
             }
 
             else -> error("Column class '${column.javaClass.simpleName}' is not supported by $this")

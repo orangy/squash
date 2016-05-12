@@ -1,5 +1,6 @@
 package org.jetbrains.squash
 
+import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.statements.*
 
 /**
@@ -17,5 +18,6 @@ interface Transaction : AutoCloseable {
 
     fun <T> Statement<T>.execute(): T = executeStatement(this)
 
+    fun executeStatement(statementSQL: SQLStatement)
 }
 

@@ -10,13 +10,19 @@ class SQLBuilder() : Appendable {
     val stringBuilder = StringBuilder()
     val arguments = mutableListOf<SQLArgument<*>>()
 
-    fun <V> appendArgument(column: Column<V>, value: V) {
+    fun <V> appendArgument(column: Column<V>, value: V) = appendArgument(column.type, value)
+    fun <V> appendArgument(argument: SQLArgument<V>) = appendArgument(argument.columnType, argument.value)
+
+    fun <V> appendArgument(columnType: ColumnType, value: V) {
         val index = arguments.size
-        arguments.add(SQLArgument(column, index, value))
+        arguments.add(SQLArgument(columnType, index, value))
     }
 
     fun append(sql : SQLStatement) : SQLBuilder {
         append(sql.sql)
+        sql.arguments.forEach {
+            appendArgument(it)
+        }
         return this
     }
 
@@ -41,4 +47,4 @@ class SQLBuilder() : Appendable {
     }
 }
 
-class SQLArgument<V>(val column: Column<V>, val index: Int, val value: V)
+class SQLArgument<V>(val columnType: ColumnType, val index: Int, val value: V)
