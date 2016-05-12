@@ -6,9 +6,6 @@ import org.jetbrains.squash.expressions.*
 open class UpdateStatementSeed<T : Table>(val table: T)
 
 open class InsertValuesStatement<T : Table, R>(val table: T, val values: Map<Column<*>, Any?>) : Statement<R> {
-    override fun forEachArgument(body: (Column<*>, Any?) -> Unit) {
-        values.forEach { body(it.key, it.value) }
-    }
     // TODO: there can be more than one generated key
     var generatedKeyColumn: Column<R>? = null
 }
@@ -34,9 +31,7 @@ fun <T : Table, R> InsertValuesStatement<T, Unit>.fetch(column: Column<R>): Inse
 fun <T : Table, R> InsertValuesStatement<T, *>.fetch(column: Column<R>, body: T.(InsertValuesStatement<T, R>) -> Unit): R = error("'fetch' cannot be used on an already bound InsertStatement.")
 
 
-open class InsertQueryStatement<T : Table>(val table: T) : QueryBuilder(), Statement<Sequence<Nothing>> {
-    override fun forEachArgument(body: (Column<*>, Any?) -> Unit) {}
-}
+open class InsertQueryStatement<T : Table>(val table: T) : QueryBuilder(), Statement<Sequence<Nothing>>
 
 fun <T : Table> UpdateStatementSeed<T>.query(): InsertQueryStatement<T> {
     return InsertQueryStatement(table)

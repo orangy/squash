@@ -29,9 +29,8 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
     override fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
-        statement.forEachArgument { column, value ->
-            val index = statementSQL.indexes[column] ?: error("${connection.dialect} didn't provide index for column '$column'")
-            preparedStatement.prepareValue(index, column.type, value)
+        statementSQL.arguments.forEach { arg ->
+            preparedStatement.prepareValue(arg.index, arg.column.type, arg.value)
         }
         preparedStatement.execute()
         return preparedStatement.resultFor(statement)

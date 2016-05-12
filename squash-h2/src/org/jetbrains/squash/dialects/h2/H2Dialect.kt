@@ -8,9 +8,11 @@ import org.jetbrains.squash.drivers.*
 
 object H2Dialect : BaseSQLDialect("H2") {
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
-        override fun columnTypeSQL(type: ColumnType): String = when (type) {
-            is UUIDColumnType -> "UUID"
-            else -> super.columnTypeSQL(type)
+        override fun columnTypeSQL(builder: SQLBuilder, type: ColumnType) : Unit {
+            when (type) {
+                is UUIDColumnType -> builder.append("UUID")
+                else -> super.columnTypeSQL(builder, type)
+            }
         }
     }
 
