@@ -3,6 +3,8 @@ package org.jetbrains.squash.drivers
 import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
+import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.statements.Statement
 import java.sql.*
@@ -27,13 +29,24 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         }
     }
 
+    override fun executeQuery(query: Query): Response {
+        val statementSQL = connection.dialect.querySQL(query)
+        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
+        statementSQL.arguments.forEach { arg ->
+            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
+        }
+        preparedStatement.executeQuery()
+        val response = JDBCResponse(preparedStatement.resultSet)
+        return response
+    }
+
     override fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
         statementSQL.arguments.forEach { arg ->
             preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
         }
-        preparedStatement.execute()
+        preparedStatement.executeUpdate()
         return preparedStatement.resultFor(statement)
     }
 
@@ -53,12 +66,12 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
                 val rows = response.rows
                 if (rows.empty)
                     return Unit as T
-                return rows.single()[response.tableColumns.single()] as T
+                return rows.single().get<T>(response.columns.single())
             }
             is InsertQueryStatement<*> -> {
                 val response = JDBCResponse(generatedKeys)
                 val rows = response.rows
-                return rows.map { it[response.tableColumns.single()] } as T
+                return rows.single().get<T>(response.columns.single())
             }
             else -> error("Cannot extract result for $statement")
         }

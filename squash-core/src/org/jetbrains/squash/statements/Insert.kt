@@ -31,7 +31,7 @@ fun <T : Table, R> InsertValuesStatement<T, Unit>.fetch(column: Column<R>): Inse
 fun <T : Table, R> InsertValuesStatement<T, *>.fetch(column: Column<R>, body: T.(InsertValuesStatement<T, R>) -> Unit): R = error("'fetch' cannot be used on an already bound InsertStatement.")
 
 
-open class InsertQueryStatement<T : Table>(val table: T) : QueryBuilder(), Statement<Sequence<Nothing>>
+open class InsertQueryStatement<T : Table>(val table: T) : Statement<Sequence<Nothing>>, QueryBuilder()
 
 fun <T : Table> UpdateStatementSeed<T>.query(): InsertQueryStatement<T> {
     return InsertQueryStatement(table)

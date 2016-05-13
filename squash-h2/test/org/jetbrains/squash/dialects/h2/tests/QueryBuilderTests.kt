@@ -12,31 +12,38 @@ class QueryBuilderTests {
             val query = query().select { eugene }
             val sql = connection.dialect.querySQL(query)
             assertEquals("SELECT ?", sql.sql)
+            val row = query.execute().rows.single()
+            assertEquals(eugene.literal, row.get<String>("?1"))
         }
     }
 
     @Test fun selectFromWhere() {
-        withTables {
+        withCitiesAndUsers {
             val eugene = literal("eugene")
             val query = query().from(Citizens)
                     .where { Citizens.id eq eugene }
                     .select(Citizens.name, Citizens.id)
             val sql = connection.dialect.querySQL(query)
             assertEquals("SELECT Citizens.name, Citizens.id FROM Citizens WHERE Citizens.id = ?", sql.sql)
+            val row = query.execute().rows.single()
+            assertEquals("eugene", row[Citizens.id])
+            assertEquals("Eugene", row[Citizens.name])
         }
     }
 
     @Test fun selectOperationFromWhere() {
-        withTables {
+        withCitiesAndUsers {
             val eugene = literal("eugene")
             val query = query().from(Citizens)
                     .where { Citizens.id eq eugene }
-                    .select { Citizens.cityId + 1 }
+                    .select { (Citizens.cityId + 1).alias("first") }
                     .select { Citizens.cityId - 1 }
                     .select { Citizens.cityId / 1 }
                     .select { Citizens.cityId * 1 }
             val sql = connection.dialect.querySQL(query)
-            assertEquals("SELECT Citizens.city_id + ?, Citizens.city_id - ?, Citizens.city_id / ?, Citizens.city_id * ? FROM Citizens WHERE Citizens.id = ?", sql.sql)
+            assertEquals("SELECT Citizens.city_id + ? AS first, Citizens.city_id - ?, Citizens.city_id / ?, Citizens.city_id * ? FROM Citizens WHERE Citizens.id = ?", sql.sql)
+            val row = query.execute().rows.single()
+            assertEquals(3, row.get<Int>("first"))
         }
     }
 
@@ -73,14 +80,23 @@ class QueryBuilderTests {
     }
 
     @Test fun selectFromJoinAliased() {
-        withTables {
+        withCitiesAndUsers {
+            val citizenName = Citizens.name.alias("citizenName")
+            val cityName = Cities.name.alias("city")
             val query = query()
                     .from(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
-                    .select { Citizens.name.alias("name") }
-                    .select { Cities.name.alias("city") }
+                    .select(citizenName, cityName)
             val sql = connection.dialect.querySQL(query)
-            assertEquals("SELECT Citizens.name AS name, Cities.name AS city FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id", sql.sql)
+            assertEquals("SELECT Citizens.name AS citizenName, Cities.name AS city FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id", sql.sql)
+            val rows = query.execute().rows.toList()
+            assertEquals(3, rows.size)
+            assertEquals("Andrey", rows[0][citizenName])
+            assertEquals("St. Petersburg", rows[0][cityName])
+            assertEquals("Sergey", rows[1][citizenName])
+            assertEquals("Munich", rows[1][cityName])
+            assertEquals("Eugene", rows[2][citizenName])
+            assertEquals("Munich", rows[2][cityName])
         }
     }
 

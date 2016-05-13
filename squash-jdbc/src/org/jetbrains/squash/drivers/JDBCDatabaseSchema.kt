@@ -23,18 +23,12 @@ class JDBCDatabaseSchema(connection: Connection) : DatabaseSchema {
     class Table(override val name: String, private val schema: JDBCDatabaseSchema) : DatabaseSchema.Table {
         override fun columns(): Sequence<DatabaseSchema.Column> {
             val resultSet = schema.metadata.getColumns(schema.catalogue, null, name, null)
-            val response = JDBCResponse(resultSet) {
-                integer("COLUMN_SIZE")
-                text("IS_AUTOINCREMENT")
-                text("COLUMN_NAME")
-                bool("NULLABLE")
-            }
-
+            val response = JDBCResponse(resultSet)
             return response.rows.map {
                 val columnSize = it.get<Int>("COLUMN_SIZE")
                 val autoIncrement = it.get<String>("IS_AUTOINCREMENT") == "YES"
                 val columnName = it.get<String>("COLUMN_NAME")
-                val nullable = it.get<Boolean>("NULLABLE")
+                val nullable = it.get<Int>("NULLABLE") == DatabaseMetaData.columnNullable
                 Column(columnName, nullable, autoIncrement, columnSize)
             }
         }

@@ -38,6 +38,10 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                 appendExpression(this, expression.expression)
                 append(" AS ${nameSQL(expression.name)}")
             }
+            is AliasColumn<T> -> {
+                appendExpression(this, expression.column)
+                append(" AS ${nameSQL(expression.label)}")
+            }
             else -> appendExpression(this, expression)
         }
     }
@@ -45,6 +49,9 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     protected open fun <T> appendExpression(builder: SQLBuilder, expression: Expression<T>): Unit = with(builder) {
         when (expression) {
             is LiteralExpression -> appendLiteralSQL(this, expression.literal)
+            is AliasColumn<T> -> {
+                append(nameSQL(expression.label))
+            }
             is NamedExpression<*, T> -> append(nameSQL(expression.name))
             is BinaryExpression<*, *, *> -> {
                 appendExpression(this, expression.left)
