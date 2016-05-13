@@ -71,6 +71,8 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
             is InsertQueryStatement<*> -> {
                 val response = JDBCResponse(generatedKeys)
                 val rows = response.rows
+                if (rows.empty)
+                    return emptySequence<Nothing>() as T
                 return rows.single().get<T>(response.columns.single())
             }
             else -> error("Cannot extract result for $statement")

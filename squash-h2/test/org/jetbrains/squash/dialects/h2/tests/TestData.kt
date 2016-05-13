@@ -1,6 +1,7 @@
 package org.jetbrains.squash.dialects.h2.tests
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 
@@ -19,19 +20,20 @@ fun withCitiesAndUsers(statement: Transaction.() -> Unit) {
             it[name] = "Prague"
         }.execute()
 
+/*
         insertInto(Citizens).values {
             it[id] = "andrey"
             it[name] = "Andrey"
             it[cityId] = spbId
         }.execute()
+*/
 
-/*
-        insertInto(Citizens).query()
+        val insertAndrey = insertInto(Citizens).query()
                 .select { literal("andrey").alias("id") }
                 .select { literal("Andrey").alias("name") }
                 .select { literal(spbId).alias("cityId") }
-                .execute()
-*/
+
+        executeStatement(insertAndrey) // workaround .execute() overload resolution issue
 
         insertInto(Citizens).values {
             it[id] = "sergey"

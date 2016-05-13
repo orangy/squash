@@ -51,6 +51,8 @@ class JDBCResponseRow(val response: JDBCResponse, val resultSet: ResultSet) : Re
             0 -> error("Cannot find data with label '$name' in response.")
             1 -> {
                 val value = columnData[0].value
+
+                @Suppress("UNCHECKED_CAST")
                 return value as V
             }
             else -> error("Ambiguous label '$name', ${columnData.size} items in response.")
