@@ -2,11 +2,18 @@ package org.jetbrains.squash.query
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.statements.*
 
 open class QueryBuilder : Query {
     override val schema = mutableListOf<QuerySchema>()
     override val selection = mutableListOf<Expression<*>>()
     override val filter = mutableListOf<Expression<Boolean>>()
+}
+
+fun <Q : QueryBuilder> Q.copy(): QueryStatement = query().apply {
+    schema.addAll(this@copy.schema)
+    selection.addAll(this@copy.selection)
+    filter.addAll(this@copy.filter)
 }
 
 /**

@@ -49,11 +49,13 @@ object Misc : Table() {
 
 }
 
-object Inhabitants : QueryStatement() {
+object Inhabitants : QueryObject {
     val cityName = Cities.name.alias("cityName")
     val citizenName = Citizens.name.alias("citizenName")
 
-    init {
-        from(Citizens).innerJoin(Cities) { Cities.id eq Citizens.cityId }.select(citizenName, cityName)
-    }
+    override fun build(): QueryStatement = query()
+            .from(Citizens)
+            .innerJoin(Cities) { Cities.id eq Citizens.cityId }
+            .select(citizenName, cityName)
 }
+

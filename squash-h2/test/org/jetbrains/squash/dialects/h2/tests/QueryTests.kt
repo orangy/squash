@@ -133,18 +133,44 @@ class QueryTests {
         }
     }
 
-    @Test fun typedQuery() {
-        withTables {
-            connection.dialect.statementSQL(Inhabitants).assertSQL {
+    @Test fun queryObject() {
+        withCities {
+            val query = query(Inhabitants)
+
+            connection.dialect.statementSQL(query).assertSQL {
                 "SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id"
             }
+
+            val rows = query.execute().toList()
+            assertEquals(3, rows.size)
+            assertEquals("Andrey", rows[0][Inhabitants.citizenName])
+            assertEquals("St. Petersburg", rows[0][Inhabitants.cityName])
         }
     }
 
-    @Test fun typedQueryAltered() {
+    @Test fun queryObjectAltered() {
+        withCities {
+            // TODO: use { Inhabitants.citizenName eq "eugene" }, but WHERE doesn't work on alias
+            val query = query(Inhabitants).where { Citizens.name eq "Eugene" }
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id WHERE Citizens.name = ?"
+            }
+
+            val rows = query.execute().toList()
+            assertEquals(1, rows.size)
+            assertEquals("Eugene", rows[0][Inhabitants.citizenName])
+            assertEquals("Munich", rows[0][Inhabitants.cityName])
+        }
+    }
+
+    @Test fun queryObjectAlteredTwice() {
         withTables {
-            connection.dialect.statementSQL(Inhabitants.where { Inhabitants.citizenName eq "eugene" }).assertSQL {
+            connection.dialect.statementSQL(query(Inhabitants).where { Inhabitants.citizenName eq "eugene" }).assertSQL {
                 "SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id WHERE citizenName = ?"
+            }
+            connection.dialect.statementSQL(query(Inhabitants).where { Inhabitants.cityName eq "Munchen" }).assertSQL {
+                "SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id WHERE cityName = ?"
             }
         }
     }
