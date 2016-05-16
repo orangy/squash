@@ -15,17 +15,42 @@ class ModificationTests {
     @Test fun testUpdate01() {
         withCities {
             val alexId = "alex"
-            val query = query().from(Citizens).select(Citizens.name).where { Citizens.id eq alexId }
-            val alexName = query.execute().rows.first()[Citizens.name]
-            assertEquals("Alex", alexName);
-
+            val oldName = "Alex"
             val newName = "Alexey"
-            update(Citizens).where { Citizens.id eq alexId }.values {
+            val query = query().from(Citizens).select(Citizens.name).where { Citizens.id eq alexId }
+
+            val alexName = query.execute().first()[Citizens.name]
+            assertEquals(oldName, alexName);
+
+            update(Citizens).where { Citizens.id eq alexId }.set {
                 it[Citizens.name] = newName
             }.execute()
 
-            val alexNewName = query.execute().rows.first()[Citizens.name]
+            // update(Citizens).where { Citizens.id eq alexId }.set(Citizens.name, newName).execute()
+
+            val alexNewName = query.execute().first()[Citizens.name]
             assertEquals(newName, alexNewName);
+        }
+    }
+
+    @Test fun deleteAll() {
+        withCities {
+            deleteFrom(CitizenData).execute()
+            val exists = query().from(CitizenData).execute().any()
+            assertEquals(false, exists)
+        }
+    }
+
+    @Test fun deleteWhereLike() {
+        withCities {
+            val query = query().from(Citizens).select(Citizens.id).where { Citizens.name like "%thing" }
+            val smthId = query.execute().single()[Citizens.id]
+            assertEquals ("smth", smthId)
+
+            deleteFrom(Citizens).where { Citizens.name like "%thing" }.execute()
+
+            val hasSmth = query.execute().any()
+            assertEquals(false, hasSmth)
         }
     }
 

@@ -6,9 +6,9 @@ import org.jetbrains.squash.query.*
 import java.util.*
 import kotlin.internal.*
 
-fun <T : Table> update(table: T): UpdateQueryStatement<T> = UpdateQueryStatement(table)
+fun <T : Table> deleteFrom(table: T): DeleteQueryStatement<T> = DeleteQueryStatement(table)
 
-open class UpdateQueryStatement<T : Table>(val table: T) : QueryBuilder(), Statement<Unit> {
+open class DeleteQueryStatement<T : Table>(val table: T) : QueryBuilder(), Statement<Unit> {
     val values: MutableMap<Column<*>, Expression<*>> = LinkedHashMap()
 
     operator fun <V, S : V> set(column: Column<@Exact V>, value: Expression<S>) {
@@ -16,7 +16,7 @@ open class UpdateQueryStatement<T : Table>(val table: T) : QueryBuilder(), State
         values[column] = value
     }
 
-    operator fun <V, S : V> set(column: Column<@Exact V>, value: S?) : UpdateQueryStatement<T> {
+    operator fun <V, S : V> set(column: Column<@Exact V>, value: S?) {
         if (values.containsKey(column)) {
             error("$column is already initialized")
         }
@@ -24,12 +24,6 @@ open class UpdateQueryStatement<T : Table>(val table: T) : QueryBuilder(), State
             error("Trying to set null to not nullable column $column")
         }
         values[column] = literal(value)
-        return this
     }
-}
-
-fun <T : Table> UpdateQueryStatement<T>.set(body: T.(UpdateQueryStatement<*>) -> Unit): UpdateQueryStatement<T> {
-    table.body(this)
-    return this
 }
 

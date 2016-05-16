@@ -7,11 +7,13 @@ import java.sql.*
 class JDBCResponse(val resultSet: ResultSet) : Response {
     val metadata = resultSet.metaData
     val columns = mutableListOf<JDBCResponseColumn>()
-    override val rows = JDBCResponseRowSequence(this)
+    val rows = JDBCResponseRowSequence(this)
 
     init {
         (1..metadata.columnCount).forEach { index -> createColumn(index) }
     }
+
+    override fun iterator(): Iterator<ResponseRow> = rows.iterator()
 
     private fun createColumn(index: Int) {
         val name = metadata.getColumnName(index) // name of the column

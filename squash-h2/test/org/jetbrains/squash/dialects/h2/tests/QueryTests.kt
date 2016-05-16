@@ -17,7 +17,7 @@ class QueryTests {
                 "SELECT ?"
             }
 
-            val row = query.execute().rows.single()
+            val row = query.execute().single()
             assertEquals(eugene.literal, row.get<String>("?1"))
         }
     }
@@ -33,7 +33,7 @@ class QueryTests {
                 "SELECT Citizens.name, Citizens.id FROM Citizens WHERE Citizens.id = ?"
             }
 
-            val row = query.execute().rows.single()
+            val row = query.execute().single()
             assertEquals("eugene", row[Citizens.id])
             assertEquals("Eugene", row[Citizens.name])
         }
@@ -53,7 +53,7 @@ class QueryTests {
                 "SELECT Citizens.city_id + ? AS first, Citizens.city_id - ?, Citizens.city_id / ?, Citizens.city_id * ? FROM Citizens WHERE Citizens.id = ?"
             }
 
-            val row = query.execute().rows.single()
+            val row = query.execute().single()
             assertEquals(3, row.get<Int>("first"))
         }
     }
@@ -109,7 +109,7 @@ class QueryTests {
                 "SELECT Citizens.name AS citizenName, Cities.name AS city FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id"
             }
 
-            val rows = query.execute().rows.toList()
+            val rows = query.execute().toList()
             assertEquals(3, rows.size)
             assertEquals("Andrey", rows[0][citizenName])
             assertEquals("St. Petersburg", rows[0][cityName])

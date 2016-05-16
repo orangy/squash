@@ -27,3 +27,5 @@ class DivideExpression<out V>(left: Expression<V>, right: Expression<V>) : Binar
 
 class LiteralExpression<out V>(val literal: V) : Expression<V>
 class SubQueryExpression<out V>(val query: Query) : Expression<V>
+
+class LikeExpression(left: Expression<String>, right: LiteralExpression<String>) : BinaryExpression<String, String, Boolean>(left, right)

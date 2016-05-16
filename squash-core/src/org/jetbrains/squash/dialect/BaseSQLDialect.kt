@@ -101,6 +101,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             is MinusExpression -> "-"
             is MultiplyExpression -> "*"
             is DivideExpression -> "/"
+            is LikeExpression -> "LIKE"
             else -> error("Expression '$expression' is not supported by $this")
         })
     }
@@ -154,6 +155,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         is InsertValuesStatement<*, *> -> insertValuesStatementSQL(statement)
         is InsertQueryStatement<*> -> insertQueryStatementSQL(statement)
         is UpdateQueryStatement<*> -> updateQueryStatementSQL(statement)
+        is DeleteQueryStatement<*> -> deleteQueryStatementSQL(statement)
         else -> error("Statement '$statement' is not supported by $this")
     }
 
@@ -173,6 +175,13 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             append(" = ")
             appendExpression(this, value.second)
         }
+        append(" ")
+        appendQuerySQL(this, statement)
+    }.build()
+
+    protected open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = SQLBuilder().apply {
+        append("DELETE FROM ")
+        append(nameSQL(statement.table.tableName))
         append(" ")
         appendQuerySQL(this, statement)
     }.build()

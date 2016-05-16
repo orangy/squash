@@ -60,6 +60,8 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
                 val response = JDBCResponse(resultSet)
                 return response as T
             }
+
+            is DeleteQueryStatement<*>,
             is UpdateQueryStatement<*> -> {
                 return Unit as T
             }

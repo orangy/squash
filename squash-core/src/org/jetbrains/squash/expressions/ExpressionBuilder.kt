@@ -30,3 +30,4 @@ infix operator fun <V> Expression<@Exact V>.div(literal: V): Expression<V> = Div
 
 fun <V> literal(value: V) = LiteralExpression(value)
 fun <V> subquery(body: QueryBuilder.() -> Unit) = SubQueryExpression<V>(query().apply(body))
+infix fun Expression<String>.like(literal: String): Expression<Boolean> = LikeExpression(this, LiteralExpression(literal))
