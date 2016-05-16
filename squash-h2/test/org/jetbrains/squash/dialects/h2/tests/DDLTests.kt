@@ -1,6 +1,5 @@
 package org.jetbrains.squash.dialects.h2.tests
 
-import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.tests.*
 import org.junit.*
@@ -64,7 +63,7 @@ class DDLTests {
 
         withTables(TestTable) {
             val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS test_table_with_different_column_types (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT pk_test_table_with_different_column_types PRIMARY KEY (name))", ddl)
+            assertEquals("CREATE TABLE IF NOT EXISTS test_table_with_different_column_types (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_test_table_with_different_column_types PRIMARY KEY (name))", ddl)
         }
     }
 
@@ -79,54 +78,42 @@ class DDLTests {
             assertEquals("CREATE TABLE IF NOT EXISTS t (s VARCHAR(100) NOT NULL DEFAULT ?, l BIGINT NOT NULL DEFAULT 42)", ddl)
         }
     }
-/*
 
     @Test fun testIndices01() {
-        val t = object : Table("t1") {
+        val TestTable = object : Table("t1") {
             val id = integer("id").primaryKey()
             val name = varchar("name", 255).index()
         }
 
-        withTables(t) {
-            val alter = createIndex(t.indices[0].first, t.indices[0].second)
-            assertEquals("CREATE INDEX t1_name ON t1 (name)", alter)
+        withTables(TestTable) {
+            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
+            assertEquals("CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))", ddl)
+            val ix = connection.dialect.definition.indicesSQL(TestTable).single().sql
+            assertEquals("CREATE INDEX IX_t1_name ON t1 (name)", ix)
         }
     }
 
     @Test fun testIndices02() {
-        val t = object : Table("t2") {
+        val TestTable = object : Table("t2") {
             val id = integer("id").primaryKey()
             val lvalue = integer("lvalue")
-            val rvalue = integer("rvalue");
-            val name = varchar("name", 255).index()
+            val rvalue = integer("rvalue")
+            val name = varchar("name", 255).uniqueIndex()
 
             init {
-                index (false, lvalue, rvalue)
+                index(lvalue, rvalue)
             }
+
         }
 
-        withTables(t) {
-            val a1 = createIndex(t.indices[0].first, t.indices[0].second)
-            assertEquals("CREATE INDEX t2_name ON t2 (name)", a1)
-
-            val a2 = createIndex(t.indices[1].first, t.indices[1].second)
-            assertEquals("CREATE INDEX t2_lvalue_rvalue ON t2 (lvalue, rvalue)", a2)
-        }
-    }
-
-    @Test fun testIndices03() {
-        val t = object : Table("t1") {
-            val id = integer("id").primaryKey()
-            val name = varchar("name", 255).uniqueIndex()
-        }
-
-        withTables(t) {
-            val alter = createIndex(t.indices[0].first, t.indices[0].second)
-            assertEquals("CREATE UNIQUE INDEX t1_name_unique ON t1 (name)", alter)
-
+        withTables(TestTable) {
+            val indices = connection.dialect.definition.indicesSQL(TestTable)
+            assertEquals(2, indices.size)
+            assertEquals("CREATE UNIQUE INDEX IX_t2_name ON t2 (name)", indices[0].sql)
+            assertEquals("CREATE INDEX IX_t2_lvalue_rvalue ON t2 (lvalue, rvalue)", indices[1].sql)
         }
     }
-
+/*
     @Test fun testBlob() {
         val t = object : Table("t1") {
             val id = integer("id").autoIncrement().primaryKey()

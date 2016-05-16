@@ -58,11 +58,8 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
             statements.add(tableDefinition)
 
             // create indices
-/*
-            for (table_index in table.indices) {
-                statements.add(createIndex(table_index.first, table_index.second))
-            }
-*/
+            val indexDefinition = connection.dialect.definition.indicesSQL(table)
+            statements.addAll(indexDefinition)
         }
         return statements
     }

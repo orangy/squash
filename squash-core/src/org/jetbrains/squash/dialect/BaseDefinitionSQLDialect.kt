@@ -1,8 +1,24 @@
 package org.jetbrains.squash.dialect
 
+import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 
 open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDialect {
+    override fun indicesSQL(table: Table): List<SQLStatement> =
+            table.constraints.filterIsInstance<IndexConstraint>().map {
+                SQLBuilder().apply {
+                    val unique = if (it.unique) " UNIQUE" else ""
+                    append("CREATE$unique INDEX ${it.name.id} ON ${dialect.nameSQL(table.tableName)} (")
+                    it.columns.forEachIndexed { index, column ->
+                        if (index > 0)
+                            append(", ")
+                        append(column.name.id)
+                    }
+                    append(")")
+                }.build()
+            }
+
+
     override fun tableSQL(table: Table): SQLStatement = SQLBuilder().apply {
         append("CREATE TABLE IF NOT EXISTS ${dialect.nameSQL(table.tableName)}")
         if (table.tableColumns.any()) {
@@ -12,25 +28,35 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                     append(", ")
                 columnDefinitionSQL(this, column)
             }
-            val primaryKeys = table.tableColumns.filterIsInstance<PrimaryKeyColumn<*>>()
 
-            if (primaryKeys.any()) {
-                append(", ")
-                primaryKeyDefinitionSQL(primaryKeys, table)
-            } else {
-                val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
-                if (autoIncrement.any()) {
-                    append(", ")
-                    primaryKeyDefinitionSQL(autoIncrement, table)
-                }
-            }
+            appendPrimaryKeys(table)
             append(")")
         }
     }.build()
 
-    protected open fun SQLBuilder.primaryKeyDefinitionSQL(primaryKeys: List<Column<*>>, table: Table) {
-        append("CONSTRAINT pk_${dialect.nameSQL(table.tableName)} PRIMARY KEY (")
-        append(primaryKeys.map { it.name.id }.joinToString())
+    private fun SQLBuilder.appendPrimaryKeys(table: Table) {
+        val primaryKeys = table.constraints.filterIsInstance<PrimaryKeyConstraint>()
+        when (primaryKeys.size) {
+            1 -> {
+                append(", ")
+                primaryKeyDefinitionSQL(primaryKeys[0], table)
+            }
+            0 -> {
+                val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
+                if (autoIncrement.any()) {
+                    append(", ")
+                    val name = Identifier("PK_${dialect.nameSQL(table.tableName)}")
+                    val pkAutoIncrement = PrimaryKeyConstraint(name, table, autoIncrement)
+                    primaryKeyDefinitionSQL(pkAutoIncrement, table)
+                }
+            }
+            else -> error("Table cannot have more than one PrimaryKey constraint")
+        }
+    }
+
+    protected open fun SQLBuilder.primaryKeyDefinitionSQL(primaryKey: PrimaryKeyConstraint, table: Table) {
+        append("CONSTRAINT ${primaryKey.name.id} PRIMARY KEY (")
+        append(primaryKey.columns.map { it.name.id }.joinToString())
         append(")")
     }
 
@@ -63,7 +89,6 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 append(" AUTO_INCREMENT")
             }
 
-            is PrimaryKeyColumn -> columnTypeSQL(this, column.column, properties)
             is DefaultValueColumn<*> -> {
                 columnTypeSQL(this, column.column, properties + BaseSQLDialect.ColumnProperty.DEFAULT).toString()
                 append(" DEFAULT ")

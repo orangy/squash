@@ -6,14 +6,15 @@ import java.sql.*
 import java.time.*
 import java.util.*
 
-fun Column<Int>.autoIncrement(): Column<Int> = owner.replaceColumn(this, AutoIncrementColumn(this))
+fun Column<Int>.autoIncrement(): Column<Int> = table.replaceColumn(this, AutoIncrementColumn(this))
 
 @JvmName("autoIncrementLong")
-fun Column<Long>.autoIncrement(): Column<Long> = owner.replaceColumn(this, AutoIncrementColumn(this))
+fun Column<Long>.autoIncrement(): Column<Long> = table.replaceColumn(this, AutoIncrementColumn(this))
 
-fun <V> Column<V>.primaryKey(): Column<V> = owner.replaceColumn(this, PrimaryKeyColumn(this))
-fun <V> Column<V>.nullable(): Column<V?> = owner.replaceColumn(this, NullableColumn(this))
-fun <V> Column<V>.default(value: V): Column<V> = owner.replaceColumn(this, DefaultValueColumn(this, value))
+fun <V> Column<V>.nullable(): Column<V?> = table.replaceColumn(this, NullableColumn(this))
+fun <V> Column<V>.default(value: V): Column<V> = table.replaceColumn(this, DefaultValueColumn(this, value))
+
+
 
 fun Name.referenceName(): String = when (this) {
     is Identifier -> id

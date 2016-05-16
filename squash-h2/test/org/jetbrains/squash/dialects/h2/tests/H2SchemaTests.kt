@@ -44,11 +44,11 @@ class H2SchemaTests {
     fun testCitiesDDL() {
         H2Dialect.createMemoryConnection().use { connection ->
             assertEquals(
-                    "CREATE TABLE IF NOT EXISTS Cities (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(50) NOT NULL, CONSTRAINT pk_Cities PRIMARY KEY (id))",
+                    "CREATE TABLE IF NOT EXISTS Cities (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(50) NOT NULL, CONSTRAINT PK_Cities PRIMARY KEY (id))",
                     connection.dialect.definition.tableSQL(Cities).sql
             )
             assertEquals(
-                    "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL, CONSTRAINT pk_Citizens PRIMARY KEY (id))",
+                    "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL, CONSTRAINT PK_Citizens PRIMARY KEY (id))",
                     connection.dialect.definition.tableSQL(Citizens).sql
             )
         }
