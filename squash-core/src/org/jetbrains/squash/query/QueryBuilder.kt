@@ -58,7 +58,11 @@ fun <Q : QueryBuilder> Q.orderBy(expression: Expression<*>, ascending: Boolean =
     if (ascending)
         order.add(QueryOrder.Ascending(expression))
     else
-        order.add(QueryOrder.Ascending(expression))
+        order.add(QueryOrder.Descending(expression))
+}
+
+fun <Q : QueryBuilder> Q.orderByDescending(expression: Expression<*>): Q = apply {
+    order.add(QueryOrder.Descending(expression))
 }
 
 

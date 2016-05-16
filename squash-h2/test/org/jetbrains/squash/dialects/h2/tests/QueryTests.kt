@@ -1,5 +1,6 @@
 package org.jetbrains.squash.dialects.h2.tests
 
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
@@ -150,6 +151,47 @@ class QueryTests {
         }
     }
 
+    @Test fun selectFromJoinJoinAdHoc() {
+        val Numbers = object : TableDefinition("Numbers") {
+            val id = integer("id").primaryKey()
+        }
+
+        val Names = object : TableDefinition("Names") {
+            val name = varchar("name", 10).primaryKey()
+        }
+
+        val Map = object : TableDefinition("Map") {
+            val id_ref = reference(Numbers.id, "id_ref")
+            val name_ref = reference(Names.name, "name_ref")
+        }
+
+        withTables(Numbers, Names, Map) {
+            insertInto(Numbers).values { it[id] = 1 }.execute()
+            insertInto(Numbers).values { it[id] = 2 }.execute()
+
+            insertInto(Names).values { it[name] = "Foo" }.execute()
+            insertInto(Names).values { it[name] = "Bar" }.execute()
+
+            insertInto(Map).values {
+                it[id_ref] = 2
+                it[name_ref] = "Foo"
+            }.execute()
+
+            val query = query(Map)
+                    .innerJoin(Names) { Map.name_ref eq Names.name }
+                    .innerJoin(Numbers) { Map.id_ref eq Numbers.id }
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT * FROM Map INNER JOIN Names ON Map.name_ref = Names.name INNER JOIN Numbers ON Map.id_ref = Numbers.id"
+            }
+
+            val rows = query.execute().toList()
+            assertEquals(1, rows.size)
+            assertEquals(2, rows[0][Numbers.id])
+            assertEquals("Foo", rows[0][Names.name])
+        }
+    }
+
     @Test fun queryObject() {
         withCities {
             val query = query(Inhabitants)
@@ -209,6 +251,23 @@ class QueryTests {
 
             val rows = query.execute().map { it[Citizens.name] }.toList()
             assertEquals(listOf("Alex", "Andrey", "Eugene", "Sergey", "Something"), rows)
+        }
+    }
+
+    @Test fun selectFromOrderDescOrder() {
+        withCities {
+            val query = query()
+                    .from(Citizens)
+                    .select(Citizens.name, Citizens.id)
+                    .orderByDescending(Citizens.cityId)
+                    .orderBy(Citizens.id)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.city_id DESC, Citizens.id"
+            }
+
+            val rows = query.execute().map { it[Citizens.name] }.toList()
+            assertEquals(listOf("Eugene", "Sergey", "Andrey", "Alex", "Something"), rows)
         }
     }
 }
