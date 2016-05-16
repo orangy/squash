@@ -79,7 +79,7 @@ class DDLTests {
         }
     }
 
-    @Test fun testIndices01() {
+    @Test fun singleColumnIndex() {
         val TestTable = object : Table("t1") {
             val id = integer("id").primaryKey()
             val name = varchar("name", 255).index()
@@ -93,69 +93,50 @@ class DDLTests {
         }
     }
 
-    @Test fun testIndices02() {
+    @Test fun singleColumnUniqueIndex() {
+        val TestTable = object : Table("t1") {
+            val id = integer("id").primaryKey()
+            val name = varchar("name", 255).uniqueIndex()
+        }
+
+        withTables(TestTable) {
+            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
+            assertEquals("CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))", ddl)
+            val ix = connection.dialect.definition.indicesSQL(TestTable).single().sql
+            assertEquals("CREATE UNIQUE INDEX IX_t1_name ON t1 (name)", ix)
+        }
+    }
+
+    @Test fun twoColumnIndex() {
         val TestTable = object : Table("t2") {
             val id = integer("id").primaryKey()
             val lvalue = integer("lvalue")
             val rvalue = integer("rvalue")
-            val name = varchar("name", 255).uniqueIndex()
 
             init {
                 index(lvalue, rvalue)
             }
+        }
 
+        withTables(TestTable) {
+            val index = connection.dialect.definition.indicesSQL(TestTable).single()
+            assertEquals("CREATE INDEX IX_t2_lvalue_rvalue ON t2 (lvalue, rvalue)", index.sql)
+        }
+    }
+
+    @Test fun twoIndices() {
+        val TestTable = object : Table("t2") {
+            val id = integer("id").primaryKey()
+            val lvalue = integer("lvalue").index("one")
+            val rvalue = integer("rvalue").index("two")
         }
 
         withTables(TestTable) {
             val indices = connection.dialect.definition.indicesSQL(TestTable)
             assertEquals(2, indices.size)
-            assertEquals("CREATE UNIQUE INDEX IX_t2_name ON t2 (name)", indices[0].sql)
-            assertEquals("CREATE INDEX IX_t2_lvalue_rvalue ON t2 (lvalue, rvalue)", indices[1].sql)
+            assertEquals("CREATE INDEX one ON t2 (lvalue)", indices[0].sql)
+            assertEquals("CREATE INDEX two ON t2 (rvalue)", indices[1].sql)
         }
     }
-/*
-    @Test fun testBlob() {
-        val t = object : Table("t1") {
-            val id = integer("id").autoIncrement().primaryKey()
-            val b = blob("blob")
-        }
-
-        withTables(t) {
-            val blob = if (currentDialect != PostgreSQLDialect) {
-                connection.createBlob().apply {
-                    setBytes(1, "Hello there!".toByteArray())
-                }
-            } else {
-                SerialBlob("Hello there!".toByteArray())
-            }
-
-            val id = t.insert {
-                it[t.b] = blob
-            } get (t.id)
-
-
-            val readOn = t.select { t.id eq id }.first()[t.b]
-            val text = readOn.binaryStream.reader().readText()
-
-            assertEquals("Hello there!", text)
-        }
-    }
-
-    @Test fun testBinary() {
-        val t = object : Table() {
-            val binary = binary("bytes", 10)
-        }
-
-        withTables(t) {
-            t.insert { it[t.binary] = "Hello!".toByteArray() }
-
-            val bytes = t.selectAll().single()[t.binary]
-
-            assertEquals("Hello!", String(bytes))
-
-        }
-    }
-*/
-
 }
 
