@@ -6,4 +6,4 @@ interface QueryObject {
     fun build(): QueryStatement
 }
 
-fun query(q: QueryObject) = q.build()
+fun query(queryObject: QueryObject) = queryObject.build()

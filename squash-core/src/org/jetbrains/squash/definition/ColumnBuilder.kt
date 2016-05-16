@@ -21,58 +21,58 @@ fun Name.referenceName(): String = when (this) {
     else -> error("Unknown Name '$this'")
 }
 
-fun <V> ColumnOwner.reference(column: Column<V>, name: String? = null): Column<V> {
+fun <V> TableDefinition.reference(column: Column<V>, name: String? = null): Column<V> {
     return createColumn(name ?: "${column.name.referenceName()}", ReferenceColumnType(column))
 }
 
-fun ColumnOwner.integer(name: String): Column<Int> {
+fun TableDefinition.integer(name: String): Column<Int> {
     return createColumn(name, IntColumnType)
 }
 
-fun ColumnOwner.char(name: String): Column<Char> {
+fun TableDefinition.char(name: String): Column<Char> {
     return createColumn(name, CharColumnType)
 }
 
-inline fun <reified V : Enum<V>> ColumnOwner.enumeration(name: String): Column<V> {
+inline fun <reified V : Enum<V>> TableDefinition.enumeration(name: String): Column<V> {
     return createColumn(name, EnumColumnType(V::class.java))
 }
 
-fun ColumnOwner.decimal(name: String, scale: Int, precision: Int): Column<BigDecimal> {
+fun TableDefinition.decimal(name: String, scale: Int, precision: Int): Column<BigDecimal> {
     return createColumn(name, DecimalColumnType(scale, precision))
 }
 
-fun ColumnOwner.long(name: String): Column<Long> {
+fun TableDefinition.long(name: String): Column<Long> {
     return createColumn(name, LongColumnType)
 }
 
-fun ColumnOwner.date(name: String): Column<LocalDate> {
+fun TableDefinition.date(name: String): Column<LocalDate> {
     return createColumn(name, DateColumnType)
 }
 
-fun ColumnOwner.bool(name: String): Column<Boolean> {
+fun TableDefinition.bool(name: String): Column<Boolean> {
     return createColumn(name, BooleanColumnType)
 }
 
-fun ColumnOwner.datetime(name: String): Column<LocalDateTime> {
+fun TableDefinition.datetime(name: String): Column<LocalDateTime> {
     return createColumn(name, DateTimeColumnType)
 }
 
-fun ColumnOwner.blob(name: String): Column<Blob> { // TODO: It's java.sql, avoid
+fun TableDefinition.blob(name: String): Column<Blob> { // TODO: It's java.sql, avoid
     return createColumn(name, BlobColumnType)
 }
 
-fun ColumnOwner.text(name: String): Column<String> {
+fun TableDefinition.text(name: String): Column<String> {
     return createColumn(name, StringColumnType())
 }
 
-fun ColumnOwner.binary(name: String, length: Int): Column<ByteArray> {
+fun TableDefinition.binary(name: String, length: Int): Column<ByteArray> {
     return createColumn(name, BinaryColumnType(length))
 }
 
-fun ColumnOwner.uuid(name: String): Column<UUID> {
+fun TableDefinition.uuid(name: String): Column<UUID> {
     return createColumn(name, UUIDColumnType)
 }
 
-fun ColumnOwner.varchar(name: String, length: Int, collate: String? = null): Column<String> {
+fun TableDefinition.varchar(name: String, length: Int, collate: String? = null): Column<String> {
     return createColumn(name, StringColumnType(length, collate))
 }

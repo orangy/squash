@@ -25,7 +25,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     }
 
     private fun indicesSQL(table: Table): List<SQLStatement> =
-            table.constraints.filterIsInstance<IndexConstraint>().map {
+            table.constraints.elements.filterIsInstance<IndexConstraint>().map {
                 SQLBuilder().apply {
                     val unique = if (it.unique) " UNIQUE" else ""
                     append("CREATE$unique INDEX ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.tableName)} (")
@@ -39,7 +39,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             }
 
     private fun SQLBuilder.appendPrimaryKeys(table: Table) {
-        val primaryKeys = table.constraints.filterIsInstance<PrimaryKeyConstraint>()
+        val primaryKeys = table.constraints.elements.filterIsInstance<PrimaryKeyConstraint>()
         when (primaryKeys.size) {
             1 -> {
                 append(", ")
@@ -50,7 +50,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 if (autoIncrement.any()) {
                     append(", ")
                     val name = Identifier("PK_${dialect.nameSQL(table.tableName)}")
-                    val pkAutoIncrement = PrimaryKeyConstraint(name, table, autoIncrement)
+                    val pkAutoIncrement = PrimaryKeyConstraint(name, autoIncrement)
                     primaryKeyDefinitionSQL(pkAutoIncrement, table)
                 }
             }

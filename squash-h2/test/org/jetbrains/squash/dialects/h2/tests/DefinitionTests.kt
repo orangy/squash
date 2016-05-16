@@ -8,7 +8,7 @@ import kotlin.test.*
 @Suppress("unused")
 class DefinitionTests {
     @Test fun unregisteredTableNotExists() {
-        val TestTable = object : Table("test") {
+        val TestTable = object : TableDefinition("test") {
             val id = integer("id").primaryKey()
             val name = varchar("name", length = 42)
         }
@@ -19,7 +19,7 @@ class DefinitionTests {
     }
 
     @Test fun tableExists() {
-        val TestTable = object : Table() {
+        val TestTable = object : TableDefinition() {
             val id = integer("id").primaryKey()
             val name = varchar("name", length = 42)
         }
@@ -30,7 +30,7 @@ class DefinitionTests {
     }
 
     @Test fun unnamedTableWithQuotesSQL() {
-        val TestTable = object : Table() {
+        val TestTable = object : TableDefinition() {
             val id = integer("id").primaryKey()
             val name = varchar("name", length = 42)
         }
@@ -43,7 +43,7 @@ class DefinitionTests {
     }
 
     @Test fun keywordNamedTableWithQuotesSQL() {
-        val TestTable = object : Table("SELECT") {
+        val TestTable = object : TableDefinition("SELECT") {
             val id = integer("FROM").primaryKey()
             val name = varchar("JOIN", length = 42)
         }
@@ -56,7 +56,7 @@ class DefinitionTests {
     }
 
     @Test fun namedEmptyTableWithoutQuotesSQL() {
-        val TestTable = object : Table("test_named_table") {
+        val TestTable = object : TableDefinition("test_named_table") {
         }
 
         withConnection {
@@ -67,7 +67,7 @@ class DefinitionTests {
     }
 
     @Test fun tableWithDifferentColumnTypesSQL() {
-        val TestTable = object : Table("test_table_with_different_column_types") {
+        val TestTable = object : TableDefinition("test_table_with_different_column_types") {
             val id = integer("id").autoIncrement()
             val name = varchar("name", 42).primaryKey()
             val age = integer("age").nullable()
@@ -83,7 +83,7 @@ class DefinitionTests {
     }
 
     @Test fun columnsWithDefaults() {
-        val TestTable = object : Table("t") {
+        val TestTable = object : TableDefinition("t") {
             val s = varchar("s", 100).default("test")
             val l = long("l").default(42)
         }
@@ -96,7 +96,7 @@ class DefinitionTests {
     }
 
     @Test fun singleColumnIndex() {
-        val TestTable = object : Table("t1") {
+        val TestTable = object : TableDefinition("t1") {
             val id = integer("id").primaryKey()
             val name = varchar("name", 255).index()
         }
@@ -112,7 +112,7 @@ class DefinitionTests {
     }
 
     @Test fun singleColumnUniqueIndex() {
-        val TestTable = object : Table("t1") {
+        val TestTable = object : TableDefinition("t1") {
             val id = integer("id").primaryKey()
             val name = varchar("name", 255).uniqueIndex()
         }
@@ -128,7 +128,7 @@ class DefinitionTests {
     }
 
     @Test fun twoColumnIndex() {
-        val TestTable = object : Table("t2") {
+        val TestTable = object : TableDefinition("t2") {
             val id = integer("id").primaryKey()
             val lvalue = integer("lvalue")
             val rvalue = integer("rvalue")
@@ -149,7 +149,7 @@ class DefinitionTests {
     }
 
     @Test fun twoIndices() {
-        val TestTable = object : Table("t2") {
+        val TestTable = object : TableDefinition("t2") {
             val id = integer("id").primaryKey()
             val lvalue = integer("lvalue").index("one")
             val rvalue = integer("rvalue").index("two")

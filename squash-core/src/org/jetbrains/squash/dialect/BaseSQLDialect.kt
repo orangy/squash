@@ -122,15 +122,31 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         if (query.schema.isNotEmpty()) {
             val tables = query.schema.filterIsInstance<QuerySchema.From>()
             append(" FROM ")
-            tables.joinTo(this) { columnOwnerName(it.target) }
+            tables.joinTo(this) { tableDeclarationName(it.table) }
 
-            val innerJoins = query.schema.filterIsInstance<QuerySchema.InnerJoin>()
+            val innerJoins = query.schema.filter { it !is QuerySchema.From}
             if (innerJoins.any()) {
                 innerJoins.forEach { join ->
-                    append(" INNER JOIN ")
-                    append(columnOwnerName(join.target))
-                    append(" ON ")
-                    appendExpression(this, join.condition)
+                    when (join) {
+                        is QuerySchema.InnerJoin -> {
+                            append(" INNER JOIN ")
+                            append(tableDeclarationName(join.table))
+                            append(" ON ")
+                            appendExpression(this, join.condition)
+                        }
+                        is QuerySchema.LeftOuterJoin -> {
+                            append(" LEFT OUTER JOIN ")
+                            append(tableDeclarationName(join.table))
+                            append(" ON ")
+                            appendExpression(this, join.condition)
+                        }
+                        is QuerySchema.RightOuterJoin -> {
+                            append(" RIGHT OUTER JOIN ")
+                            append(tableDeclarationName(join.table))
+                            append(" ON ")
+                            appendExpression(this, join.condition)
+                        }
+                    }
                 }
             }
         }
@@ -142,11 +158,31 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                 appendExpression(this, expression)
             }
         }
+
+        if (query.order.isNotEmpty()) {
+            append(" ORDER BY ")
+            query.order.forEachIndexed { index, order ->
+                if (index != 0) append(", ")
+                appendExpression(this, order.expression)
+                when (order) {
+                    is QueryOrder.Ascending -> { /* ASC is default */
+                    }
+                    is QueryOrder.Descending -> append(" DESC")
+                }
+            }
+        }
     }
 
-    private fun columnOwnerName(target: ColumnOwner): String = when (target) {
-        is Table -> nameSQL(target.tableName)
-        else -> error("FieldCollection '$target' is not supported by $this")
+    private fun tableName(table: Table): String = when (table) {
+        is AliasTable<*> -> idSQL(table.name)
+        is Table -> nameSQL(table.tableName)
+        else -> error("FieldCollection '$table' is not supported by $this")
+    }
+
+    private fun tableDeclarationName(table: Table): String = when (table) {
+        is AliasTable<*> -> nameSQL(table.tableName) +" AS " + idSQL(table.name)
+        is Table -> nameSQL(table.tableName)
+        else -> error("FieldCollection '$table' is not supported by $this")
     }
 
 

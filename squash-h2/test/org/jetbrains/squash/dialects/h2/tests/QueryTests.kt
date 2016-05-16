@@ -39,6 +39,23 @@ class QueryTests {
         }
     }
 
+    @Ignore @Test fun selectFromAliasWhere() {
+        withCities {
+            val eugene = literal("eugene")
+            val query = query().from(Citizens.alias("C"))
+                    .where { Citizens.id eq eugene }
+                    .select(Citizens.name, Citizens.id)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT C.name, C.id FROM Citizens as C WHERE C.id = ?"
+            }
+
+            val row = query.execute().single()
+            assertEquals("eugene", row[Citizens.id])
+            assertEquals("Eugene", row[Citizens.name])
+        }
+    }
+
     @Test fun selectOperationFromWhere() {
         withCities {
             val eugene = literal("eugene")
@@ -145,6 +162,10 @@ class QueryTests {
             assertEquals(3, rows.size)
             assertEquals("Andrey", rows[0][Inhabitants.citizenName])
             assertEquals("St. Petersburg", rows[0][Inhabitants.cityName])
+            assertEquals("Sergey", rows[1][Inhabitants.citizenName])
+            assertEquals("Munich", rows[1][Inhabitants.cityName])
+            assertEquals("Eugene", rows[2][Inhabitants.citizenName])
+            assertEquals("Munich", rows[2][Inhabitants.cityName])
         }
     }
 
@@ -172,6 +193,22 @@ class QueryTests {
             connection.dialect.statementSQL(query(Inhabitants).where { Inhabitants.cityName eq "Munchen" }).assertSQL {
                 "SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id WHERE cityName = ?"
             }
+        }
+    }
+
+    @Test fun selectFromOrder() {
+        withCities {
+            val query = query()
+                    .from(Citizens)
+                    .select(Citizens.name, Citizens.id)
+                    .orderBy(Citizens.name)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.name"
+            }
+
+            val rows = query.execute().map { it[Citizens.name] }.toList()
+            assertEquals(listOf("Alex", "Andrey", "Eugene", "Sergey", "Something"), rows)
         }
     }
 }

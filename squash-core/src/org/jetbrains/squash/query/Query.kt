@@ -6,4 +6,5 @@ interface Query {
     val schema: List<QuerySchema>
     val selection: List<Expression<*>>
     val filter: List<Expression<Boolean>>
+    val order: List<QueryOrder>
 }

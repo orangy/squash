@@ -3,13 +3,13 @@ package org.jetbrains.squash.definition
 import org.jetbrains.squash.*
 
 fun <V> Column<V>.primaryKey(pkName: String? = null): Column<V> = apply {
-    table.addConstraint(PrimaryKeyConstraint(Identifier(pkName ?: "PK_${table.tableName.id}"), table, listOf(this)))
+    table.constraints.add(PrimaryKeyConstraint(Identifier(pkName ?: "PK_${table.tableName.id}"), listOf(this)))
 }
 
 fun <V> Column<V>.uniqueIndex() = index(unique = true)
 fun <V> Column<V>.index(name: String? = null, unique: Boolean = false): Column<V> = apply {
     val indexName = name ?: "IX_${this.name.referenceName()}"
-    table.addConstraint(IndexConstraint(Identifier(indexName), table, unique, listOf(this)))
+    table.constraints.add(IndexConstraint(Identifier(indexName), listOf(this), unique))
 }
 
 // TODO: support full index column syntax, use builder like: index(name, unique).column(c1, ASC, NULLS_FIRST).column(c2, ...)
@@ -20,6 +20,6 @@ fun <V> Column<V>.index(name: String? = null, unique: Boolean = false): Column<V
 // PgSQL: ( { column | ( expression ) } [ COLLATE collation ] [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
 fun Table.index(vararg columns: Column<*>, name: String? = null, unique: Boolean = false) {
     val indexName = name ?: "IX_${tableName.id}_${columns.joinToString("_") { it.name.id }}"
-    addConstraint(IndexConstraint(Identifier(indexName), this, unique, columns.toList()))
+    constraints.add(IndexConstraint(Identifier(indexName), columns.toList(), unique))
 }
 

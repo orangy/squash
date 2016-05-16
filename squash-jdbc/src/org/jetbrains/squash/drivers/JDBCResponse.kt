@@ -21,8 +21,10 @@ class JDBCResponse(val resultSet: ResultSet) : Response {
         val label = metadata.getColumnLabel(index) // label in query, aka "AS" alias
         val nullable = metadata.isNullable(index) == ResultSetMetaData.columnNullable
 
+/*
         val klass = metadata.getColumnClassName(index) // java class name to bind type to
         val dbtype = metadata.getColumnTypeName(index) // database typer
+*/
         columns.add(JDBCResponseColumn(index, label, table, name, nullable, columnType(index)))
     }
 
