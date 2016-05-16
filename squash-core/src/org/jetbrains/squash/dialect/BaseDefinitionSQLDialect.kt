@@ -8,11 +8,11 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             table.constraints.filterIsInstance<IndexConstraint>().map {
                 SQLBuilder().apply {
                     val unique = if (it.unique) " UNIQUE" else ""
-                    append("CREATE$unique INDEX ${it.name.id} ON ${dialect.nameSQL(table.tableName)} (")
+                    append("CREATE$unique INDEX ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.tableName)} (")
                     it.columns.forEachIndexed { index, column ->
                         if (index > 0)
                             append(", ")
-                        append(column.name.id)
+                        append(dialect.idSQL(column.name))
                     }
                     append(")")
                 }.build()
@@ -20,7 +20,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
 
 
     override fun tableSQL(table: Table): SQLStatement = SQLBuilder().apply {
-        append("CREATE TABLE IF NOT EXISTS ${dialect.nameSQL(table.tableName)}")
+        append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.tableName)}")
         if (table.tableColumns.any()) {
             append(" (")
             table.tableColumns.forEachIndexed { index, column ->
@@ -55,13 +55,13 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     }
 
     protected open fun SQLBuilder.primaryKeyDefinitionSQL(primaryKey: PrimaryKeyConstraint, table: Table) {
-        append("CONSTRAINT ${primaryKey.name.id} PRIMARY KEY (")
-        append(primaryKey.columns.map { it.name.id }.joinToString())
+        append("CONSTRAINT ${dialect.idSQL(primaryKey.name)} PRIMARY KEY (")
+        append(primaryKey.columns.map { dialect.idSQL(it.name) }.joinToString())
         append(")")
     }
 
     protected open fun columnDefinitionSQL(builder: SQLBuilder, column: Column<*>): Unit = with(builder) {
-        append(column.name.id)
+        append(dialect.idSQL(column.name))
         append(" ")
         columnTypeSQL(this, column, emptySet())
     }

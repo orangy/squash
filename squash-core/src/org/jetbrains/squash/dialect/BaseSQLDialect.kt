@@ -10,8 +10,22 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     override fun nameSQL(name: Name): String = when (name) {
         is QualifiedIdentifier<*> -> "${nameSQL(name.parent)}.${nameSQL(name.identifier)}"
-        is Identifier -> name.id
+        is Identifier -> idSQL(name)
         else -> error("Name '$name' is not supported by $this")
+    }
+
+    override fun idSQL(name: Name): String {
+        val id = name.id
+        if (isSqlIdentifier(id))
+            return "$id"
+        return "\"$id\""
+    }
+
+    protected open fun isSqlIdentifier(id: String): Boolean {
+        if (id in SQL92_2003.keywords) return false
+        fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
+        fun String.isIdentifier() = !isEmpty() && first().isIdentifierStart() && all { it.isIdentifierStart() || it in '0'..'9' }
+        return id.isIdentifier()
     }
 
     override fun querySQL(query: Query): SQLStatement = SQLBuilder().apply { appendQuerySQL(this, query) }.build()
@@ -153,7 +167,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         values.forEachIndexed { index, value ->
             if (index > 0)
                 append(", ")
-            append(value.first.name.id)
+            append(idSQL(value.first.name))
         }
         append(") VALUES (")
         values.forEachIndexed { index, value ->

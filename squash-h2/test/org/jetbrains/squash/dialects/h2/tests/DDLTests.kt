@@ -5,6 +5,7 @@ import org.jetbrains.squash.tests.*
 import org.junit.*
 import kotlin.test.*
 
+@Suppress("unused")
 class DDLTests {
     @Test fun unregisteredTableNotExists() {
         val TestTable = object : Table("test") {
@@ -28,7 +29,6 @@ class DDLTests {
         }
     }
 
-/*
     @Test fun unnamedTableWithQuotesSQL() {
         val TestTable = object : Table() {
             val id = integer("id").primaryKey()
@@ -36,11 +36,22 @@ class DDLTests {
         }
 
         withTables(TestTable) {
-            val q = identityQuoteString
-            assertEquals("CREATE TABLE IF NOT EXISTS ${q}unnamedTableWithQuotesSQL\$TestTable$1$q (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT ${q}pk_unnamedTableWithQuotesSQL\$TestTable$1$q PRIMARY KEY (id))", TestTable.ddl)
+            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
+            assertEquals("CREATE TABLE IF NOT EXISTS \"unnamedTableWithQuotesSQL\$TestTable$1\" (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT \"PK_unnamedTableWithQuotesSQL\$TestTable$1\" PRIMARY KEY (id))", ddl)
         }
     }
-*/
+
+    @Test fun keywordNamedTableWithQuotesSQL() {
+        val TestTable = object : Table("SELECT") {
+            val id = integer("FROM").primaryKey()
+            val name = varchar("JOIN", length = 42)
+        }
+
+        withTables(TestTable) {
+            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
+            assertEquals("CREATE TABLE IF NOT EXISTS \"SELECT\" (\"FROM\" INT NOT NULL, \"JOIN\" VARCHAR(42) NOT NULL, CONSTRAINT PK_SELECT PRIMARY KEY (\"FROM\"))", ddl)
+        }
+    }
 
     @Test fun namedEmptyTableWithoutQuotesSQL() {
         val TestTable = object : Table("test_named_table") {

@@ -7,6 +7,10 @@ interface Name {
 }
 
 data class Identifier(override val id: String) : Name {
+    init {
+        if (id.isEmpty()) error("Identifier cannot be empty")
+    }
+
     override fun toString(): String = "[$id]"
 }
 
