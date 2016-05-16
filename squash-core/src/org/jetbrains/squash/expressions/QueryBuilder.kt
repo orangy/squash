@@ -1,8 +1,7 @@
 package org.jetbrains.squash.expressions
 
 import org.jetbrains.squash.definition.*
-
-fun query(): QueryBuilder = QueryBuilder()
+import org.jetbrains.squash.statements.*
 
 open class QueryBuilder : Query {
     override val schema = mutableListOf<QuerySchema>()
@@ -43,7 +42,6 @@ fun <Q : QueryBuilder> Q.where(predicate: Expression<Boolean>): Q = apply {
 }
 
 fun <Q : QueryBuilder> Q.where(predicate: () -> Expression<Boolean>): Q = where(predicate())
-fun Table.where(selector: () -> Expression<Boolean>) = query().from(this).where(selector)
 
 
 

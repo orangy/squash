@@ -5,7 +5,7 @@ import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 
-fun withCitiesAndUsers(statement: Transaction.() -> Unit) {
+fun withCities(statement: Transaction.() -> Unit) {
     withTables(Cities, Citizens, CitizenData) {
 
         val spbId = insertInto(Cities).values {

@@ -3,7 +3,6 @@ package org.jetbrains.squash.drivers
 import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
-import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.statements.Statement
@@ -29,34 +28,16 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         }
     }
 
-    override fun executeQuery(query: Query): Response {
-        val statementSQL = connection.dialect.querySQL(query)
-        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql)
-        statementSQL.arguments.forEach { arg ->
-            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
-        }
-        preparedStatement.executeQuery()
-        val response = JDBCResponse(preparedStatement.resultSet)
-        return response
-    }
-
     override fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
         statementSQL.arguments.forEach { arg ->
             preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
         }
-        preparedStatement.executeUpdate()
+        preparedStatement.execute()
         return preparedStatement.resultFor(statement)
     }
 
-    override fun executeStatement(statementSQL: SQLStatement): Unit {
-        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
-        statementSQL.arguments.forEach { arg ->
-            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
-        }
-        preparedStatement.execute()
-    }
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> PreparedStatement.resultFor(statement: Statement<T>): T {
@@ -75,13 +56,30 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
                     return emptySequence<Nothing>() as T
                 return rows.single().get<T>(response.columns.single())
             }
+            is QueryStatement -> {
+                val response = JDBCResponse(resultSet)
+                return response as T
+            }
+            is UpdateQueryStatement<*> -> {
+                return Unit as T
+            }
             else -> error("Cannot extract result for $statement")
         }
     }
 
-    override fun executeStatement(sql: String) {
-        jdbcConnection.prepareStatement(sql).executeUpdate()
+    override fun executeStatement(statementSQL: SQLStatement): Response {
+        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
+        statementSQL.arguments.forEach { arg ->
+            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
+        }
+        val executionResult = preparedStatement.execute()
+        return when (executionResult) {
+            true -> JDBCResponse(preparedStatement.resultSet)
+            false -> Response.Empty
+        }
     }
+
+    override fun executeStatement(sql: String): Response = executeStatement(SQLStatement(sql, emptyList()))
 
     override fun commit() {
         _jdbcConnection?.commit()

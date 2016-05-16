@@ -1,5 +1,6 @@
 package org.jetbrains.squash.expressions
 
+import org.jetbrains.squash.statements.*
 import kotlin.internal.*
 
 infix fun <V> Expression<@Exact V?>.eq(other: Expression<V?>): Expression<Boolean> = EqExpression(this, other)

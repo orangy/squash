@@ -1,6 +1,7 @@
 package org.jetbrains.squash.dialects.h2.tests
 
 import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
@@ -18,7 +19,7 @@ class QueryBuilderTests {
     }
 
     @Test fun selectFromWhere() {
-        withCitiesAndUsers {
+        withCities {
             val eugene = literal("eugene")
             val query = query().from(Citizens)
                     .where { Citizens.id eq eugene }
@@ -32,7 +33,7 @@ class QueryBuilderTests {
     }
 
     @Test fun selectOperationFromWhere() {
-        withCitiesAndUsers {
+        withCities {
             val eugene = literal("eugene")
             val query = query().from(Citizens)
                     .where { Citizens.id eq eugene }
@@ -80,7 +81,7 @@ class QueryBuilderTests {
     }
 
     @Test fun selectFromJoinAliased() {
-        withCitiesAndUsers {
+        withCities {
             val citizenName = Citizens.name.alias("citizenName")
             val cityName = Cities.name.alias("city")
             val query = query()

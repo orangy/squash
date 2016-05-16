@@ -28,7 +28,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         return id.isIdentifier()
     }
 
-    override fun querySQL(query: Query): SQLStatement = SQLBuilder().apply { appendQuerySQL(this, query) }.build()
+    override fun querySQL(query: Query): SQLStatement = SQLBuilder().apply { appendSelectSQL(this, query) }.build()
     override fun literalSQL(value: Any?): SQLStatement = SQLBuilder().apply { appendLiteralSQL(this, value) }.build()
 
     protected open fun appendLiteralSQL(builder: SQLBuilder, value: Any?): Unit = with(builder) {
@@ -80,7 +80,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             }
             is SubQueryExpression<*> -> {
                 append("(")
-                appendQuerySQL(this, expression.query)
+                appendSelectSQL(this, expression.query)
                 append(")")
             }
             else -> error("Expression '$expression' is not supported by $this")
@@ -105,7 +105,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         })
     }
 
-    protected open fun appendQuerySQL(builder: SQLBuilder, query: Query): Unit = with(builder) {
+    protected open fun appendSelectSQL(builder: SQLBuilder, query: Query): Unit = with(builder) {
         append("SELECT ")
         if (query.selection.isEmpty())
             append("*")
@@ -114,7 +114,10 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                 if (index != 0) append(", ")
                 appendDeclarationExpression(this, expression)
             }
+        appendQuerySQL(builder, query)
+    }
 
+    protected open fun appendQuerySQL(builder: SQLBuilder, query: Query): Unit = with(builder) {
         if (query.schema.isNotEmpty()) {
             val tables = query.schema.filterIsInstance<QuerySchema.From>()
             append(" FROM ")
@@ -147,16 +150,34 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
 
     override fun <T> statementSQL(statement: Statement<T>): SQLStatement = when (statement) {
+        is QueryStatement -> querySQL(statement)
         is InsertValuesStatement<*, *> -> insertValuesStatementSQL(statement)
         is InsertQueryStatement<*> -> insertQueryStatementSQL(statement)
+        is UpdateQueryStatement<*> -> updateQueryStatementSQL(statement)
         else -> error("Statement '$statement' is not supported by $this")
     }
+
+    private fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLBuilder().apply {
+        append("UPDATE ")
+        append(nameSQL(statement.table.tableName))
+        append(" SET ")
+        val values = statement.values.toList() // fix order
+        values.forEachIndexed { index, value ->
+            if (index > 0)
+                append(", ")
+            append(idSQL(value.first.name))
+            append(" = ")
+            appendExpression(this, value.second)
+        }
+        append(" ")
+        appendQuerySQL(this, statement)
+    }.build()
 
     private fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLBuilder().apply {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" ")
-        appendQuerySQL(this, statement)
+        appendSelectSQL(this, statement)
     }.build()
 
     private fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLBuilder().apply {
