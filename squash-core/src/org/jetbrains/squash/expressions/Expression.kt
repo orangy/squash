@@ -1,5 +1,7 @@
 package org.jetbrains.squash.expressions
 
+import org.jetbrains.squash.query.*
+
 /**
  * Represents an abstract expression of type [R] representable in an SQL request
  */

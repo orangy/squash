@@ -18,7 +18,7 @@ class SQLBuilder() : Appendable {
         arguments.add(SQLArgument(columnType, index, value))
     }
 
-    fun append(sql : SQLStatement) : SQLBuilder {
+    fun append(sql: SQLStatement): SQLBuilder {
         append(sql.sql)
         sql.arguments.forEach {
             appendArgument(it)

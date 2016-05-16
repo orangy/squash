@@ -1,7 +1,7 @@
-package org.jetbrains.squash.expressions
+package org.jetbrains.squash.query
 
 import org.jetbrains.squash.definition.*
-import org.jetbrains.squash.statements.*
+import org.jetbrains.squash.expressions.*
 
 open class QueryBuilder : Query {
     override val schema = mutableListOf<QuerySchema>()

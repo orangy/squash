@@ -7,7 +7,7 @@ interface ConstraintOwner {
 }
 
 interface Constraint {
-    val name : Name
+    val name: Name
     val owner: ConstraintOwner
 }
 

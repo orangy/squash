@@ -15,7 +15,6 @@ fun <V> Column<V>.nullable(): Column<V?> = table.replaceColumn(this, NullableCol
 fun <V> Column<V>.default(value: V): Column<V> = table.replaceColumn(this, DefaultValueColumn(this, value))
 
 
-
 fun Name.referenceName(): String = when (this) {
     is Identifier -> id
     is QualifiedIdentifier<*> -> "${parent.referenceName()}_${identifier.referenceName()}"

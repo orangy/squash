@@ -1,6 +1,7 @@
-package org.jetbrains.squash.expressions
+package org.jetbrains.squash.query
 
 import org.jetbrains.squash.definition.*
+import org.jetbrains.squash.expressions.*
 
 sealed class QuerySchema(val target: ColumnOwner) {
     class From(table: ColumnOwner) : QuerySchema(table)

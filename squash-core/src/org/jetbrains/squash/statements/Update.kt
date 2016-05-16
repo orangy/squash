@@ -2,6 +2,7 @@ package org.jetbrains.squash.statements
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.query.*
 import java.util.*
 import kotlin.internal.*
 

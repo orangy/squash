@@ -16,10 +16,11 @@ open class Table(name: String? = null) : ColumnOwner, ConstraintOwner {
 
     private val _tableColumns = mutableListOf<Column<*>>()
     override val tableColumns: List<Column<*>> get() = _tableColumns
-    override fun <T> addColumn(column : Column<T>): Column<T> {
+    override fun <T> addColumn(column: Column<T>): Column<T> {
         _tableColumns.add(column)
         return column
     }
+
     override fun <T, C : ColumnType> createColumn(name: String, type: C): Column<T> {
         return addColumn(DataColumn<T>(this, columnName(name), type))
     }

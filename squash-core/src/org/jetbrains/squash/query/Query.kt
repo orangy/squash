@@ -1,4 +1,6 @@
-package org.jetbrains.squash.expressions
+package org.jetbrains.squash.query
+
+import org.jetbrains.squash.expressions.*
 
 interface Query {
     val schema: List<QuerySchema>

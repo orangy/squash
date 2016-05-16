@@ -2,6 +2,7 @@ package org.jetbrains.squash.dialects.h2.tests
 
 import org.jetbrains.squash.*
 import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 

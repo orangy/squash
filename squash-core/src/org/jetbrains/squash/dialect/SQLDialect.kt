@@ -1,8 +1,6 @@
 package org.jetbrains.squash.dialect
 
 import org.jetbrains.squash.*
-import org.jetbrains.squash.definition.*
-import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 
 interface SQLDialect {

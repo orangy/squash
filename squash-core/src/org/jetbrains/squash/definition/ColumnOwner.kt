@@ -1,8 +1,5 @@
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.*
-import java.util.*
-
 interface ColumnOwner : ConstraintOwner {
     val tableColumns: List<Column<*>>
 
