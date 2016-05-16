@@ -53,13 +53,8 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
             if (existingTables.any { it.name == table.tableName.id })
                 continue
 
-            // create table
             val tableDefinition = connection.dialect.definition.tableSQL(table)
-            statements.add(tableDefinition)
-
-            // create indices
-            val indexDefinition = connection.dialect.definition.indicesSQL(table)
-            statements.addAll(indexDefinition)
+            statements.addAll(tableDefinition)
         }
         return statements
     }

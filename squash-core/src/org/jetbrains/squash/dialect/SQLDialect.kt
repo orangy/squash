@@ -12,7 +12,6 @@ interface SQLDialect {
     fun idSQL(name: Name): String
 
     fun <T> statementSQL(statement: Statement<T>): SQLStatement
-    fun querySQL(query: Query): SQLStatement
     fun literalSQL(value: Any?): SQLStatement
 }
 

@@ -6,7 +6,7 @@ import org.junit.*
 import kotlin.test.*
 
 @Suppress("unused")
-class DDLTests {
+class DefinitionTests {
     @Test fun unregisteredTableNotExists() {
         val TestTable = object : Table("test") {
             val id = integer("id").primaryKey()
@@ -35,9 +35,10 @@ class DDLTests {
             val name = varchar("name", length = 42)
         }
 
-        withTables(TestTable) {
-            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS \"unnamedTableWithQuotesSQL\$TestTable$1\" (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT \"PK_unnamedTableWithQuotesSQL\$TestTable$1\" PRIMARY KEY (id))", ddl)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                "CREATE TABLE IF NOT EXISTS \"unnamedTableWithQuotesSQL\$TestTable$1\" (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT \"PK_unnamedTableWithQuotesSQL\$TestTable$1\" PRIMARY KEY (id))"
+            }
         }
     }
 
@@ -47,9 +48,10 @@ class DDLTests {
             val name = varchar("JOIN", length = 42)
         }
 
-        withTables(TestTable) {
-            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS \"SELECT\" (\"FROM\" INT NOT NULL, \"JOIN\" VARCHAR(42) NOT NULL, CONSTRAINT PK_SELECT PRIMARY KEY (\"FROM\"))", ddl)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                "CREATE TABLE IF NOT EXISTS \"SELECT\" (\"FROM\" INT NOT NULL, \"JOIN\" VARCHAR(42) NOT NULL, CONSTRAINT PK_SELECT PRIMARY KEY (\"FROM\"))"
+            }
         }
     }
 
@@ -57,9 +59,10 @@ class DDLTests {
         val TestTable = object : Table("test_named_table") {
         }
 
-        withTables(TestTable) {
-            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS test_named_table", ddl)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                "CREATE TABLE IF NOT EXISTS test_named_table"
+            }
         }
     }
 
@@ -72,9 +75,10 @@ class DDLTests {
             //            val testCollate = varchar("testCollate", 2, "ascii_general_ci")
         }
 
-        withTables(TestTable) {
-            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS test_table_with_different_column_types (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_test_table_with_different_column_types PRIMARY KEY (name))", ddl)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                "CREATE TABLE IF NOT EXISTS test_table_with_different_column_types (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_test_table_with_different_column_types PRIMARY KEY (name))"
+            }
         }
     }
 
@@ -84,9 +88,10 @@ class DDLTests {
             val l = long("l").default(42)
         }
 
-        withTables(TestTable) {
-            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS t (s VARCHAR(100) NOT NULL DEFAULT ?, l BIGINT NOT NULL DEFAULT 42)", ddl)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                "CREATE TABLE IF NOT EXISTS t (s VARCHAR(100) NOT NULL DEFAULT ?, l BIGINT NOT NULL DEFAULT 42)"
+            }
         }
     }
 
@@ -96,11 +101,13 @@ class DDLTests {
             val name = varchar("name", 255).index()
         }
 
-        withTables(TestTable) {
-            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))", ddl)
-            val ix = connection.dialect.definition.indicesSQL(TestTable).single().sql
-            assertEquals("CREATE INDEX IX_t1_name ON t1 (name)", ix)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                """
+                CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))
+                CREATE INDEX IX_t1_name ON t1 (name)
+                """
+            }
         }
     }
 
@@ -110,11 +117,13 @@ class DDLTests {
             val name = varchar("name", 255).uniqueIndex()
         }
 
-        withTables(TestTable) {
-            val ddl = connection.dialect.definition.tableSQL(TestTable).sql
-            assertEquals("CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))", ddl)
-            val ix = connection.dialect.definition.indicesSQL(TestTable).single().sql
-            assertEquals("CREATE UNIQUE INDEX IX_t1_name ON t1 (name)", ix)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                """
+                CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))
+                CREATE UNIQUE INDEX IX_t1_name ON t1 (name)
+                """
+            }
         }
     }
 
@@ -129,9 +138,13 @@ class DDLTests {
             }
         }
 
-        withTables(TestTable) {
-            val index = connection.dialect.definition.indicesSQL(TestTable).single()
-            assertEquals("CREATE INDEX IX_t2_lvalue_rvalue ON t2 (lvalue, rvalue)", index.sql)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                """
+                CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL, lvalue INT NOT NULL, rvalue INT NOT NULL, CONSTRAINT PK_t2 PRIMARY KEY (id))
+                CREATE INDEX IX_t2_lvalue_rvalue ON t2 (lvalue, rvalue)
+                """
+            }
         }
     }
 
@@ -142,11 +155,14 @@ class DDLTests {
             val rvalue = integer("rvalue").index("two")
         }
 
-        withTables(TestTable) {
-            val indices = connection.dialect.definition.indicesSQL(TestTable)
-            assertEquals(2, indices.size)
-            assertEquals("CREATE INDEX one ON t2 (lvalue)", indices[0].sql)
-            assertEquals("CREATE INDEX two ON t2 (rvalue)", indices[1].sql)
+        withConnection {
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                """
+                CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL, lvalue INT NOT NULL, rvalue INT NOT NULL, CONSTRAINT PK_t2 PRIMARY KEY (id))
+                CREATE INDEX one ON t2 (lvalue)
+                CREATE INDEX two ON t2 (rvalue)
+                """
+            }
         }
     }
 }

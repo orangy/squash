@@ -8,7 +8,7 @@ import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
 
-class H2SchemaTests {
+class SchemaTests {
     @Test
     fun testEmptySchema() {
         H2Dialect.createMemoryConnection().use { connection ->
@@ -43,14 +43,12 @@ class H2SchemaTests {
     @Test
     fun testCitiesDDL() {
         H2Dialect.createMemoryConnection().use { connection ->
-            assertEquals(
-                    "CREATE TABLE IF NOT EXISTS Cities (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(50) NOT NULL, CONSTRAINT PK_Cities PRIMARY KEY (id))",
-                    connection.dialect.definition.tableSQL(Cities).sql
-            )
-            assertEquals(
-                    "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL, CONSTRAINT PK_Citizens PRIMARY KEY (id))",
-                    connection.dialect.definition.tableSQL(Citizens).sql
-            )
+            connection.dialect.definition.tableSQL(Cities).assertSQL {
+                "CREATE TABLE IF NOT EXISTS Cities (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(50) NOT NULL, CONSTRAINT PK_Cities PRIMARY KEY (id))"
+            }
+            connection.dialect.definition.tableSQL(Citizens).assertSQL {
+                "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL, CONSTRAINT PK_Citizens PRIMARY KEY (id))"
+            }
         }
     }
 

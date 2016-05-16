@@ -6,7 +6,7 @@ import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
 
-class DMLTests {
+class ModificationTests {
     @Test fun testBuildTestData() {
         withCities {}
     }

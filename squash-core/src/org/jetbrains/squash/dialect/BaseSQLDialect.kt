@@ -28,7 +28,6 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         return id.isIdentifier()
     }
 
-    override fun querySQL(query: Query): SQLStatement = SQLBuilder().apply { appendSelectSQL(this, query) }.build()
     override fun literalSQL(value: Any?): SQLStatement = SQLBuilder().apply { appendLiteralSQL(this, value) }.build()
 
     protected open fun appendLiteralSQL(builder: SQLBuilder, value: Any?): Unit = with(builder) {
@@ -150,14 +149,18 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
 
     override fun <T> statementSQL(statement: Statement<T>): SQLStatement = when (statement) {
-        is QueryStatement -> querySQL(statement)
+        is QueryStatement -> queryStatementSQL(statement)
         is InsertValuesStatement<*, *> -> insertValuesStatementSQL(statement)
         is InsertQueryStatement<*> -> insertQueryStatementSQL(statement)
         is UpdateQueryStatement<*> -> updateQueryStatementSQL(statement)
         else -> error("Statement '$statement' is not supported by $this")
     }
 
-    private fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLBuilder().apply {
+    protected open fun queryStatementSQL(query: QueryStatement): SQLStatement {
+        return SQLBuilder().apply { appendSelectSQL(this, query) }.build()
+    }
+
+    protected open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLBuilder().apply {
         append("UPDATE ")
         append(nameSQL(statement.table.tableName))
         append(" SET ")
@@ -173,14 +176,14 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendQuerySQL(this, statement)
     }.build()
 
-    private fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLBuilder().apply {
+    protected open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLBuilder().apply {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" ")
         appendSelectSQL(this, statement)
     }.build()
 
-    private fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLBuilder().apply {
+    protected open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLBuilder().apply {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" (")

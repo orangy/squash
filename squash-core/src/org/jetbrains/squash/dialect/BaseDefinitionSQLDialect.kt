@@ -4,7 +4,27 @@ import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 
 open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDialect {
-    override fun indicesSQL(table: Table): List<SQLStatement> =
+
+    override fun tableSQL(table: Table): List<SQLStatement> {
+        val tableSQL = SQLBuilder().apply {
+            append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.tableName)}")
+            if (table.tableColumns.any()) {
+                append(" (")
+                table.tableColumns.forEachIndexed { index, column ->
+                    if (index > 0)
+                        append(", ")
+                    columnDefinitionSQL(this, column)
+                }
+
+                appendPrimaryKeys(table)
+                append(")")
+            }
+        }.build()
+        val indices = indicesSQL(table)
+        return listOf(tableSQL) + indices
+    }
+
+    private fun indicesSQL(table: Table): List<SQLStatement> =
             table.constraints.filterIsInstance<IndexConstraint>().map {
                 SQLBuilder().apply {
                     val unique = if (it.unique) " UNIQUE" else ""
@@ -17,22 +37,6 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                     append(")")
                 }.build()
             }
-
-
-    override fun tableSQL(table: Table): SQLStatement = SQLBuilder().apply {
-        append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.tableName)}")
-        if (table.tableColumns.any()) {
-            append(" (")
-            table.tableColumns.forEachIndexed { index, column ->
-                if (index > 0)
-                    append(", ")
-                columnDefinitionSQL(this, column)
-            }
-
-            appendPrimaryKeys(table)
-            append(")")
-        }
-    }.build()
 
     private fun SQLBuilder.appendPrimaryKeys(table: Table) {
         val primaryKeys = table.constraints.filterIsInstance<PrimaryKeyConstraint>()

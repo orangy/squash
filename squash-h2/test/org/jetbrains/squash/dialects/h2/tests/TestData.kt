@@ -20,20 +20,11 @@ fun withCities(statement: Transaction.() -> Unit) {
             it[name] = "Prague"
         }.execute()
 
-/*
-        insertInto(Citizens).values {
-            it[id] = "andrey"
-            it[name] = "Andrey"
-            it[cityId] = spbId
-        }.execute()
-*/
-
-        val insertAndrey = insertInto(Citizens).query()
+        insertInto(Citizens).query()
                 .select { literal("andrey").alias("id") }
                 .select { literal("Andrey").alias("name") }
                 .select { literal(spbId).alias("cityId") }
-
-        executeStatement(insertAndrey) // workaround .execute() overload resolution issue
+                .execute()
 
         insertInto(Citizens).values {
             it[id] = "sergey"

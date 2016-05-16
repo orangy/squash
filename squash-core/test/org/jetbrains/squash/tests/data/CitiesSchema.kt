@@ -2,6 +2,7 @@ package org.jetbrains.squash.tests.data
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.statements.*
 
 object Cities : Table() {
     val id = integer("id").autoIncrement() // PKColumn<Int>
@@ -47,7 +48,7 @@ object Misc : Table() {
 
 }
 
-object Inhabitants : QueryBuilder() {
+object Inhabitants : QueryStatement() {
     val cityName = Cities.name.alias("cityName")
     val citizenName = Citizens.name.alias("citizenName")
 
