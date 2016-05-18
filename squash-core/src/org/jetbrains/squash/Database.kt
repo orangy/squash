@@ -36,12 +36,14 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
         return@use validationResult
     }
 
-    fun createSchema() = connection.createTransaction().use { transaction ->
+    fun createSchema(transaction: Transaction) {
         val statements = transaction.createSchemaStatements(tables)
         for (statement in statements) {
             transaction.executeStatement(statement)
         }
     }
+
+    fun createSchema() = connection.createTransaction().use { createSchema(it) }
 
     fun Transaction.createSchemaStatements(tables: List<Table>): List<SQLStatement> {
         val statements = ArrayList<SQLStatement>()

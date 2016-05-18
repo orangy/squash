@@ -28,17 +28,6 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         }
     }
 
-    override fun <T> executeStatement(statement: Statement<T>): T {
-        val statementSQL = connection.dialect.statementSQL(statement)
-        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
-        statementSQL.arguments.forEach { arg ->
-            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
-        }
-        preparedStatement.execute()
-        return preparedStatement.resultFor(statement)
-    }
-
-
     @Suppress("UNCHECKED_CAST")
     private fun <T> PreparedStatement.resultFor(statement: Statement<T>): T {
         when (statement) {
@@ -47,14 +36,16 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
                 val rows = response.rows
                 if (rows.empty)
                     return Unit as T
-                return rows.single().get<T>(response.columns.single())
+                val keyColumn = response.columns.single()
+                return rows.single().get<T>(keyColumn)
             }
             is InsertQueryStatement<*> -> {
                 val response = JDBCResponse(generatedKeys)
                 val rows = response.rows
                 if (rows.empty)
                     return emptySequence<Nothing>() as T
-                return rows.single().get<T>(response.columns.single())
+                val keyColumn = response.columns.single()
+                return rows.single().get<T>(keyColumn)
             }
             is QueryStatement -> {
                 val response = JDBCResponse(resultSet)
@@ -69,16 +60,31 @@ class JDBCTransaction(override val connection: DatabaseConnection, val connector
         }
     }
 
+    override fun <T> executeStatement(statement: Statement<T>): T {
+        val statementSQL = connection.dialect.statementSQL(statement)
+        val returnColumn: Column<*>? = if (statement is InsertValuesStatement<*, *>) statement.generatedKeyColumn else null
+        val preparedStatement = jdbcConnection.prepareStatement(statementSQL, returnColumn)
+        preparedStatement.execute()
+        return preparedStatement.resultFor(statement)
+    }
+
     override fun executeStatement(statementSQL: SQLStatement): Response {
-        val preparedStatement = jdbcConnection.prepareStatement(statementSQL.sql, java.sql.Statement.RETURN_GENERATED_KEYS)
-        statementSQL.arguments.forEach { arg ->
-            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
-        }
+        val preparedStatement = jdbcConnection.prepareStatement(statementSQL)
         val executionResult = preparedStatement.execute()
         return when (executionResult) {
             true -> JDBCResponse(preparedStatement.resultSet)
             false -> Response.Empty
         }
+    }
+
+    fun Connection.prepareStatement(statementSQL: SQLStatement, returnColumn: Column<*>? = null): PreparedStatement {
+        val preparedStatement = if (returnColumn == null) prepareStatement(statementSQL.sql) else
+            prepareStatement(statementSQL.sql, arrayOf(connection.dialect.idSQL(returnColumn.name)))
+
+        statementSQL.arguments.forEach { arg ->
+            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
+        }
+        return preparedStatement
     }
 
     override fun executeStatement(sql: String): Response = executeStatement(SQLStatement(sql, emptyList()))

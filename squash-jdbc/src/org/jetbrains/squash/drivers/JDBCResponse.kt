@@ -21,10 +21,11 @@ class JDBCResponse(val resultSet: ResultSet) : Response {
         val label = metadata.getColumnLabel(index) // label in query, aka "AS" alias
         val nullable = metadata.isNullable(index) == ResultSetMetaData.columnNullable
 
-/*
+        @Suppress("UNUSED_VARIABLE")
         val klass = metadata.getColumnClassName(index) // java class name to bind type to
+
+        @Suppress("UNUSED_VARIABLE")
         val dbtype = metadata.getColumnTypeName(index) // database typer
-*/
         columns.add(JDBCResponseColumn(index, label, table, name, nullable, columnType(index)))
     }
 
@@ -32,6 +33,7 @@ class JDBCResponse(val resultSet: ResultSet) : Response {
         val columnType = when (metadata.getColumnType(index)) {
             Types.CHAR -> CharColumnType
             Types.INTEGER -> IntColumnType
+            Types.SMALLINT -> IntColumnType
             Types.BIGINT -> LongColumnType
             Types.DATE -> DateColumnType
             Types.TIME -> DateTimeColumnType
@@ -40,8 +42,14 @@ class JDBCResponse(val resultSet: ResultSet) : Response {
             Types.DECIMAL -> DecimalColumnType(metadata.getScale(index), metadata.getPrecision(index))
             Types.VARCHAR -> StringColumnType(metadata.getPrecision(index))
             Types.BINARY -> BinaryColumnType(metadata.getPrecision(index))
-            Types.SMALLINT -> IntColumnType
-            else -> throw UnsupportedOperationException("Column type '${metadata.getColumnTypeName(index)}' is not supported")
+            else -> when (metadata.getColumnClassName(index)) {
+                "java.lang.Character" -> CharColumnType
+                "java.lang.Integer" -> IntColumnType
+                "java.lang.Long" -> LongColumnType
+                "java.lang.Short" -> IntColumnType
+                "java.lang.String" -> StringColumnType(metadata.getPrecision(index))
+                else -> throw UnsupportedOperationException("Column type '${metadata.getColumnTypeName(index)}' is not supported")
+            }
         }
         return columnType
     }

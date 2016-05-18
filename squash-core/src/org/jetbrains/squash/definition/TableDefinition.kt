@@ -18,6 +18,8 @@ open class TableDefinition(name: String? = null) : Table {
     override val tableColumns: List<Column<*>> get() = _tableColumns
 
     fun <T> addColumn(column: Column<T>): Column<T> {
+        require(column.table == this) { "Can't add column '$column' from different table"}
+
         _tableColumns.add(column)
         return column
     }
@@ -27,6 +29,9 @@ open class TableDefinition(name: String? = null) : Table {
     }
 
     override fun <T1, T2> replaceColumn(original: Column<T1>, replacement: Column<T2>): Column<T2> {
+        require(original.table == this) { "Can't replace column '$original' from different table"}
+        require(replacement.table == this) { "Can't replace with column '$replacement' from different table"}
+
         val index = _tableColumns.indexOf(original)
         if (index < 0) error("Original column `$original` not found in this table `$this`")
         _tableColumns[index] = replacement

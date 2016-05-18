@@ -1,4 +1,4 @@
-package org.jetbrains.squash.dialects.h2.tests
+package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
@@ -8,7 +8,7 @@ import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
 
-class QueryTests {
+abstract class QueryTests : DatabaseTests {
     @Test fun selectLiteral() {
         withTables() {
             val eugene = literal("eugene")

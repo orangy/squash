@@ -124,7 +124,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             append(" FROM ")
             tables.joinTo(this) { tableDeclarationName(it.table) }
 
-            val innerJoins = query.schema.filter { it !is QuerySchema.From}
+            val innerJoins = query.schema.filter { it !is QuerySchema.From }
             if (innerJoins.any()) {
                 innerJoins.forEach { join ->
                     when (join) {
@@ -180,7 +180,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     private fun tableDeclarationName(table: Table): String = when (table) {
-        is AliasTable<*> -> nameSQL(table.tableName) +" AS " + idSQL(table.name)
+        is AliasTable<*> -> nameSQL(table.tableName) + " AS " + idSQL(table.name)
         is Table -> nameSQL(table.tableName)
         else -> error("FieldCollection '$table' is not supported by $this")
     }

@@ -1,4 +1,4 @@
-package org.jetbrains.squash.dialects.h2.tests
+package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
@@ -7,7 +7,7 @@ import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
 
-class ModificationTests {
+abstract class ModificationTests : DatabaseTests {
     @Test fun testBuildTestData() {
         withCities {}
     }

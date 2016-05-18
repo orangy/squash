@@ -1,12 +1,11 @@
-package org.jetbrains.squash.dialects.h2.tests
+package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.definition.*
-import org.jetbrains.squash.tests.*
 import org.junit.*
 import kotlin.test.*
 
 @Suppress("unused")
-class DefinitionTests {
+abstract class DefinitionTests : DatabaseTests {
     @Test fun unregisteredTableNotExists() {
         val TestTable = object : TableDefinition("test") {
             val id = integer("id").primaryKey()
@@ -35,7 +34,7 @@ class DefinitionTests {
             val name = varchar("name", length = 42)
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 "CREATE TABLE IF NOT EXISTS \"unnamedTableWithQuotesSQL\$TestTable$1\" (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT \"PK_unnamedTableWithQuotesSQL\$TestTable$1\" PRIMARY KEY (id))"
             }
@@ -48,7 +47,7 @@ class DefinitionTests {
             val name = varchar("JOIN", length = 42)
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 "CREATE TABLE IF NOT EXISTS \"SELECT\" (\"FROM\" INT NOT NULL, \"JOIN\" VARCHAR(42) NOT NULL, CONSTRAINT PK_SELECT PRIMARY KEY (\"FROM\"))"
             }
@@ -59,7 +58,7 @@ class DefinitionTests {
         val TestTable = object : TableDefinition("test_named_table") {
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 "CREATE TABLE IF NOT EXISTS test_named_table"
             }
@@ -75,7 +74,7 @@ class DefinitionTests {
             //            val testCollate = varchar("testCollate", 2, "ascii_general_ci")
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 "CREATE TABLE IF NOT EXISTS test_table_with_different_column_types (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_test_table_with_different_column_types PRIMARY KEY (name))"
             }
@@ -88,7 +87,7 @@ class DefinitionTests {
             val l = long("l").default(42)
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 "CREATE TABLE IF NOT EXISTS t (s VARCHAR(100) NOT NULL DEFAULT ?, l BIGINT NOT NULL DEFAULT 42)"
             }
@@ -101,7 +100,7 @@ class DefinitionTests {
             val name = varchar("name", 255).index()
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))
@@ -117,7 +116,7 @@ class DefinitionTests {
             val name = varchar("name", 255).uniqueIndex()
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))
@@ -138,7 +137,7 @@ class DefinitionTests {
             }
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL, lvalue INT NOT NULL, rvalue INT NOT NULL, CONSTRAINT PK_t2 PRIMARY KEY (id))
@@ -155,7 +154,7 @@ class DefinitionTests {
             val rvalue = integer("rvalue").index("two")
         }
 
-        withConnection {
+        withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL, lvalue INT NOT NULL, rvalue INT NOT NULL, CONSTRAINT PK_t2 PRIMARY KEY (id))
