@@ -8,7 +8,7 @@ import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.statements.Statement
 import java.sql.*
 
-class JDBCTransaction(override val connection: DatabaseConnection, val connector: () -> Connection) : Transaction {
+open class JDBCTransaction(override val connection: DatabaseConnection, val connector: () -> Connection) : Transaction {
     var _jdbcConnection: Connection? = null
 
     val jdbcConnection: Connection get() = _jdbcConnection ?: run {

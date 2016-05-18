@@ -65,8 +65,8 @@ abstract class DefinitionTests : DatabaseTests {
         }
     }
 
-    @Test fun tableWithDifferentColumnTypesSQL() {
-        val TestTable = object : TableDefinition("test_table_with_different_column_types") {
+    @Test fun allColumnTypes() {
+        val TestTable = object : TableDefinition("allColumnTypes") {
             val id = integer("id").autoIncrement()
             val name = varchar("name", 42).primaryKey()
             val age = integer("age").nullable()
@@ -75,11 +75,12 @@ abstract class DefinitionTests : DatabaseTests {
         }
 
         withTransaction {
-            connection.dialect.definition.tableSQL(TestTable).assertSQL {
-                "CREATE TABLE IF NOT EXISTS test_table_with_different_column_types (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_test_table_with_different_column_types PRIMARY KEY (name))"
-            }
+            connection.dialect.definition.tableSQL(TestTable).assertSQL(sqlAllColumnTypes)
         }
     }
+
+    protected open val sqlAllColumnTypes: String
+        get() = "CREATE TABLE IF NOT EXISTS allColumnTypes (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_allColumnTypes PRIMARY KEY (name))"
 
     @Test fun columnsWithDefaults() {
         val TestTable = object : TableDefinition("t") {

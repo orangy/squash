@@ -4,12 +4,11 @@ import kotlinx.support.jdk7.*
 import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialects.postgres.*
-import org.jetbrains.squash.drivers.*
 import org.jetbrains.squash.tests.*
 
 class PgDatabaseTests : DatabaseTests {
     fun withConnection(block: (DatabaseConnection) -> Unit) {
-        val connection = JDBCConnection.create(PostgresDialect, "jdbc:postgresql://localhost:5432/", "org.postgresql.Driver", "postgres")
+        val connection = PgConnection.create("jdbc:postgresql://localhost:5432/", "org.postgresql.Driver", "postgres")
         block(connection)
     }
 

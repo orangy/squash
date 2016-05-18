@@ -15,10 +15,4 @@ object H2Dialect : BaseSQLDialect("H2") {
             }
         }
     }
-
-    fun createMemoryConnection(catalogue: String = "", user: String = "", password: String = ""): DatabaseConnection {
-        val pool = JdbcConnectionPool.create("jdbc:h2:mem:$catalogue", user, password);
-        return JDBCConnection(H2Dialect) { pool.connection }
-    }
 }
-

@@ -19,7 +19,7 @@ abstract class QueryTests : DatabaseTests {
             }
 
             val row = query.execute().single()
-            assertEquals(eugene.literal, row.get<String>("?1"))
+            assertEquals(eugene.literal, row.get<String>(0))
         }
     }
 
@@ -260,10 +260,10 @@ abstract class QueryTests : DatabaseTests {
                     .from(Citizens)
                     .select(Citizens.name, Citizens.id)
                     .orderByDescending(Citizens.cityId)
-                    .orderBy(Citizens.id)
+                    .orderBy(Citizens.name)
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.city_id DESC, Citizens.id"
+                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.city_id DESC, Citizens.name"
             }
 
             val rows = query.execute().map { it[Citizens.name] }.toList()

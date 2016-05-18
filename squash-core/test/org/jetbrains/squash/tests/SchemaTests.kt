@@ -1,6 +1,5 @@
 package org.jetbrains.squash.tests
 
-import kotlinx.support.jdk7.*
 import org.jetbrains.squash.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
@@ -21,6 +20,7 @@ abstract class SchemaTests : DatabaseTests {
     fun singleTableSchema() {
         withTransaction {
             executeStatement(sqlSingleTableSchema)
+            executeStatement("INSERT INTO TEST (NAME) VALUES ('test')")
 
             val schema = querySchema()
             val tables = schema.tables().toList()
@@ -55,59 +55,58 @@ abstract class SchemaTests : DatabaseTests {
     fun citiesSchema() {
         withTransaction {
             val database = Database(connection, listOf(Cities, Citizens))
-            database.createSchema()
-            val validationResult = database.validateSchema()
+            database.createSchema(this)
+            val validationResult = database.validateSchema(this)
             if (validationResult.any()) {
                 fail(validationResult.joinToString("\n") { it.message })
             }
 
-            connection.createTransaction().use { transaction ->
-                val schema = transaction.querySchema()
-                val tables = schema.tables().toList()
-                assertEquals(2, tables.size)
+            val schema = querySchema()
+            val tables = schema.tables().toList()
+            assertEquals(2, tables.size)
 
-                with(tables[0]) {
-                    kotlin.test.assertEquals("CITIES", name)
-                    val columns = columns().toList()
-                    kotlin.test.assertEquals(2, columns.size)
-                    with(columns[0]) {
-                        kotlin.test.assertEquals("ID", name)
-                        kotlin.test.assertEquals(true, autoIncrement)
-                        kotlin.test.assertEquals(false, nullable)
-                        kotlin.test.assertEquals(10, size)
-                    }
-                    with(columns[1]) {
-                        kotlin.test.assertEquals("NAME", name)
-                        kotlin.test.assertEquals(false, autoIncrement)
-                        kotlin.test.assertEquals(50, size)
-                        kotlin.test.assertEquals(false, nullable)
-                    }
+            with(tables[0]) {
+                kotlin.test.assertEquals("CITIES", name)
+                val columns = columns().toList()
+                kotlin.test.assertEquals(2, columns.size)
+                with(columns[0]) {
+                    kotlin.test.assertEquals("ID", name)
+                    kotlin.test.assertEquals(true, autoIncrement)
+                    kotlin.test.assertEquals(false, nullable)
+                    kotlin.test.assertEquals(10, size)
                 }
+                with(columns[1]) {
+                    kotlin.test.assertEquals("NAME", name)
+                    kotlin.test.assertEquals(false, autoIncrement)
+                    kotlin.test.assertEquals(50, size)
+                    kotlin.test.assertEquals(false, nullable)
+                }
+            }
 
-                with(tables[1]) {
-                    kotlin.test.assertEquals("CITIZENS", name)
-                    val columns = columns().toList()
-                    kotlin.test.assertEquals(3, columns.size)
-                    with(columns[0]) {
-                        kotlin.test.assertEquals("ID", name)
-                        kotlin.test.assertEquals(false, autoIncrement)
-                        kotlin.test.assertEquals(false, nullable)
-                        kotlin.test.assertEquals(10, size)
-                    }
-                    with(columns[1]) {
-                        kotlin.test.assertEquals("NAME", name)
-                        kotlin.test.assertEquals(false, autoIncrement)
-                        kotlin.test.assertEquals(50, size)
-                        kotlin.test.assertEquals(false, nullable)
-                    }
-                    with(columns[2]) {
-                        kotlin.test.assertEquals("CITY_ID", name)
-                        kotlin.test.assertEquals(false, autoIncrement)
-                        kotlin.test.assertEquals(10, size)
-                        kotlin.test.assertEquals(true, nullable)
-                    }
+            with(tables[1]) {
+                kotlin.test.assertEquals("CITIZENS", name)
+                val columns = columns().toList()
+                kotlin.test.assertEquals(3, columns.size)
+                with(columns[0]) {
+                    kotlin.test.assertEquals("ID", name)
+                    kotlin.test.assertEquals(false, autoIncrement)
+                    kotlin.test.assertEquals(false, nullable)
+                    kotlin.test.assertEquals(10, size)
+                }
+                with(columns[1]) {
+                    kotlin.test.assertEquals("NAME", name)
+                    kotlin.test.assertEquals(false, autoIncrement)
+                    kotlin.test.assertEquals(50, size)
+                    kotlin.test.assertEquals(false, nullable)
+                }
+                with(columns[2]) {
+                    kotlin.test.assertEquals("CITY_ID", name)
+                    kotlin.test.assertEquals(false, autoIncrement)
+                    kotlin.test.assertEquals(10, size)
+                    kotlin.test.assertEquals(true, nullable)
                 }
             }
         }
+
     }
 }

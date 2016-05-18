@@ -46,6 +46,8 @@ class JDBCResponseRow(val response: JDBCResponse, val resultSet: ResultSet) : Re
         return columnValue(name, columnData)
     }
 
+    override fun <V> get(index: Int): V = get(response.columns[index])
+
     private fun <V> columnValue(name: String, columnData: List<Map.Entry<JDBCResponseColumn, Any?>>): V {
         when (columnData.size) {
             0 -> error("Cannot find data with label '$name' in response.")

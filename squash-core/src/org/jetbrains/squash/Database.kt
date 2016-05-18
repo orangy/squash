@@ -9,7 +9,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
 
     data class DatabaseSchemaValidationItem(val message: String)
 
-    fun validateSchema(): List<DatabaseSchemaValidationItem> = connection.createTransaction().use { transaction ->
+    fun validateSchema(transaction: Transaction): List<DatabaseSchemaValidationItem> {
         val tableMap = tables.associateBy { it.tableName.id.toLowerCase() }
         val validationResult = mutableListOf<DatabaseSchemaValidationItem>()
         transaction.querySchema().tables().forEach { tableSchema ->
@@ -33,7 +33,7 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
                 }
             }
         }
-        return@use validationResult
+        return validationResult
     }
 
     fun createSchema(transaction: Transaction) {
@@ -42,8 +42,6 @@ class Database(val connection: DatabaseConnection, val tables: List<Table>) {
             transaction.executeStatement(statement)
         }
     }
-
-    fun createSchema() = connection.createTransaction().use { createSchema(it) }
 
     fun Transaction.createSchemaStatements(tables: List<Table>): List<SQLStatement> {
         val statements = ArrayList<SQLStatement>()

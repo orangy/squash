@@ -8,14 +8,16 @@ import org.jetbrains.squash.tests.*
 
 class H2DatabaseTests : DatabaseTests {
     fun withConnection(block: (DatabaseConnection) -> Unit) {
-        H2Dialect.createMemoryConnection().use(block)
+        H2Connection.createMemoryConnection().use(block)
     }
 
     override fun withTables(vararg tables: Table, statement: Transaction.() -> Unit) {
         withConnection { connection ->
             val database = Database(connection, tables.toList())
-            database.createSchema()
-            connection.createTransaction().use(statement)
+            connection.createTransaction().use { transaction ->
+                database.createSchema(transaction)
+                transaction.statement()
+            }
         }
     }
 

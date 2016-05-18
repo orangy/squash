@@ -4,14 +4,16 @@ import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 import java.sql.*
 
-class JDBCDatabaseSchema(connection: Connection) : DatabaseSchema {
-    private val catalogue: String = connection.catalog
-    private val metadata: DatabaseMetaData = connection.metaData
+open class JDBCDatabaseSchema(val connection: Connection) : DatabaseSchema {
+    protected val catalogue: String = connection.catalog
+    protected val metadata: DatabaseMetaData = connection.metaData
 
     override fun tables(): Sequence<DatabaseSchema.Table> {
-        val resultSet = metadata.getTables(catalogue, null, null, arrayOf("TABLE"))
+        val resultSet = metadata.getTables(catalogue, currentSchema(), null, arrayOf("TABLE"))
         return JDBCResponse(resultSet).rows.map { Table(it.get<String>("TABLE_NAME"), this) }
     }
+
+    protected open fun currentSchema() : String = connection.schema
 
     class Column(override val name: String,
                  override val nullable: Boolean,
@@ -22,7 +24,7 @@ class JDBCDatabaseSchema(connection: Connection) : DatabaseSchema {
 
     class Table(override val name: String, private val schema: JDBCDatabaseSchema) : DatabaseSchema.Table {
         override fun columns(): Sequence<DatabaseSchema.Column> {
-            val resultSet = schema.metadata.getColumns(schema.catalogue, null, name, null)
+            val resultSet = schema.metadata.getColumns(schema.catalogue, schema.currentSchema(), name, null)
             val response = JDBCResponse(resultSet)
             return response.rows.map {
                 val columnSize = it.get<Int>("COLUMN_SIZE")
