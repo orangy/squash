@@ -25,13 +25,13 @@ abstract class SchemaTests : DatabaseTests {
             val schema = querySchema()
             val tables = schema.tables().toList()
             assertEquals(1, tables.size)
-            assertEquals("TEST", tables[0].name)
+            assertEquals("TEST", tables[0].name.toUpperCase())
             val columns = tables[0].columns().toList()
             assertEquals(2, columns.size)
-            assertEquals("ID", columns[0].name)
+            assertEquals("ID", columns[0].name.toUpperCase())
             assertEquals(true, columns[0].autoIncrement)
             assertEquals(10, columns[0].size)
-            assertEquals("NAME", columns[1].name)
+            assertEquals("NAME", columns[1].name.toUpperCase())
             assertEquals(false, columns[1].autoIncrement)
             assertEquals(255, columns[1].size)
         }
@@ -66,17 +66,17 @@ abstract class SchemaTests : DatabaseTests {
             assertEquals(2, tables.size)
 
             with(tables[0]) {
-                kotlin.test.assertEquals("CITIES", name)
+                kotlin.test.assertEquals("CITIES", name.toUpperCase())
                 val columns = columns().toList()
                 kotlin.test.assertEquals(2, columns.size)
                 with(columns[0]) {
-                    kotlin.test.assertEquals("ID", name)
+                    kotlin.test.assertEquals("ID", name.toUpperCase())
                     kotlin.test.assertEquals(true, autoIncrement)
                     kotlin.test.assertEquals(false, nullable)
                     kotlin.test.assertEquals(10, size)
                 }
                 with(columns[1]) {
-                    kotlin.test.assertEquals("NAME", name)
+                    kotlin.test.assertEquals("NAME", name.toUpperCase())
                     kotlin.test.assertEquals(false, autoIncrement)
                     kotlin.test.assertEquals(50, size)
                     kotlin.test.assertEquals(false, nullable)
@@ -84,23 +84,23 @@ abstract class SchemaTests : DatabaseTests {
             }
 
             with(tables[1]) {
-                kotlin.test.assertEquals("CITIZENS", name)
+                kotlin.test.assertEquals("CITIZENS", name.toUpperCase())
                 val columns = columns().toList()
                 kotlin.test.assertEquals(3, columns.size)
                 with(columns[0]) {
-                    kotlin.test.assertEquals("ID", name)
+                    kotlin.test.assertEquals("ID", name.toUpperCase())
                     kotlin.test.assertEquals(false, autoIncrement)
                     kotlin.test.assertEquals(false, nullable)
                     kotlin.test.assertEquals(10, size)
                 }
                 with(columns[1]) {
-                    kotlin.test.assertEquals("NAME", name)
+                    kotlin.test.assertEquals("NAME", name.toUpperCase())
                     kotlin.test.assertEquals(false, autoIncrement)
                     kotlin.test.assertEquals(50, size)
                     kotlin.test.assertEquals(false, nullable)
                 }
                 with(columns[2]) {
-                    kotlin.test.assertEquals("CITY_ID", name)
+                    kotlin.test.assertEquals("CITY_ID", name.toUpperCase())
                     kotlin.test.assertEquals(false, autoIncrement)
                     kotlin.test.assertEquals(10, size)
                     kotlin.test.assertEquals(true, nullable)

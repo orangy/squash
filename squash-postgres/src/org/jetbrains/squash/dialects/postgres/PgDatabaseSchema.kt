@@ -26,8 +26,7 @@ class PgDatabaseSchema(connection: Connection) : JDBCDatabaseSchema(connection) 
         val statement = connection.prepareStatement("SELECT c.relname AS TABLE_NAME FROM pg_catalog.pg_namespace n, pg_catalog.pg_class c WHERE c.relnamespace = n.oid AND c.relkind = 'r' AND n.nspname = '$schema'")
         val resultSet = statement.executeQuery()
         return JDBCResponse(resultSet).rows.map {
-            val name = it.get<String>("TABLE_NAME").toUpperCase()
-            Table(name, this)
+            Table(it.get<String>("TABLE_NAME"), this)
         }
     }
 }
