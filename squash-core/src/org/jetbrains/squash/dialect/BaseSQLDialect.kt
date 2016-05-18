@@ -169,6 +169,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                     }
                     is QueryOrder.Descending -> append(" DESC")
                 }
+                append(" NULLS LAST")
             }
         }
     }

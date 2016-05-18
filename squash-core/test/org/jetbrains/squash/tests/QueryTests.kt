@@ -246,7 +246,7 @@ abstract class QueryTests : DatabaseTests {
                     .orderBy(Citizens.name)
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.name"
+                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.name NULLS LAST"
             }
 
             val rows = query.execute().map { it[Citizens.name] }.toList()
@@ -258,16 +258,34 @@ abstract class QueryTests : DatabaseTests {
         withCities {
             val query = query()
                     .from(Citizens)
-                    .select(Citizens.name, Citizens.id)
+                    .select(Citizens.name, Citizens.id, Citizens.cityId)
                     .orderByDescending(Citizens.cityId)
                     .orderBy(Citizens.name)
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.city_id DESC, Citizens.name"
+                "SELECT Citizens.name, Citizens.id, Citizens.city_id FROM Citizens ORDER BY Citizens.city_id DESC NULLS LAST, Citizens.name NULLS LAST"
             }
 
             val rows = query.execute().map { it[Citizens.name] }.toList()
             assertEquals(listOf("Eugene", "Sergey", "Andrey", "Alex", "Something"), rows)
+        }
+    }
+
+    @Test fun selectFromOrderOrder() {
+        withCities {
+            val query = query()
+                    .from(Citizens)
+                    .select(Citizens.name, Citizens.id, Citizens.cityId)
+                    .orderBy(Citizens.cityId)
+                    .orderBy(Citizens.name)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.name, Citizens.id, Citizens.city_id FROM Citizens ORDER BY Citizens.city_id NULLS LAST, Citizens.name NULLS LAST"
+            }
+
+            // PG: NULLs are first, H2: NULLs are last
+            val rows = query.execute().map { it[Citizens.name] }.toList()
+            assertEquals(listOf("Andrey", "Eugene", "Sergey", "Alex", "Something"), rows)
         }
     }
 }
