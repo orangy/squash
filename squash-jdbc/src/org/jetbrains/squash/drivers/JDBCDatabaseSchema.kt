@@ -1,7 +1,6 @@
 package org.jetbrains.squash.drivers
 
 import org.jetbrains.squash.*
-import org.jetbrains.squash.definition.*
 import java.sql.*
 
 open class JDBCDatabaseSchema(val connection: Connection) : DatabaseSchema {
@@ -13,7 +12,7 @@ open class JDBCDatabaseSchema(val connection: Connection) : DatabaseSchema {
         return JDBCResponse(resultSet).rows.map { Table(it.get<String>("TABLE_NAME"), this) }
     }
 
-    protected open fun currentSchema() : String = connection.schema
+    protected open fun currentSchema(): String = connection.schema
 
     class Column(override val name: String,
                  override val nullable: Boolean,

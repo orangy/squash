@@ -5,7 +5,6 @@ import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.*
-import org.jetbrains.squash.tests.data.*
 
 fun DatabaseTests.withCities(statement: Transaction.() -> Unit) {
     withTables(Cities, Citizens, CitizenData) {

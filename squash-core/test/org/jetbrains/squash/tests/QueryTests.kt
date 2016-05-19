@@ -26,9 +26,7 @@ abstract class QueryTests : DatabaseTests {
     @Test fun selectFromWhere() {
         withCities {
             val eugene = literal("eugene")
-            val query = query().from(Citizens)
-                    .where { Citizens.id eq eugene }
-                    .select(Citizens.name, Citizens.id)
+            val query = query(Citizens).where { Citizens.id eq eugene }.select(Citizens.name, Citizens.id)
 
             connection.dialect.statementSQL(query).assertSQL {
                 "SELECT Citizens.name, Citizens.id FROM Citizens WHERE Citizens.id = ?"
@@ -105,8 +103,10 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromJoin() {
         withTables {
-            val query = query().from(Citizens).innerJoin(Cities) { Cities.id eq Citizens.cityId }
-                    .select { Citizens.name }.select { Cities.name }
+            val query = query(Citizens)
+                    .innerJoin(Cities) { Cities.id eq Citizens.cityId }
+                    .select { Citizens.name }
+                    .select { Cities.name }
 
             connection.dialect.statementSQL(query).assertSQL {
                 "SELECT Citizens.name, Cities.name FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id"
@@ -118,8 +118,7 @@ abstract class QueryTests : DatabaseTests {
         withCities {
             val citizenName = Citizens.name.alias("citizenName")
             val cityName = Cities.name.alias("city")
-            val query = query()
-                    .from(Citizens)
+            val query = query(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
                     .select(citizenName, cityName)
 

@@ -10,7 +10,6 @@ class H2Transaction(connection: DatabaseConnection, connector: () -> Connection)
 }
 
 class H2DatabaseSchema(connection: Connection) : JDBCDatabaseSchema(connection) {
-    // SELECT * FROM INFORMATION_SCHEMA.SESSION_STATE WHERE KEY='SCHEMA_SEARCH_PATH'
     override fun currentSchema(): String {
         val preparedStatement = connection.prepareStatement("SELECT * FROM INFORMATION_SCHEMA.SESSION_STATE WHERE KEY='SCHEMA_SEARCH_PATH'")
         val resultSet = preparedStatement.executeQuery()
