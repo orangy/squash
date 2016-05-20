@@ -6,7 +6,7 @@ import org.jetbrains.squash.definition.*
 open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDialect {
 
     override fun tableSQL(table: Table): List<SQLStatement> {
-        val tableSQL = SQLBuilder().apply {
+        val tableSQL = SQLStatementBuilder().apply {
             append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.tableName)}")
             if (table.tableColumns.any()) {
                 append(" (")
@@ -16,7 +16,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                     columnDefinitionSQL(this, column)
                 }
 
-                appendPrimaryKeys(table)
+                appendPrimaryKeys(this, table)
                 append(")")
             }
         }.build()
@@ -24,9 +24,9 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         return listOf(tableSQL) + indices
     }
 
-    private fun indicesSQL(table: Table): List<SQLStatement> =
+    protected open fun indicesSQL(table: Table): List<SQLStatement> =
             table.constraints.elements.filterIsInstance<IndexConstraint>().map {
-                SQLBuilder().apply {
+                SQLStatementBuilder().apply {
                     val unique = if (it.unique) " UNIQUE" else ""
                     append("CREATE$unique INDEX ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.tableName)} (")
                     it.columns.forEachIndexed { index, column ->
@@ -38,39 +38,39 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 }.build()
             }
 
-    private fun SQLBuilder.appendPrimaryKeys(table: Table) {
+    protected open fun appendPrimaryKeys(builder: SQLStatementBuilder, table: Table) {
         val primaryKeys = table.constraints.elements.filterIsInstance<PrimaryKeyConstraint>()
         when (primaryKeys.size) {
             1 -> {
-                append(", ")
-                primaryKeyDefinitionSQL(primaryKeys[0], table)
+                builder.append(", ")
+                primaryKeyDefinitionSQL(builder, primaryKeys[0], table)
             }
             0 -> {
                 val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
                 if (autoIncrement.any()) {
-                    append(", ")
+                    builder.append(", ")
                     val name = Identifier("PK_${dialect.nameSQL(table.tableName)}")
                     val pkAutoIncrement = PrimaryKeyConstraint(name, autoIncrement)
-                    primaryKeyDefinitionSQL(pkAutoIncrement, table)
+                    primaryKeyDefinitionSQL(builder, pkAutoIncrement, table)
                 }
             }
             else -> error("Table cannot have more than one PrimaryKey constraint")
         }
     }
 
-    protected open fun SQLBuilder.primaryKeyDefinitionSQL(primaryKey: PrimaryKeyConstraint, table: Table) {
+    protected open fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, primaryKey: PrimaryKeyConstraint, table: Table) = with(builder) {
         append("CONSTRAINT ${dialect.idSQL(primaryKey.name)} PRIMARY KEY (")
         append(primaryKey.columns.map { dialect.idSQL(it.name) }.joinToString())
         append(")")
     }
 
-    protected open fun columnDefinitionSQL(builder: SQLBuilder, column: Column<*>): Unit = with(builder) {
+    protected open fun columnDefinitionSQL(builder: SQLStatementBuilder, column: Column<*>): Unit = with(builder) {
         append(dialect.idSQL(column.name))
         append(" ")
         columnTypeSQL(this, column, emptySet())
     }
 
-    protected open fun columnTypeSQL(builder: SQLBuilder, column: Column<*>, properties: Set<BaseSQLDialect.ColumnProperty>): Unit = with(builder) {
+    protected open fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>, properties: Set<BaseSQLDialect.ColumnProperty>): Unit = with(builder) {
         when (column) {
             is DataColumn -> {
                 if (BaseSQLDialect.ColumnProperty.NULLABLE in properties) {
@@ -96,14 +96,14 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             is DefaultValueColumn<*> -> {
                 columnTypeSQL(this, column.column, properties + BaseSQLDialect.ColumnProperty.DEFAULT).toString()
                 append(" DEFAULT ")
-                append(dialect.literalSQL(column.value))
+                dialect.appendLiteralSQL(builder, column.value)
             }
 
             else -> error("Column class '${column.javaClass.simpleName}' is not supported by $this")
         }
     }
 
-    protected open fun columnTypeSQL(builder: SQLBuilder, type: ColumnType): Unit = with(builder) {
+    protected open fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType): Unit = with(builder) {
         when (type) {
             is ReferenceColumnType<*> -> columnTypeSQL(this, type.column.type)
             is CharColumnType -> append("CHAR")

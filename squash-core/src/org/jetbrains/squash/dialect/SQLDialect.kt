@@ -10,6 +10,6 @@ interface SQLDialect {
     fun idSQL(name: Name): String
 
     fun <T> statementSQL(statement: Statement<T>): SQLStatement
-    fun literalSQL(value: Any?): SQLStatement
+    fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?)
 }
 

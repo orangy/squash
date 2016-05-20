@@ -10,7 +10,7 @@ class PgDatabaseTests : DatabaseTests {
     override val idColumnType: String get() = "SERIAL"
 
     fun withConnection(block: (DatabaseConnection) -> Unit) {
-        val connection = PgConnection.create("jdbc:postgresql://localhost:5432/", "org.postgresql.Driver", "postgres")
+        val connection = PgConnection.create("localhost:5432/", "postgres")
         block(connection)
     }
 

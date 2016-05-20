@@ -29,24 +29,17 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         return id.isIdentifier()
     }
 
-    override fun literalSQL(value: Any?): SQLStatement = SQLBuilder().apply { appendLiteralSQL(this, value) }.build()
-
-    protected open fun appendLiteralSQL(builder: SQLBuilder, value: Any?): Unit = with(builder) {
+    override fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?): Unit = with(builder) {
         when (value) {
             null -> append("NULL")
-            is String -> {
-                append("?")
-                appendArgument(StringColumnType(), value)
-            }
-            is Int -> {
-                append("?")
-                appendArgument(IntColumnType, value)
-            }
+            is String -> appendArgument(StringColumnType(), value)
+            is Int -> appendArgument(IntColumnType, value)
+            is Long -> appendArgument(LongColumnType, value)
             else -> append(value.toString())
         }
     }
 
-    protected open fun <T> appendDeclarationExpression(builder: SQLBuilder, expression: Expression<T>): Unit = with(builder) {
+    protected open fun <T> appendDeclarationExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
         when (expression) {
             is AliasExpression<T> -> {
                 appendExpression(this, expression.expression)
@@ -60,7 +53,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun <T> appendExpression(builder: SQLBuilder, expression: Expression<T>): Unit = with(builder) {
+    protected open fun <T> appendExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
         when (expression) {
             is LiteralExpression -> appendLiteralSQL(this, expression.literal)
             is AliasColumn<T> -> {
@@ -87,7 +80,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendBinaryOperator(builder: SQLBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
+    protected open fun appendBinaryOperator(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
         append(when (expression) {
             is EqExpression<*> -> "="
             is NotEqExpression<*> -> "<>"
@@ -106,86 +99,97 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         })
     }
 
-    protected open fun appendSelectSQL(builder: SQLBuilder, query: Query): Unit = with(builder) {
-        append("SELECT ")
-        if (query.selection.isEmpty())
-            append("*")
-        else
+    protected open fun appendSelectSQL(builder: SQLStatementBuilder, query: Query) {
+        builder.append("SELECT ")
+        if (query.selection.isEmpty()) {
+            builder.append("*")
+        } else {
             query.selection.forEachIndexed { index, expression ->
-                if (index != 0) append(", ")
-                appendDeclarationExpression(this, expression)
+                if (index != 0) builder.append(", ")
+                appendDeclarationExpression(builder, expression)
             }
+        }
         appendQuerySQL(builder, query)
     }
 
-    protected open fun appendQuerySQL(builder: SQLBuilder, query: Query): Unit = with(builder) {
-        if (query.schema.isNotEmpty()) {
-            val tables = query.schema.filterIsInstance<QueryCompound.From>()
-            append(" FROM ")
-            tables.joinTo(this) { tableDeclarationName(it.table) }
+    protected open fun appendOrderSQL(builder: SQLStatementBuilder, query: Query) {
+        if (query.order.isEmpty())
+            return
 
-            val innerJoins = query.schema.filter { it !is QueryCompound.From }
-            if (innerJoins.any()) {
-                innerJoins.forEach { join ->
-                    when (join) {
-                        is QueryCompound.InnerJoin -> {
-                            append(" INNER JOIN ")
-                            append(tableDeclarationName(join.table))
-                            append(" ON ")
-                            appendExpression(this, join.condition)
-                        }
-                        is QueryCompound.LeftOuterJoin -> {
-                            append(" LEFT OUTER JOIN ")
-                            append(tableDeclarationName(join.table))
-                            append(" ON ")
-                            appendExpression(this, join.condition)
-                        }
-                        is QueryCompound.RightOuterJoin -> {
-                            append(" RIGHT OUTER JOIN ")
-                            append(tableDeclarationName(join.table))
-                            append(" ON ")
-                            appendExpression(this, join.condition)
-                        }
-                    }
+        builder.append(" ORDER BY ")
+        query.order.forEachIndexed { index, order ->
+            if (index != 0) builder.append(", ")
+            appendExpression(builder, order.expression)
+            when (order) {
+                is QueryOrder.Ascending -> { /* ASC is default */
                 }
+                is QueryOrder.Descending -> builder.append(" DESC")
             }
+            builder.append(" NULLS LAST")
         }
+    }
 
-        if (query.filter.isNotEmpty()) {
-            append(" WHERE ")
-            query.filter.forEachIndexed { index, expression ->
-                if (index != 0) append(" AND ")
-                appendExpression(this, expression)
-            }
+    protected open fun appendFilterSQL(builder: SQLStatementBuilder, query: Query) {
+        if (query.filter.isEmpty())
+            return
+
+        builder.append(" WHERE ")
+        query.filter.forEachIndexed { index, expression ->
+            if (index != 0) builder.append(" AND ")
+            appendExpression(builder, expression)
         }
+    }
 
-        if (query.order.isNotEmpty()) {
-            append(" ORDER BY ")
-            query.order.forEachIndexed { index, order ->
-                if (index != 0) append(", ")
-                appendExpression(this, order.expression)
-                when (order) {
-                    is QueryOrder.Ascending -> { /* ASC is default */
+    protected open fun appendCompoundSQL(builder: SQLStatementBuilder, query: Query) {
+        if (query.compound.isEmpty())
+            return
+
+        val tables = query.compound.filterIsInstance<QueryCompound.From>()
+        builder.append(" FROM ")
+        tables.joinTo(builder) { tableDeclarationName(it.table) }
+
+        val innerJoins = query.compound.filter { it !is QueryCompound.From }
+        if (innerJoins.any()) {
+            innerJoins.forEach { join ->
+                val condition = when (join) {
+                    is QueryCompound.InnerJoin -> {
+                        builder.append(" INNER JOIN ")
+                        join.condition
                     }
-                    is QueryOrder.Descending -> append(" DESC")
+                    is QueryCompound.LeftOuterJoin -> {
+                        builder.append(" LEFT OUTER JOIN ")
+                        join.condition
+                    }
+                    is QueryCompound.RightOuterJoin -> {
+                        builder.append(" RIGHT OUTER JOIN ")
+                        join.condition
+                    }
+                    is QueryCompound.From -> error("From clauses should have been filtered out")
                 }
-                append(" NULLS LAST")
+                builder.append(tableDeclarationName(join.table))
+                builder.append(" ON ")
+                appendExpression(builder, condition)
             }
         }
+    }
+
+    protected open fun appendQuerySQL(builder: SQLStatementBuilder, query: Query): Unit = with(builder) {
+        appendCompoundSQL(builder, query)
+        appendFilterSQL(builder, query)
+        appendOrderSQL(builder, query)
     }
 
     private fun tableName(table: Table): String = when (table) {
-        is AliasTable<*> -> idSQL(table.name)
+        is AliasTable<*> -> idSQL(table.label)
         is Table -> nameSQL(table.tableName)
-        else -> error("FieldCollection '$table' is not supported by $this")
+        else -> error("Table '$table' is not supported by $this")
     }
 
     private fun tableDeclarationName(table: Table): String = when (table) {
-        is AliasTable<*> -> nameSQL(table.tableName) + " AS " + idSQL(table.name)
+        is AliasTable<*> -> nameSQL(table.tableName) + " AS " + idSQL(table.label)
         is Table -> nameSQL(table.tableName)
-        else -> error("FieldCollection '$table' is not supported by $this")
+        else -> error("Table '$table' is not supported by $this")
     }
-
 
     override fun <T> statementSQL(statement: Statement<T>): SQLStatement = when (statement) {
         is QueryStatement -> queryStatementSQL(statement)
@@ -197,10 +201,10 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     protected open fun queryStatementSQL(query: QueryStatement): SQLStatement {
-        return SQLBuilder().apply { appendSelectSQL(this, query) }.build()
+        return SQLStatementBuilder().apply { appendSelectSQL(this, query) }.build()
     }
 
-    protected open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLBuilder().apply {
+    protected open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("UPDATE ")
         append(nameSQL(statement.table.tableName))
         append(" SET ")
@@ -216,21 +220,21 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendQuerySQL(this, statement)
     }.build()
 
-    protected open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = SQLBuilder().apply {
+    protected open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("DELETE FROM ")
         append(nameSQL(statement.table.tableName))
         append(" ")
         appendQuerySQL(this, statement)
     }.build()
 
-    protected open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLBuilder().apply {
+    protected open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" ")
         appendSelectSQL(this, statement)
     }.build()
 
-    protected open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLBuilder().apply {
+    protected open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLStatementBuilder().apply {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" (")

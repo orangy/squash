@@ -3,9 +3,9 @@ package org.jetbrains.squash.dialects.postgres
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
 
-object PostgresDialect : BaseSQLDialect("Postgres") {
+object PgDialect : BaseSQLDialect("Postgres") {
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
-        override fun columnTypeSQL(builder: SQLBuilder, column: Column<*>, properties: Set<ColumnProperty>) {
+        override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>, properties: Set<ColumnProperty>) {
             when (column) {
                 is AutoIncrementColumn -> {
                     require(column.column.type is IntColumnType || column.column.type is LongColumnType) {
@@ -17,7 +17,7 @@ object PostgresDialect : BaseSQLDialect("Postgres") {
             }
         }
 
-        override fun columnTypeSQL(builder: SQLBuilder, type: ColumnType) {
+        override fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType) {
             when (type) {
                 is UUIDColumnType -> builder.append("bytea")
                 is BlobColumnType -> builder.append("bytea")

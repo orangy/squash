@@ -89,7 +89,7 @@ abstract class DefinitionTests : DatabaseTests {
 
         withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
-                "CREATE TABLE IF NOT EXISTS t (s VARCHAR(100) NOT NULL DEFAULT ?, l BIGINT NOT NULL DEFAULT 42)"
+                "CREATE TABLE IF NOT EXISTS t (s VARCHAR(100) NOT NULL DEFAULT ?, l BIGINT NOT NULL DEFAULT ?)"
             }
         }
     }
