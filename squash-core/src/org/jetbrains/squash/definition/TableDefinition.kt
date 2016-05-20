@@ -1,7 +1,5 @@
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.*
-
 open class TableDefinition(name: String? = null) : Table {
     override val tableName = Identifier(name ?: javaClass.simpleName.removeSuffix("Table"))
 

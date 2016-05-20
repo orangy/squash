@@ -1,6 +1,6 @@
 package org.jetbrains.squash.tests
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 
 fun <T : Table> Transaction.exists(table: T): Boolean {

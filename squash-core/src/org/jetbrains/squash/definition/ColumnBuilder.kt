@@ -2,7 +2,6 @@
 
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.*
 import java.math.*
 import java.sql.*
 import java.time.*

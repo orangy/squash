@@ -1,6 +1,5 @@
 package org.jetbrains.squash.dialect
 
-import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 
 open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDialect {
@@ -115,6 +114,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             is DateTimeColumnType -> append("DATETIME")
             is BinaryColumnType -> append("VARBINARY(${type.length})")
             is UUIDColumnType -> append("BINARY(16)")
+            is BooleanColumnType -> append("BOOLEAN")
             is StringColumnType -> {
                 val sqlType = when (type.length) {
                     in 1..255 -> "VARCHAR(${type.length})"

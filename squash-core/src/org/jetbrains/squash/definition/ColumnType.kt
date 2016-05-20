@@ -1,5 +1,8 @@
 package org.jetbrains.squash.definition
 
+/**
+ * Represents a database column type
+ */
 abstract class ColumnType() {
     override fun toString(): String = "${javaClass.simpleName.removeSuffix("ColumnType")}"
 }

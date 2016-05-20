@@ -1,6 +1,5 @@
 package org.jetbrains.squash.expressions
 
-import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 
 class AliasColumn<V>(val label: Identifier, val column: Column<V>) : Column<V> by column

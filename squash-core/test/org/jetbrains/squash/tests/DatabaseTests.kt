@@ -1,6 +1,6 @@
 package org.jetbrains.squash.tests
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
 import kotlin.test.*

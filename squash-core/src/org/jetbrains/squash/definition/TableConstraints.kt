@@ -1,7 +1,5 @@
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.*
-
 interface TableConstraints {
     val elements: List<TableConstraint>
     fun add(constraint: TableConstraint)

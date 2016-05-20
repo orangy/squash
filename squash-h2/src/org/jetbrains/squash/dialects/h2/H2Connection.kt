@@ -1,7 +1,7 @@
 package org.jetbrains.squash.dialects.h2
 
 import org.h2.jdbcx.*
-import org.jetbrains.squash.*
+import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.drivers.*
 import java.sql.*
 

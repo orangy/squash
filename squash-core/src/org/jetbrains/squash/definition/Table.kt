@@ -1,7 +1,5 @@
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.*
-
 interface Table {
     val tableName: Identifier
     val tableColumns: List<Column<*>>

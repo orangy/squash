@@ -1,7 +1,7 @@
 package org.jetbrains.squash.dialects.h2.tests
 
 import kotlinx.support.jdk7.*
-import org.jetbrains.squash.*
+import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialects.h2.*
 import org.jetbrains.squash.tests.*

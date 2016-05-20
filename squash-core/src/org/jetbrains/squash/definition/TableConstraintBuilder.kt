@@ -2,8 +2,6 @@
 
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.*
-
 fun <V> Column<V>.primaryKey(pkName: String? = null): Column<V> = apply {
     table.constraints.add(PrimaryKeyConstraint(Identifier(pkName ?: "PK_${table.tableName.id}"), listOf(this)))
 }

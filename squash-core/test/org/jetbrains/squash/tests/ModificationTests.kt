@@ -5,6 +5,9 @@ import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
+import java.math.*
+import java.time.*
+import java.util.*
 import kotlin.test.*
 
 abstract class ModificationTests : DatabaseTests {
@@ -12,7 +15,25 @@ abstract class ModificationTests : DatabaseTests {
         withCities {}
     }
 
-    @Test fun testUpdate01() {
+    @Test fun insertAllColumnsTable() {
+        withTables(AllColumnTypes) {
+            insertInto(AllColumnTypes).values {
+                it[varchar] = "varchar"
+                it[char] = 'c'
+                it[enum] = E.ONE
+                it[decimal] = BigDecimal.ONE
+                it[long] = 222L
+                it[date] = LocalDate.of(1976, 11, 24)
+                it[bool] = true
+                it[datetime] = LocalDateTime.of(LocalDate.of(1976, 11, 24), LocalTime.of(8, 22))
+                it[text] = "Lorem Ipsum"
+                it[binary] = byteArrayOf(1,2,3)
+                it[uuid]= UUID.fromString("7cb64fe4-4938-4e88-8d94-17e929d40c99")
+            }
+        }
+    }
+
+    @Test fun updateSingleRow() {
         withCities {
             val alexId = "alex"
             val oldName = "Alex"

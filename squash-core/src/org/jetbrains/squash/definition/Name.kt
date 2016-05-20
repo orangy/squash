@@ -1,4 +1,4 @@
-package org.jetbrains.squash
+package org.jetbrains.squash.definition
 
 import org.jetbrains.squash.expressions.*
 

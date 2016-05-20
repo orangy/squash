@@ -5,7 +5,7 @@ import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
 import kotlin.sequences.SequencesKt;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.squash.Transaction;
+import org.jetbrains.squash.connection.Transaction;
 import org.jetbrains.squash.definition.Column;
 import org.jetbrains.squash.definition.Columns;
 import org.jetbrains.squash.definition.TableDefinition;

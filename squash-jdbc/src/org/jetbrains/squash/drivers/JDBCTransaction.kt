@@ -1,6 +1,6 @@
 package org.jetbrains.squash.drivers
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.results.*
@@ -69,12 +69,22 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
         return preparedStatement.resultFor(statement)
     }
 
-    override fun executeStatement(statementSQL: SQLStatement): Response {
-        val preparedStatement = jdbcConnection.prepareStatement(statementSQL)
-        val executionResult = preparedStatement.execute()
-        return when (executionResult) {
-            true -> JDBCResponse(preparedStatement.resultSet)
-            false -> Response.Empty
+    override fun executeStatement(statement: SQLStatement): Response {
+        try {
+
+            val preparedStatement = jdbcConnection.prepareStatement(statement)
+            val executionResult = preparedStatement.execute()
+            return when (executionResult) {
+                true -> JDBCResponse(preparedStatement.resultSet)
+                false -> Response.Empty
+            }
+        } catch (ex: SQLException) {
+            if (DriverManager.getLogWriter() != null) {
+                DriverManager.println("SQLStatement: " + statement.toString())
+                throw ex
+            } else {
+                throw JDBCException(ex, statement)
+            }
         }
     }
 
@@ -92,6 +102,10 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
 
     override fun commit() {
         _jdbcConnection?.commit()
+    }
+
+    override fun rollback() {
+        _jdbcConnection?.rollback()
     }
 
     override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(connection.dialect, jdbcConnection)

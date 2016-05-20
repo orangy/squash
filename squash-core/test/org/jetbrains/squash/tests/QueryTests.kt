@@ -66,7 +66,7 @@ abstract class QueryTests : DatabaseTests {
                     .select { Citizens.cityId * 1 }
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.city_id + ? AS first, Citizens.city_id - ?, Citizens.city_id / ?, Citizens.city_id * ? FROM Citizens WHERE Citizens.id = ?"
+                "SELECT Citizens.city_id + ? AS \"first\", Citizens.city_id - ?, Citizens.city_id / ?, Citizens.city_id * ? FROM Citizens WHERE Citizens.id = ?"
             }
 
             val row = query.execute().single()
@@ -181,7 +181,7 @@ abstract class QueryTests : DatabaseTests {
                     .innerJoin(Numbers) { Map.id_ref eq Numbers.id }
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT * FROM Map INNER JOIN Names ON Map.name_ref = Names.name INNER JOIN Numbers ON Map.id_ref = Numbers.id"
+                "SELECT * FROM \"Map\" INNER JOIN \"Names\" ON \"Map\".name_ref = \"Names\".name INNER JOIN Numbers ON \"Map\".id_ref = Numbers.id"
             }
 
             val rows = query.execute().toList()

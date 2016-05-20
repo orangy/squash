@@ -1,6 +1,5 @@
 package org.jetbrains.squash.dialect
 
-import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
@@ -23,7 +22,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     protected open fun isSqlIdentifier(id: String): Boolean {
-        if (id in SQL92_2003.keywords) return false
+        if (id.toUpperCase() in SQL92_2003.keywords) return false
         fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
         fun String.isIdentifier() = !isEmpty() && first().isIdentifierStart() && all { it.isIdentifierStart() || it in '0'..'9' }
         return id.isIdentifier()

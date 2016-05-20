@@ -1,6 +1,6 @@
 package org.jetbrains.squash.tests.data
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*

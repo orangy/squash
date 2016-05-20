@@ -1,6 +1,6 @@
 package org.jetbrains.squash.drivers
 
-import org.jetbrains.squash.*
+import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.dialect.*
 import java.sql.*
 

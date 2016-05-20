@@ -1,6 +1,7 @@
 package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.definition.*
+import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
 
@@ -66,20 +67,25 @@ abstract class DefinitionTests : DatabaseTests {
     }
 
     @Test fun allColumnTypes() {
-        val TestTable = object : TableDefinition("allColumnTypes") {
-            val id = integer("id").autoIncrement()
-            val name = varchar("name", 42).primaryKey()
-            val age = integer("age").nullable()
-            // not applicable in H2 database
-            //            val testCollate = varchar("testCollate", 2, "ascii_general_ci")
-        }
-
         withTransaction {
-            connection.dialect.definition.tableSQL(TestTable).assertSQL {
-                "CREATE TABLE IF NOT EXISTS allColumnTypes (id $idColumnType, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_allColumnTypes PRIMARY KEY (name))"
-            }
+            connection.dialect.definition.tableSQL(AllColumnTypes).assertSQL { allColumnsTableSQL }
         }
     }
+
+    protected open val allColumnsTableSQL: String get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +
+            "id $idColumnType, " +
+            "\"varchar\" VARCHAR(42) NOT NULL, " +
+            "\"char\" CHAR NULL, " +
+            "enum INT NOT NULL, " +
+            "\"decimal\" DECIMAL(5, 2) NOT NULL, " +
+            "long BIGINT NOT NULL, " +
+            "\"date\" DATE NOT NULL, " +
+            "bool BOOLEAN NOT NULL, " +
+            "datetime DATETIME NOT NULL, " +
+            "text TEXT NOT NULL, " +
+            "\"binary\" VARBINARY(128) NOT NULL, " +
+            "uuid UUID NOT NULL, " +
+            "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (\"varchar\"))"
 
     @Test fun columnsWithDefaults() {
         val TestTable = object : TableDefinition("t") {

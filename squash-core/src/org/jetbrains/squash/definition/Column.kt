@@ -1,9 +1,21 @@
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.*
-
+/**
+ * Represents a column in a database [Table]
+ *
+ * Column is also a [NamedExpression] which allows it to be used in expressions.
+ *
+ * @param V type of the value in this column
+ */
 interface Column<out V> : NamedExpression<Name, V> {
+    /**
+     * [Table] to which this column belongs
+     */
     val table: Table
+
+    /**
+     * Database type of the column
+     */
     val type: ColumnType
 }
 
