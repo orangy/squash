@@ -4,16 +4,16 @@ import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.schema.*
 import java.sql.*
 
-open class JDBCDatabaseSchema(dialect: SQLDialect, val jdbcConnection: Connection) : DatabaseSchemaBase(dialect) {
-    protected val catalogue: String = jdbcConnection.catalog
-    protected val metadata: DatabaseMetaData = jdbcConnection.metaData
+open class JDBCDatabaseSchema(dialect: SQLDialect, val transaction: JDBCTransaction) : DatabaseSchemaBase(dialect) {
+    protected val catalogue: String = transaction.jdbcConnection.catalog
+    protected val metadata: DatabaseMetaData = transaction.jdbcConnection.metaData
 
     override fun tables(): Sequence<DatabaseSchema.SchemaTable> {
         val resultSet = metadata.getTables(catalogue, currentSchema(), null, arrayOf("TABLE"))
-        return JDBCResponse(resultSet).rows.map { SchemaTable(it.get<String>("TABLE_NAME"), this) }
+        return JDBCResponse(transaction, resultSet).rows.map { SchemaTable(it.get<String>("TABLE_NAME"), this) }
     }
 
-    protected open fun currentSchema(): String = jdbcConnection.schema
+    protected open fun currentSchema(): String = transaction.jdbcConnection.schema
 
     class SchemaColumn(override val name: String,
                        override val nullable: Boolean,
@@ -25,7 +25,7 @@ open class JDBCDatabaseSchema(dialect: SQLDialect, val jdbcConnection: Connectio
     class SchemaTable(override val name: String, private val schema: JDBCDatabaseSchema) : DatabaseSchema.SchemaTable {
         override fun columns(): Sequence<DatabaseSchema.SchemaColumn> {
             val resultSet = schema.metadata.getColumns(schema.catalogue, schema.currentSchema(), name, null)
-            val response = JDBCResponse(resultSet)
+            val response = JDBCResponse(schema.transaction, resultSet)
             return response.rows.map {
                 val columnSize = it.get<Int>("COLUMN_SIZE")
                 val autoIncrement = it.get<String>("IS_AUTOINCREMENT") == "YES"

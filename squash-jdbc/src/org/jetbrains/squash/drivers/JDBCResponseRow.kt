@@ -15,13 +15,7 @@ class JDBCResponseRow(val response: JDBCResponse, val resultSet: ResultSet) : Re
     }
 
     private fun getValue(column: JDBCResponseColumn): Any? {
-        val value: Any? = when (column.type) {
-            is IntColumnType -> resultSet.getInt(column.columnIndex)
-            is StringColumnType -> resultSet.getString(column.columnIndex)
-            is LongColumnType -> resultSet.getLong(column.columnIndex)
-            is BooleanColumnType -> resultSet.getBoolean(column.columnIndex)
-            else -> error("Cannot get value for ${column.type} for column `$column`")
-        }
+        val value: Any? = resultSet.getObject(column.columnIndex)
         if (column.nullable && resultSet.wasNull())
             return null
         return value

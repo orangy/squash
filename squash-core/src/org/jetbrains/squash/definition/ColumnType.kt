@@ -24,7 +24,7 @@ class DecimalColumnType(val scale: Int, val precision: Int) : ColumnType() {
     override fun toString(): String = "Decimal($scale.$precision)"
 }
 
-class EnumColumnType<T : Enum<T>>(val klass: Class<T>) : ColumnType() {
+class EnumColumnType(val klass: Class<*>) : ColumnType() {
     override fun toString(): String = "Enum<${klass.simpleName}>"
 }
 

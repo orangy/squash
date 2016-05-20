@@ -4,7 +4,7 @@ import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.results.*
 import java.sql.*
 
-class JDBCResponse(val resultSet: ResultSet) : Response {
+class JDBCResponse(val transaction: JDBCTransaction, val resultSet: ResultSet) : Response {
     val metadata = resultSet.metaData
     val columns = mutableListOf<JDBCResponseColumn>()
     val rows = JDBCResponseRowSequence(this)
@@ -30,28 +30,37 @@ class JDBCResponse(val resultSet: ResultSet) : Response {
     }
 
     private fun columnType(index: Int): ColumnType {
-        val columnType = when (metadata.getColumnType(index)) {
+        val className = metadata.getColumnClassName(index)
+        val columnTypeName = metadata.getColumnTypeName(index)
+        val columnType = metadata.getColumnType(index)
+        return when (columnType) {
+            Types.BIT -> BooleanColumnType
             Types.CHAR -> CharColumnType
             Types.INTEGER -> IntColumnType
             Types.SMALLINT -> IntColumnType
             Types.BIGINT -> LongColumnType
             Types.DATE -> DateColumnType
-            Types.TIME -> DateTimeColumnType
             Types.BLOB -> BlobColumnType
+            Types.CLOB -> StringColumnType()
             Types.BOOLEAN -> BooleanColumnType
             Types.DECIMAL -> DecimalColumnType(metadata.getScale(index), metadata.getPrecision(index))
+            Types.NUMERIC -> DecimalColumnType(metadata.getScale(index), metadata.getPrecision(index))
             Types.VARCHAR -> StringColumnType(metadata.getPrecision(index))
             Types.BINARY -> BinaryColumnType(metadata.getPrecision(index))
-            else -> when (metadata.getColumnClassName(index)) {
-                "java.lang.Character" -> CharColumnType
-                "java.lang.Integer" -> IntColumnType
-                "java.lang.Long" -> LongColumnType
-                "java.lang.Short" -> IntColumnType
-                "java.lang.String" -> StringColumnType(metadata.getPrecision(index))
-                else -> throw UnsupportedOperationException("Column type '${metadata.getColumnTypeName(index)}' is not supported")
+            Types.VARBINARY -> BinaryColumnType(metadata.getPrecision(index))
+            Types.TIMESTAMP -> DateTimeColumnType
+            else -> {
+                when (className) {
+                    "java.lang.Character" -> CharColumnType
+                    "java.lang.Integer" -> IntColumnType
+                    "java.lang.Long" -> LongColumnType
+                    "java.lang.Short" -> IntColumnType
+                    "java.util.UUID" -> UUIDColumnType
+                    "java.lang.String" -> StringColumnType(metadata.getPrecision(index))
+                    else -> error("Column type '$columnTypeName:$columnType:$className' is not supported")
+                }
             }
         }
-        return columnType
     }
 }
 

@@ -17,23 +17,11 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
         _jdbcConnection!!
     }
 
-    private fun PreparedStatement.prepareValue(index: Int, type: ColumnType, value: Any?): Unit {
-        if (value == null)
-            setObject(index + 1, null)
-        else when (type) {
-            is IntColumnType -> setInt(index + 1, value as Int)
-            is StringColumnType -> setString(index + 1, value as String)
-            is ReferenceColumnType<*> -> prepareValue(index, type.column.type, value)
-            is NullableColumnType -> prepareValue(index, type.columnType, value)
-            else -> setObject(index, value)
-        }
-    }
-
     @Suppress("UNCHECKED_CAST")
     private fun <T> PreparedStatement.resultFor(statement: Statement<T>): T {
         when (statement) {
             is InsertValuesStatement<*, *> -> {
-                val response = JDBCResponse(generatedKeys)
+                val response = JDBCResponse(this@JDBCTransaction, generatedKeys)
                 val rows = response.rows
                 if (rows.empty)
                     return Unit as T
@@ -41,7 +29,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
                 return rows.single().get<T>(keyColumn)
             }
             is InsertQueryStatement<*> -> {
-                val response = JDBCResponse(generatedKeys)
+                val response = JDBCResponse(this@JDBCTransaction, generatedKeys)
                 val rows = response.rows
                 if (rows.empty)
                     return emptySequence<Nothing>() as T
@@ -49,7 +37,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
                 return rows.single().get<T>(keyColumn)
             }
             is QueryStatement -> {
-                val response = JDBCResponse(resultSet)
+                val response = JDBCResponse(this@JDBCTransaction, resultSet)
                 return response as T
             }
 
@@ -75,7 +63,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
             val preparedStatement = jdbcConnection.prepareStatement(statement)
             val executionResult = preparedStatement.execute()
             return when (executionResult) {
-                true -> JDBCResponse(preparedStatement.resultSet)
+                true -> JDBCResponse(this, preparedStatement.resultSet)
                 false -> Response.Empty
             }
         } catch (ex: SQLException) {
@@ -93,7 +81,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
             prepareStatement(statementSQL.sql, arrayOf(connection.dialect.idSQL(returnColumn.name)))
 
         statementSQL.arguments.forEach { arg ->
-            preparedStatement.prepareValue(arg.index, arg.columnType, arg.value)
+            preparedStatement.setObject(arg.index+1, arg.value)
         }
         return preparedStatement
     }
@@ -108,7 +96,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
         _jdbcConnection?.rollback()
     }
 
-    override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(connection.dialect, jdbcConnection)
+    override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(connection.dialect, this)
 
     override fun close() {
         _jdbcConnection?.close()

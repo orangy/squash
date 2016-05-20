@@ -19,9 +19,9 @@ object PgDialect : BaseSQLDialect("Postgres") {
 
         override fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType) {
             when (type) {
-                is UUIDColumnType -> builder.append("bytea")
-                is BlobColumnType -> builder.append("bytea")
-                is BinaryColumnType -> builder.append("bytea")
+                is UUIDColumnType -> builder.append("UUID")
+                is BlobColumnType -> builder.append("BYTEA")
+                is BinaryColumnType -> builder.append("BYTEA")
                 is DateTimeColumnType -> builder.append("TIMESTAMP")
                 else -> super.columnTypeSQL(builder, type)
             }

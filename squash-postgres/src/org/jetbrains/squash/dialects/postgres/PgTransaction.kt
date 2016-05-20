@@ -6,5 +6,5 @@ import org.jetbrains.squash.schema.*
 import java.sql.*
 
 class PgTransaction(connection: DatabaseConnection, connector: () -> Connection) : JDBCTransaction(connection, connector) {
-    override fun databaseSchema(): DatabaseSchema = PgDatabaseSchema(connection.dialect, jdbcConnection)
+    override fun databaseSchema(): DatabaseSchema = PgDatabaseSchema(connection.dialect, this)
 }

@@ -66,27 +66,6 @@ abstract class DefinitionTests : DatabaseTests {
         }
     }
 
-    @Test fun allColumnTypes() {
-        withTransaction {
-            connection.dialect.definition.tableSQL(AllColumnTypes).assertSQL { allColumnsTableSQL }
-        }
-    }
-
-    protected open val allColumnsTableSQL: String get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +
-            "id $idColumnType, " +
-            "\"varchar\" VARCHAR(42) NOT NULL, " +
-            "\"char\" CHAR NULL, " +
-            "enum INT NOT NULL, " +
-            "\"decimal\" DECIMAL(5, 2) NOT NULL, " +
-            "long BIGINT NOT NULL, " +
-            "\"date\" DATE NOT NULL, " +
-            "bool BOOLEAN NOT NULL, " +
-            "datetime DATETIME NOT NULL, " +
-            "text TEXT NOT NULL, " +
-            "\"binary\" VARBINARY(128) NOT NULL, " +
-            "uuid UUID NOT NULL, " +
-            "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (\"varchar\"))"
-
     @Test fun columnsWithDefaults() {
         val TestTable = object : TableDefinition("t") {
             val s = varchar("s", 100).default("test")

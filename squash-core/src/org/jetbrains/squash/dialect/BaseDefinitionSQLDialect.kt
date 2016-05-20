@@ -109,7 +109,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             is LongColumnType -> append("BIGINT")
             is IntColumnType -> append("INT")
             is DecimalColumnType -> append("DECIMAL(${type.scale}, ${type.precision})")
-            is EnumColumnType<*> -> append("INT")
+            is EnumColumnType -> append("INT")
             is DateColumnType -> append("DATE")
             is DateTimeColumnType -> append("DATETIME")
             is BinaryColumnType -> append("VARBINARY(${type.length})")

@@ -4,6 +4,9 @@ import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
+import org.jetbrains.squash.statements.Statement
+import java.sql.*
+import java.time.*
 
 open class BaseSQLDialect(val name: String) : SQLDialect {
     override val definition: DefinitionSQLDialect = BaseDefinitionSQLDialect(this)
@@ -28,13 +31,14 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         return id.isIdentifier()
     }
 
-    override fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?): Unit = with(builder) {
+    override fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?) {
         when (value) {
-            null -> append("NULL")
-            is String -> appendArgument(StringColumnType(), value)
-            is Int -> appendArgument(IntColumnType, value)
-            is Long -> appendArgument(LongColumnType, value)
-            else -> append(value.toString())
+            null -> builder.append("NULL")
+            is Enum<*> -> builder.appendArgument(value.ordinal)
+            is LocalDate -> builder.appendArgument(Date.valueOf(value))
+            is LocalTime -> builder.appendArgument(Time.valueOf(value))
+            is LocalDateTime -> builder.appendArgument(Timestamp.valueOf(value))
+            else -> builder.appendArgument(value)
         }
     }
 
@@ -237,17 +241,17 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" (")
-        val values = statement.values.toList() // fix order
+        val values = statement.values.entries.toList() // fix order
         values.forEachIndexed { index, value ->
             if (index > 0)
                 append(", ")
-            append(idSQL(value.first.name))
+            append(idSQL(value.key.name))
         }
         append(") VALUES (")
         values.forEachIndexed { index, value ->
             if (index > 0)
                 append(", ")
-            appendLiteralSQL(this, value.second)
+            appendLiteralSQL(this, value.value)
         }
         append(")")
     }.build()

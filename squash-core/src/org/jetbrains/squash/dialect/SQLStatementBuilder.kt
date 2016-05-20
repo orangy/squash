@@ -1,15 +1,13 @@
 package org.jetbrains.squash.dialect
 
-import org.jetbrains.squash.definition.*
-
 class SQLStatementBuilder() : Appendable {
     val stringBuilder = StringBuilder()
-    val arguments = mutableListOf<SQLArgument<*>>()
+    val arguments = mutableListOf<SQLArgument>()
 
-    fun <V> appendArgument(columnType: ColumnType, value: V) {
+    fun <V> appendArgument(value: V) {
         append("?")
         val index = arguments.size
-        arguments.add(SQLArgument(columnType, index, value))
+        arguments.add(SQLArgument(index, value))
     }
 
     override fun append(csq: CharSequence): SQLStatementBuilder {
