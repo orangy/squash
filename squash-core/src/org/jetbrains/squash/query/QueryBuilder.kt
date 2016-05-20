@@ -8,7 +8,7 @@ import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 
 open class QueryBuilder : Query {
-    override val schema = mutableListOf<QuerySchema>()
+    override val schema = mutableListOf<QueryCompound>()
     override val selection = mutableListOf<Expression<*>>()
     override val filter = mutableListOf<Expression<Boolean>>()
     override val order = mutableListOf<QueryOrder>()
@@ -25,15 +25,15 @@ fun <Q : QueryBuilder> Q.copy(): QueryStatement = query().apply {
  * Adds a join operation to the structure
  */
 fun <Q : QueryBuilder> Q.innerJoin(target: Table, on: Expression<Boolean>): Q = apply {
-    schema.add(QuerySchema.InnerJoin(target, on))
+    schema.add(QueryCompound.InnerJoin(target, on))
 }
 
 fun <Q : QueryBuilder> Q.leftJoin(target: Table, on: Expression<Boolean>): Q = apply {
-    schema.add(QuerySchema.LeftOuterJoin(target, on))
+    schema.add(QueryCompound.LeftOuterJoin(target, on))
 }
 
 fun <Q : QueryBuilder> Q.rightJoin(target: Table, on: Expression<Boolean>): Q = apply {
-    schema.add(QuerySchema.RightOuterJoin(target, on))
+    schema.add(QueryCompound.RightOuterJoin(target, on))
 }
 
 /**
@@ -49,7 +49,7 @@ fun <Q : Appendable> Q.append(): Q = TODO()
  * Adds [table] to the structure
  */
 fun <Q : QueryBuilder> Q.from(table: Table): Q = apply {
-    schema.add(QuerySchema.From(table))
+    schema.add(QueryCompound.From(table))
 }
 
 /**

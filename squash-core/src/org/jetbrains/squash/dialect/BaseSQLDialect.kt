@@ -120,27 +120,27 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     protected open fun appendQuerySQL(builder: SQLBuilder, query: Query): Unit = with(builder) {
         if (query.schema.isNotEmpty()) {
-            val tables = query.schema.filterIsInstance<QuerySchema.From>()
+            val tables = query.schema.filterIsInstance<QueryCompound.From>()
             append(" FROM ")
             tables.joinTo(this) { tableDeclarationName(it.table) }
 
-            val innerJoins = query.schema.filter { it !is QuerySchema.From }
+            val innerJoins = query.schema.filter { it !is QueryCompound.From }
             if (innerJoins.any()) {
                 innerJoins.forEach { join ->
                     when (join) {
-                        is QuerySchema.InnerJoin -> {
+                        is QueryCompound.InnerJoin -> {
                             append(" INNER JOIN ")
                             append(tableDeclarationName(join.table))
                             append(" ON ")
                             appendExpression(this, join.condition)
                         }
-                        is QuerySchema.LeftOuterJoin -> {
+                        is QueryCompound.LeftOuterJoin -> {
                             append(" LEFT OUTER JOIN ")
                             append(tableDeclarationName(join.table))
                             append(" ON ")
                             appendExpression(this, join.condition)
                         }
-                        is QuerySchema.RightOuterJoin -> {
+                        is QueryCompound.RightOuterJoin -> {
                             append(" RIGHT OUTER JOIN ")
                             append(tableDeclarationName(join.table))
                             append(" ON ")

@@ -1,6 +1,5 @@
 package org.jetbrains.squash.tests
 
-import org.jetbrains.squash.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
@@ -9,20 +8,18 @@ abstract class SchemaTests : DatabaseTests {
     @Test
     fun emptySchema() {
         withTransaction {
-            val tables = querySchema().tables().toList()
+            val tables = databaseSchema().tables().toList()
             assertEquals(0, tables.size)
         }
     }
 
-    protected open val sqlSingleTableSchema = "CREATE TABLE TEST(ID INT AUTO_INCREMENT PRIMARY KEY, NAME VARCHAR(255))"
-
     @Test
     fun singleTableSchema() {
         withTransaction {
-            executeStatement(sqlSingleTableSchema)
+            executeStatement("CREATE TABLE TEST(ID $idColumnType PRIMARY KEY, NAME VARCHAR(255))")
             executeStatement("INSERT INTO TEST (NAME) VALUES ('test')")
 
-            val schema = querySchema()
+            val schema = databaseSchema()
             val tables = schema.tables().toList()
             assertEquals(1, tables.size)
             assertEquals("TEST", tables[0].name.toUpperCase())
@@ -41,27 +38,26 @@ abstract class SchemaTests : DatabaseTests {
     @Test
     fun citiesDDL() {
         withCities {
-            connection.dialect.definition.tableSQL(Cities).assertSQL(sqlCitiesDDL)
+            connection.dialect.definition.tableSQL(Cities).assertSQL {
+                "CREATE TABLE IF NOT EXISTS Cities (id $idColumnType, name VARCHAR(50) NOT NULL, CONSTRAINT PK_Cities PRIMARY KEY (id))"
+            }
             connection.dialect.definition.tableSQL(Citizens).assertSQL {
                 "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL, CONSTRAINT PK_Citizens PRIMARY KEY (id))"
             }
         }
     }
 
-    protected open val sqlCitiesDDL: String
-        get() = "CREATE TABLE IF NOT EXISTS Cities (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(50) NOT NULL, CONSTRAINT PK_Cities PRIMARY KEY (id))"
-
     @Test
     fun citiesSchema() {
         withTransaction {
-            val database = Database(connection, listOf(Cities, Citizens))
-            database.createSchema(this)
-            val validationResult = database.validateSchema(this)
+            val schema = databaseSchema()
+            val tableDefinitions = listOf(Cities, Citizens)
+            schema.create(tableDefinitions, this)
+            val validationResult = schema.validate(tableDefinitions, this)
             if (validationResult.any()) {
                 fail(validationResult.joinToString("\n") { it.message })
             }
 
-            val schema = querySchema()
             val tables = schema.tables().toList()
             assertEquals(2, tables.size)
 

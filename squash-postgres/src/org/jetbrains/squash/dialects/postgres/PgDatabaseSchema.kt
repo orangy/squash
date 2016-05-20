@@ -1,7 +1,9 @@
 package org.jetbrains.squash.dialects.postgres
 
 import org.jetbrains.squash.*
+import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.drivers.*
+import org.jetbrains.squash.schema.*
 import java.sql.*
 
 class PgConnection(connector: () -> Connection) : JDBCConnection(PostgresDialect, connector) {
@@ -17,14 +19,14 @@ class PgConnection(connector: () -> Connection) : JDBCConnection(PostgresDialect
 }
 
 class PgTransaction(connection: DatabaseConnection, connector: () -> Connection) : JDBCTransaction(connection, connector) {
-    override fun querySchema(): DatabaseSchema = PgDatabaseSchema(jdbcConnection)
+    override fun databaseSchema(): DatabaseSchema = PgDatabaseSchema(connection.dialect, jdbcConnection)
 }
 
-class PgDatabaseSchema(connection: Connection) : JDBCDatabaseSchema(connection) {
-    override fun tables(): Sequence<DatabaseSchema.Table> {
+class PgDatabaseSchema(dialect: SQLDialect, jdbcConnection: Connection) : JDBCDatabaseSchema(dialect, jdbcConnection) {
+    override fun tables(): Sequence<DatabaseSchema.SchemaTable> {
         val schema = currentSchema()
         val tableTypes = if (schema.startsWith("pg_temp_")) arrayOf("TEMPORARY TABLE") else arrayOf("TABLE")
         val resultSet = metadata.getTables(catalogue, currentSchema(), null, tableTypes)
-        return JDBCResponse(resultSet).rows.map { Table(it.get<String>("TABLE_NAME"), this) }
+        return JDBCResponse(resultSet).rows.map { SchemaTable(it.get<String>("TABLE_NAME"), this) }
     }
 }

@@ -75,12 +75,11 @@ abstract class DefinitionTests : DatabaseTests {
         }
 
         withTransaction {
-            connection.dialect.definition.tableSQL(TestTable).assertSQL(sqlAllColumnTypes)
+            connection.dialect.definition.tableSQL(TestTable).assertSQL {
+                "CREATE TABLE IF NOT EXISTS allColumnTypes (id $idColumnType, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_allColumnTypes PRIMARY KEY (name))"
+            }
         }
     }
-
-    protected open val sqlAllColumnTypes: String
-        get() = "CREATE TABLE IF NOT EXISTS allColumnTypes (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(42) NOT NULL, age INT NULL, CONSTRAINT PK_allColumnTypes PRIMARY KEY (name))"
 
     @Test fun columnsWithDefaults() {
         val TestTable = object : TableDefinition("t") {

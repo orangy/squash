@@ -7,6 +7,8 @@ import org.jetbrains.squash.dialects.postgres.*
 import org.jetbrains.squash.tests.*
 
 class PgDatabaseTests : DatabaseTests {
+    override val idColumnType: String get() = "SERIAL"
+
     fun withConnection(block: (DatabaseConnection) -> Unit) {
         val connection = PgConnection.create("jdbc:postgresql://localhost:5432/", "org.postgresql.Driver", "postgres")
         block(connection)
@@ -14,8 +16,7 @@ class PgDatabaseTests : DatabaseTests {
 
     override fun withTables(vararg tables: Table, statement: Transaction.() -> Unit) {
         withTransaction {
-            val database = Database(connection, tables.toList())
-            database.createSchema(this)
+            databaseSchema().create(tables.toList(), this)
             statement()
         }
     }

@@ -6,6 +6,8 @@ import org.jetbrains.squash.dialect.*
 import kotlin.test.*
 
 interface DatabaseTests {
+    val idColumnType : String
+
     fun withTables(vararg tables: Table, statement: Transaction.() -> Unit)
     fun withTransaction(statement: Transaction.() -> Unit)
 

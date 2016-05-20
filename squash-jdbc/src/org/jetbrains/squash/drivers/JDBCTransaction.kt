@@ -4,6 +4,7 @@ import org.jetbrains.squash.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.results.*
+import org.jetbrains.squash.schema.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.statements.Statement
 import java.sql.*
@@ -93,7 +94,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
         _jdbcConnection?.commit()
     }
 
-    override fun querySchema(): DatabaseSchema = JDBCDatabaseSchema(jdbcConnection)
+    override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(connection.dialect, jdbcConnection)
 
     override fun close() {
         _jdbcConnection?.close()

@@ -7,15 +7,16 @@ import org.jetbrains.squash.dialects.h2.*
 import org.jetbrains.squash.tests.*
 
 class H2DatabaseTests : DatabaseTests {
+    override val idColumnType: String get() = "INT NOT NULL AUTO_INCREMENT"
+
     fun withConnection(block: (DatabaseConnection) -> Unit) {
         H2Connection.createMemoryConnection().use(block)
     }
 
     override fun withTables(vararg tables: Table, statement: Transaction.() -> Unit) {
         withConnection { connection ->
-            val database = Database(connection, tables.toList())
             connection.createTransaction().use { transaction ->
-                database.createSchema(transaction)
+                transaction.databaseSchema().create(tables.toList(), transaction)
                 transaction.statement()
             }
         }
