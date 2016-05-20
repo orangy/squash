@@ -1,3 +1,6 @@
+@file:JvmName("Queries")
+@file:JvmMultifileClass
+
 package org.jetbrains.squash.query
 
 import org.jetbrains.squash.definition.*
@@ -39,6 +42,8 @@ fun <Q : QueryBuilder> Q.rightJoin(target: Table, on: Expression<Boolean>): Q = 
 fun <Q : QueryBuilder> Q.select(vararg expression: Expression<*>): Q = apply {
     selection.addAll(expression)
 }
+
+fun <Q : Appendable> Q.append(): Q = TODO()
 
 /**
  * Adds [table] to the structure

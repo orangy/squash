@@ -1,3 +1,5 @@
+@file:JvmName("Constraints")
+
 package org.jetbrains.squash.definition
 
 import org.jetbrains.squash.*

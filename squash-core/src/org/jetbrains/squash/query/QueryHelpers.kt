@@ -1,3 +1,6 @@
+@file:JvmName("Queries")
+@file:JvmMultifileClass
+
 package org.jetbrains.squash.query
 
 import org.jetbrains.squash.definition.*
