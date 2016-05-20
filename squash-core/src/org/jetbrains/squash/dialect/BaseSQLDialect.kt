@@ -32,6 +32,8 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     override fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?) {
+        if (value != null)
+            builder.append("?")
         when (value) {
             null -> builder.append("NULL")
             is Enum<*> -> builder.appendArgument(value.ordinal)

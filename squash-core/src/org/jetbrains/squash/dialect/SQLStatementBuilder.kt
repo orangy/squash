@@ -5,7 +5,6 @@ class SQLStatementBuilder() : Appendable {
     val arguments = mutableListOf<SQLArgument>()
 
     fun <V> appendArgument(value: V) {
-        append("?")
         val index = arguments.size
         arguments.add(SQLArgument(index, value))
     }
