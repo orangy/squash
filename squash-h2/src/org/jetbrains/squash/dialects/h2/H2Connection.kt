@@ -5,8 +5,8 @@ import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.drivers.*
 import java.sql.*
 
-class H2Connection(connector: () -> Connection) : JDBCConnection(H2Dialect, connector) {
-    override fun createTransaction(): Transaction = H2Transaction(this, connector)
+class H2Connection(connector: () -> Connection) : JDBCConnection(H2Dialect, H2DataConversion(), connector) {
+    override fun createTransaction(): Transaction = H2Transaction(this)
 
     companion object {
         fun create(url: String, user: String = "", password: String = ""): DatabaseConnection {
@@ -21,3 +21,4 @@ class H2Connection(connector: () -> Connection) : JDBCConnection(H2Dialect, conn
         }
     }
 }
+

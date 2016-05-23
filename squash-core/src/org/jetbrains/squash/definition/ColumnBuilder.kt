@@ -30,8 +30,8 @@ fun TableDefinition.integer(name: String): Column<Int> {
     return createColumn(name, IntColumnType)
 }
 
-fun TableDefinition.char(name: String): Column<Char> {
-    return createColumn(name, CharColumnType)
+fun TableDefinition.char(name: String, length: Int = 1): Column<String> {
+    return createColumn(name, CharColumnType(length))
 }
 
 inline fun <reified V : Enum<V>> TableDefinition.enumeration(name: String): Column<V> {

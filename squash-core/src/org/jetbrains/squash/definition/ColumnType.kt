@@ -7,7 +7,6 @@ abstract class ColumnType() {
     override fun toString(): String = "${javaClass.simpleName.removeSuffix("ColumnType")}"
 }
 
-object CharColumnType : ColumnType()
 object IntColumnType : ColumnType()
 object LongColumnType : ColumnType()
 object DateColumnType : ColumnType()
@@ -30,6 +29,10 @@ class EnumColumnType(val klass: Class<*>) : ColumnType() {
 
 class StringColumnType(val length: Int = 65535, val collate: String? = null) : ColumnType() {
     override fun toString(): String = "String[$length]"
+}
+
+class CharColumnType(val length: Int) : ColumnType() {
+    override fun toString(): String = "Char[$length]"
 }
 
 class BinaryColumnType(val length: Int) : ColumnType() {

@@ -1,6 +1,7 @@
 package org.jetbrains.squash.drivers
 
 import org.jetbrains.squash.dialect.*
+import org.jetbrains.squash.results.*
 import org.jetbrains.squash.schema.*
 import java.sql.*
 
@@ -10,7 +11,7 @@ open class JDBCDatabaseSchema(dialect: SQLDialect, val transaction: JDBCTransact
 
     override fun tables(): Sequence<DatabaseSchema.SchemaTable> {
         val resultSet = metadata.getTables(catalogue, currentSchema(), null, arrayOf("TABLE"))
-        return JDBCResponse(transaction, resultSet).rows.map { SchemaTable(it.get<String>("TABLE_NAME"), this) }
+        return JDBCResponse(transaction.connection.conversion, resultSet).rows.map { SchemaTable(it["TABLE_NAME"], this) }
     }
 
     protected open fun currentSchema(): String = transaction.jdbcConnection.schema
@@ -25,7 +26,7 @@ open class JDBCDatabaseSchema(dialect: SQLDialect, val transaction: JDBCTransact
     class SchemaTable(override val name: String, private val schema: JDBCDatabaseSchema) : DatabaseSchema.SchemaTable {
         override fun columns(): Sequence<DatabaseSchema.SchemaColumn> {
             val resultSet = schema.metadata.getColumns(schema.catalogue, schema.currentSchema(), name, null)
-            val response = JDBCResponse(schema.transaction, resultSet)
+            val response = JDBCResponse(schema.transaction.connection.conversion, resultSet)
             return response.rows.map {
                 val columnSize = it.get<Int>("COLUMN_SIZE")
                 val autoIncrement = it.get<String>("IS_AUTOINCREMENT") == "YES"

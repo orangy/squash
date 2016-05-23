@@ -2,6 +2,7 @@ package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.query.*
+import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
@@ -65,11 +66,11 @@ abstract class AllColumnTypesTests : DatabaseTests {
 
             // double? 1.0
             assertEquals(BigDecimal::class.java, row[AllColumnTypes.decimal].javaClass)
-            assertEquals(BigDecimal.ONE, row[AllColumnTypes.decimal])
+            assertEquals(BigDecimal.ONE.setScale(2), row[AllColumnTypes.decimal])
 
             // "c"
-            assertEquals(Char::class.java, row[AllColumnTypes.char].javaClass)
-            assertEquals('c', row[AllColumnTypes.char])
+            assertEquals(String::class.java, row[AllColumnTypes.char].javaClass)
+            assertEquals("c", row[AllColumnTypes.char])
 
             // java.sql.Date*
             assertEquals(LocalDateTime::class.java, row[AllColumnTypes.datetime].javaClass)
@@ -88,7 +89,7 @@ abstract class AllColumnTypesTests : DatabaseTests {
     private fun Transaction.insertData() {
         insertInto(AllColumnTypes).values {
             it[varchar] = "varchar"
-            it[char] = 'c'
+            it[char] = "c"
             it[enum] = E.ONE
             it[decimal] = BigDecimal.ONE
             it[long] = 222L

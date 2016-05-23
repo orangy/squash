@@ -9,35 +9,35 @@ import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.statements.Statement
 import java.sql.*
 
-open class JDBCTransaction(override val connection: DatabaseConnection, val connector: () -> Connection) : Transaction {
-    var _jdbcConnection: Connection? = null
+open class JDBCTransaction(override val connection: JDBCConnection) : Transaction {
+    private var _jdbcConnection: Connection? = null
 
     val jdbcConnection: Connection get() = _jdbcConnection ?: run {
-        _jdbcConnection = connector()
+        _jdbcConnection = connection.connector()
         _jdbcConnection!!
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> PreparedStatement.resultFor(statement: Statement<T>): T {
+    private fun <T> resultFor(jdbcStatement: PreparedStatement, statement: Statement<T>): T {
         when (statement) {
             is InsertValuesStatement<*, *> -> {
-                val response = JDBCResponse(this@JDBCTransaction, generatedKeys)
+                val response = JDBCResponse(connection.conversion, jdbcStatement.generatedKeys)
                 val rows = response.rows
                 if (rows.empty)
                     return Unit as T
                 val keyColumn = response.columns.single()
-                return rows.single().get<T>(keyColumn)
+                return rows.single().get<Any>(keyColumn) as T
             }
             is InsertQueryStatement<*> -> {
-                val response = JDBCResponse(this@JDBCTransaction, generatedKeys)
+                val response = JDBCResponse(connection.conversion, jdbcStatement.generatedKeys)
                 val rows = response.rows
                 if (rows.empty)
                     return emptySequence<Nothing>() as T
                 val keyColumn = response.columns.single()
-                return rows.single().get<T>(keyColumn)
+                return rows.single().get<Any>(keyColumn) as T
             }
             is QueryStatement -> {
-                val response = JDBCResponse(this@JDBCTransaction, resultSet)
+                val response = JDBCResponse(connection.conversion, jdbcStatement.resultSet)
                 return response as T
             }
 
@@ -54,7 +54,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
         val returnColumn: Column<*>? = if (statement is InsertValuesStatement<*, *>) statement.generatedKeyColumn else null
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL, returnColumn)
         preparedStatement.execute()
-        return preparedStatement.resultFor(statement)
+        return resultFor(preparedStatement, statement)
     }
 
     override fun executeStatement(statement: SQLStatement): Response {
@@ -63,7 +63,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
             val preparedStatement = jdbcConnection.prepareStatement(statement)
             val executionResult = preparedStatement.execute()
             return when (executionResult) {
-                true -> JDBCResponse(this, preparedStatement.resultSet)
+                true -> JDBCResponse(connection.conversion, preparedStatement.resultSet)
                 false -> Response.Empty
             }
         } catch (ex: SQLException) {
@@ -81,7 +81,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
             prepareStatement(statementSQL.sql, arrayOf(connection.dialect.idSQL(returnColumn.name)))
 
         statementSQL.arguments.forEach { arg ->
-            preparedStatement.setObject(arg.index + 1, arg.value)
+            preparedStatement.setObject(arg.index + 1, connection.conversion.convertValueToDatabase(arg.value))
         }
         return preparedStatement
     }

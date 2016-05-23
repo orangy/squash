@@ -2,12 +2,10 @@ package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
+import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
-import java.math.*
-import java.time.*
-import java.util.*
 import kotlin.test.*
 
 abstract class ModificationTests : DatabaseTests {

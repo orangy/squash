@@ -3,7 +3,7 @@ package org.jetbrains.squash.drivers
 import org.jetbrains.squash.results.*
 import java.sql.*
 
-class JDBCResponse(val transaction: JDBCTransaction, val resultSet: ResultSet) : Response {
+class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet) : Response {
     val metadata = resultSet.metaData
     val columns = mutableListOf<JDBCResponseColumn>()
     val rows = JDBCResponseRowSequence(this)
@@ -24,7 +24,7 @@ class JDBCResponse(val transaction: JDBCTransaction, val resultSet: ResultSet) :
         val klass = metadata.getColumnClassName(index) // java class name to bind type to
 
         @Suppress("UNUSED_VARIABLE")
-        val dbtype = metadata.getColumnTypeName(index) // database typer
+        val dbtype = metadata.getColumnTypeName(index) // database type
         columns.add(JDBCResponseColumn(index, label, table, name, nullable))
     }
 }

@@ -4,8 +4,8 @@ import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.drivers.*
 import java.sql.*
 
-class PgConnection(connector: () -> Connection) : JDBCConnection(PgDialect, connector) {
-    override fun createTransaction(): Transaction = PgTransaction(this, connector)
+class PgConnection(connector: () -> Connection) : JDBCConnection(PgDialect, PgDataConversion(), connector) {
+    override fun createTransaction(): Transaction = PgTransaction(this)
 
     companion object {
         fun create(url: String, user: String = "", password: String = ""): DatabaseConnection {
@@ -15,3 +15,4 @@ class PgConnection(connector: () -> Connection) : JDBCConnection(PgDialect, conn
         }
     }
 }
+

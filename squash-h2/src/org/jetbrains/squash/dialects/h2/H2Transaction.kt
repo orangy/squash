@@ -5,6 +5,6 @@ import org.jetbrains.squash.drivers.*
 import org.jetbrains.squash.schema.*
 import java.sql.*
 
-class H2Transaction(connection: DatabaseConnection, connector: () -> Connection) : JDBCTransaction(connection, connector) {
+class H2Transaction(connection: JDBCConnection) : JDBCTransaction(connection) {
     override fun databaseSchema(): DatabaseSchema = H2DatabaseSchema(connection.dialect, this)
 }

@@ -3,6 +3,7 @@ package org.jetbrains.squash.tests
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
+import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
@@ -19,7 +20,7 @@ abstract class QueryTests : DatabaseTests {
             }
 
             val row = query.execute().single()
-            assertEquals(eugene.literal, row.get<String>(0))
+            assertEquals(eugene.literal, row[0])
         }
     }
 
