@@ -81,7 +81,7 @@ open class JDBCTransaction(override val connection: DatabaseConnection, val conn
             prepareStatement(statementSQL.sql, arrayOf(connection.dialect.idSQL(returnColumn.name)))
 
         statementSQL.arguments.forEach { arg ->
-            preparedStatement.setObject(arg.index+1, arg.value)
+            preparedStatement.setObject(arg.index + 1, arg.value)
         }
         return preparedStatement
     }

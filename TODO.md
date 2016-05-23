@@ -25,3 +25,7 @@
 * Null values (query, update, insert)
 * All data types
 * Java tests.
+
+# JDBC
+
+* Use `Connection.setClientInfo`

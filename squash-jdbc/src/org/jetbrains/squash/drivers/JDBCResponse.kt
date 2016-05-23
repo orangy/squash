@@ -1,6 +1,5 @@
 package org.jetbrains.squash.drivers
 
-import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.results.*
 import java.sql.*
 
@@ -26,41 +25,7 @@ class JDBCResponse(val transaction: JDBCTransaction, val resultSet: ResultSet) :
 
         @Suppress("UNUSED_VARIABLE")
         val dbtype = metadata.getColumnTypeName(index) // database typer
-        columns.add(JDBCResponseColumn(index, label, table, name, nullable, columnType(index)))
-    }
-
-    private fun columnType(index: Int): ColumnType {
-        val className = metadata.getColumnClassName(index)
-        val columnTypeName = metadata.getColumnTypeName(index)
-        val columnType = metadata.getColumnType(index)
-        return when (columnType) {
-            Types.BIT -> BooleanColumnType
-            Types.CHAR -> CharColumnType
-            Types.INTEGER -> IntColumnType
-            Types.SMALLINT -> IntColumnType
-            Types.BIGINT -> LongColumnType
-            Types.DATE -> DateColumnType
-            Types.BLOB -> BlobColumnType
-            Types.CLOB -> StringColumnType()
-            Types.BOOLEAN -> BooleanColumnType
-            Types.DECIMAL -> DecimalColumnType(metadata.getScale(index), metadata.getPrecision(index))
-            Types.NUMERIC -> DecimalColumnType(metadata.getScale(index), metadata.getPrecision(index))
-            Types.VARCHAR -> StringColumnType(metadata.getPrecision(index))
-            Types.BINARY -> BinaryColumnType(metadata.getPrecision(index))
-            Types.VARBINARY -> BinaryColumnType(metadata.getPrecision(index))
-            Types.TIMESTAMP -> DateTimeColumnType
-            else -> {
-                when (className) {
-                    "java.lang.Character" -> CharColumnType
-                    "java.lang.Integer" -> IntColumnType
-                    "java.lang.Long" -> LongColumnType
-                    "java.lang.Short" -> IntColumnType
-                    "java.util.UUID" -> UUIDColumnType
-                    "java.lang.String" -> StringColumnType(metadata.getPrecision(index))
-                    else -> error("Column type '$columnTypeName:$columnType:$className' is not supported")
-                }
-            }
-        }
+        columns.add(JDBCResponseColumn(index, label, table, name, nullable))
     }
 }
 
@@ -68,8 +33,8 @@ class JDBCResponseColumn(val columnIndex: Int,
                          val label: String,
                          val table: String,
                          val name: String,
-                         val nullable: Boolean,
-                         val type: ColumnType) {
+                         val nullable: Boolean
+) {
 
     override fun toString(): String = "JDBCResponseColumn('$label')"
 }

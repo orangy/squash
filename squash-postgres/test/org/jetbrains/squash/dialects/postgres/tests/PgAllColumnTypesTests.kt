@@ -7,7 +7,7 @@ class PgAllColumnTypesTests : AllColumnTypesTests(), DatabaseTests by PgDatabase
         get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +
                 "id $idColumnType, " +
                 "\"varchar\" VARCHAR(42) NOT NULL, " +
-                "\"char\" CHAR NULL, " +
+                "\"char\" CHAR NOT NULL, " +
                 "enum INT NOT NULL, " +
                 "\"decimal\" DECIMAL(5, 2) NOT NULL, " +
                 "long BIGINT NOT NULL, " +

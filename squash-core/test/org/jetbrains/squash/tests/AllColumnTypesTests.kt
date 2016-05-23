@@ -8,13 +8,14 @@ import org.junit.*
 import java.math.*
 import java.time.*
 import java.util.*
+import kotlin.test.*
 
 @Suppress("unused")
 abstract class AllColumnTypesTests : DatabaseTests {
     protected open val allColumnsTableSQL: String get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +
             "id $idColumnType, " +
             "\"varchar\" VARCHAR(42) NOT NULL, " +
-            "\"char\" CHAR NULL, " +
+            "\"char\" CHAR NOT NULL, " +
             "enum INT NOT NULL, " +
             "\"decimal\" DECIMAL(5, 2) NOT NULL, " +
             "long BIGINT NOT NULL, " +
@@ -42,9 +43,47 @@ abstract class AllColumnTypesTests : DatabaseTests {
         withTables(AllColumnTypes) {
             insertData()
             val row = query(AllColumnTypes).execute().single()
+
+            assertEquals(String::class.java, row[AllColumnTypes.varchar].javaClass)
+            assertEquals("varchar", row[AllColumnTypes.varchar])
+
+            assertEquals(Long::class.java, row[AllColumnTypes.long].javaClass)
+            assertEquals(222L, row[AllColumnTypes.long])
+
+            assertEquals(Boolean::class.java, row[AllColumnTypes.bool].javaClass)
+            assertEquals(true, row[AllColumnTypes.bool])
+
+            assertEquals(ByteArray::class.java, row[AllColumnTypes.binary].javaClass)
+            assertEquals(byteArrayOf(1, 2, 3).toList(), row[AllColumnTypes.binary].toList())
+
+            assertEquals(UUID::class.java, row[AllColumnTypes.uuid].javaClass)
+            assertEquals(UUID.fromString("7cb64fe4-4938-4e88-8d94-17e929d40c99"), row[AllColumnTypes.uuid])
+
+            // clob in h2, string in pg
+            assertEquals(String::class.java, row[AllColumnTypes.text].javaClass)
+            assertEquals("Lorem Ipsum", row[AllColumnTypes.text])
+
+            // double? 1.0
+            assertEquals(BigDecimal::class.java, row[AllColumnTypes.decimal].javaClass)
+            assertEquals(BigDecimal.ONE, row[AllColumnTypes.decimal])
+
+            // "c"
+            assertEquals(Char::class.java, row[AllColumnTypes.char].javaClass)
+            assertEquals('c', row[AllColumnTypes.char])
+
+            // java.sql.Date*
+            assertEquals(LocalDateTime::class.java, row[AllColumnTypes.datetime].javaClass)
+            assertEquals(LocalDateTime.of(LocalDate.of(1976, 11, 24), LocalTime.of(8, 22)), row[AllColumnTypes.datetime])
+
+            assertEquals(LocalDate::class.java, row[AllColumnTypes.date].javaClass)
+            assertEquals(LocalDate.of(1976, 11, 24), row[AllColumnTypes.date])
+
+            // ordinal
+            assertEquals(E::class.java, row[AllColumnTypes.enum].javaClass)
+            assertEquals(E.ONE, row[AllColumnTypes.enum])
+
         }
     }
-
 
     private fun Transaction.insertData() {
         insertInto(AllColumnTypes).values {

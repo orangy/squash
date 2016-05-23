@@ -11,7 +11,7 @@ enum class E {
 object AllColumnTypes : TableDefinition() {
     val id = integer("id").autoIncrement()
     val varchar = varchar("varchar", 42).primaryKey()
-    val char = char("char").nullable()
+    val char = char("char")
     val enum = enumeration<E>("enum")
     val decimal = decimal("decimal", 5, 2)
     val long = long("long")
