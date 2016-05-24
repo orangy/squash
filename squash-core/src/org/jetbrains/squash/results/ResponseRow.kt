@@ -9,9 +9,9 @@ import kotlin.reflect.*
  */
 interface ResponseRow {
     /**
-     * Gets value of a column with the give [type] and [name]
+     * Gets value of a column with the give [type] and [columnName]
      */
-    fun <V> columnValue(type: KClass<*>, name: String): V
+    fun <V> columnValue(type: KClass<*>, columnName: String, tableName: String? = null): V
 
     /**
      * Gets value of a column with the give [type] and [index]
@@ -24,7 +24,7 @@ operator inline fun <reified V> ResponseRow.get(index: Int): V = columnValue(V::
 
 inline fun <reified V> ResponseRow.columnValue(column: Column<V>): V {
     val label = if (column is AliasColumn) column.label.id else column.name.id
-    return columnValue(V::class, label)
+    return columnValue(V::class, label, column.table.tableName.id)
 }
 
 operator inline fun <reified V> ResponseRow.get(column: Column<V>): V = columnValue(column)

@@ -7,9 +7,12 @@ import kotlin.reflect.*
 class JDBCResponseRow(resultSet: ResultSet, columns: List<JDBCResponseColumn>, val conversion: JDBCDataConversion) : ResponseRow {
     private val data = columns.associateBy({ it }, { resultSet.getObject(it.columnIndex) })
 
-    override fun <V> columnValue(type: KClass<*>, name: String): V {
-        val columnData = data.entries.filter { it.key.label.equals(name, ignoreCase = true) }
-        return columnValue(name, type, columnData)
+    override fun <V> columnValue(type: KClass<*>, columnName: String, tableName: String?): V {
+        val columnData = data.entries.filter {
+            it.key.label.equals(columnName, ignoreCase = true)
+                    && (tableName == null || it.key.table.equals(tableName, ignoreCase = true))
+        }
+        return columnValue(columnName, type, columnData)
     }
 
     override fun <V> columnValue(type: KClass<*>, index: Int): V {
