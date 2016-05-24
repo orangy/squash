@@ -52,8 +52,8 @@ abstract class SchemaTests : DatabaseTests {
         withTransaction {
             val schema = databaseSchema()
             val tableDefinitions = listOf(Cities, Citizens)
-            schema.create(tableDefinitions, this)
-            val validationResult = schema.validate(tableDefinitions, this)
+            schema.create(tableDefinitions)
+            val validationResult = schema.validate(tableDefinitions)
             if (validationResult.any()) {
                 fail(validationResult.joinToString("\n") { it.message })
             }

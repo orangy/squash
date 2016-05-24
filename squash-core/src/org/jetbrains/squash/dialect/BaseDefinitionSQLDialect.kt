@@ -27,7 +27,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             table.constraints.elements.filterIsInstance<IndexConstraint>().map {
                 SQLStatementBuilder().apply {
                     val unique = if (it.unique) " UNIQUE" else ""
-                    append("CREATE$unique INDEX ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.tableName)} (")
+                    append("CREATE$unique INDEX IF NOT EXISTS ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.tableName)} (")
                     it.columns.forEachIndexed { index, column ->
                         if (index > 0)
                             append(", ")

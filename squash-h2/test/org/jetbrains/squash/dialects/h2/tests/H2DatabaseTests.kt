@@ -16,7 +16,7 @@ class H2DatabaseTests : DatabaseTests {
     override fun withTables(vararg tables: Table, statement: Transaction.() -> Unit) {
         withConnection { connection ->
             connection.createTransaction().use { transaction ->
-                transaction.databaseSchema().create(tables.toList(), transaction)
+                transaction.databaseSchema().create(tables.toList())
                 transaction.statement()
             }
         }

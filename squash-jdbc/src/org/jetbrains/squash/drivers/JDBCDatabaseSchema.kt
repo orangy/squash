@@ -5,7 +5,7 @@ import org.jetbrains.squash.results.*
 import org.jetbrains.squash.schema.*
 import java.sql.*
 
-open class JDBCDatabaseSchema(dialect: SQLDialect, val transaction: JDBCTransaction) : DatabaseSchemaBase(dialect) {
+open class JDBCDatabaseSchema(override val transaction: JDBCTransaction) : DatabaseSchemaBase(transaction) {
     protected val catalogue: String = transaction.jdbcConnection.catalog
     protected val metadata: DatabaseMetaData = transaction.jdbcConnection.metaData
 

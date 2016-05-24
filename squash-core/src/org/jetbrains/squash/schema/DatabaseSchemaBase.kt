@@ -5,9 +5,9 @@ import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
 import java.util.*
 
-abstract class DatabaseSchemaBase(val dialect: SQLDialect) : DatabaseSchema {
+abstract class DatabaseSchemaBase(open val transaction: Transaction) : DatabaseSchema {
 
-    override fun create(tables: List<Table>, transaction: Transaction) {
+    override fun create(tables: List<Table>) {
         val statements = createStatements(tables)
         for (statement in statements) {
             transaction.executeStatement(statement)
@@ -24,13 +24,13 @@ abstract class DatabaseSchemaBase(val dialect: SQLDialect) : DatabaseSchema {
             if (existingTables.any { it.name == table.tableName.id })
                 continue
 
-            val tableDefinition = dialect.definition.tableSQL(table)
+            val tableDefinition = transaction.connection.dialect.definition.tableSQL(table)
             statements.addAll(tableDefinition)
         }
         return statements
     }
 
-    override fun validate(tables: List<Table>, transaction: Transaction): List<DatabaseSchema.DatabaseSchemaValidationItem> {
+    override fun validate(tables: List<Table>): List<DatabaseSchema.DatabaseSchemaValidationItem> {
         val tableMap = tables.associateBy { it.tableName.id.toLowerCase() }
         val validationResult = mutableListOf<DatabaseSchema.DatabaseSchemaValidationItem>()
         transaction.databaseSchema().tables().forEach { tableSchema ->

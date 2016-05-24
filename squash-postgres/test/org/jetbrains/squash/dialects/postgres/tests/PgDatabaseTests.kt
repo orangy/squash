@@ -16,7 +16,7 @@ class PgDatabaseTests : DatabaseTests {
 
     override fun withTables(vararg tables: Table, statement: Transaction.() -> Unit) {
         withTransaction {
-            databaseSchema().create(tables.toList(), this)
+            databaseSchema().create(tables.toList())
             statement()
         }
     }

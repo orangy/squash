@@ -7,6 +7,13 @@ import kotlin.internal.*
 infix fun <V> Expression<@Exact V?>.eq(other: Expression<V?>): Expression<Boolean> = EqExpression(this, other)
 infix fun <V> Expression<@Exact V>.eq(literal: V): Expression<Boolean> = EqExpression(this, LiteralExpression(literal))
 
+infix fun Expression<Boolean>.and(other: Expression<Boolean>): Expression<Boolean> = AndExpression(this, other)
+infix fun Expression<Boolean>.or(other: Expression<Boolean>): Expression<Boolean> = OrExpression(this, other)
+
+@JvmName("postfixNot")
+fun Expression<Boolean>.not(): Expression<Boolean> = NotExpression(this)
+fun not(expression: Expression<Boolean>): Expression<Boolean> = NotExpression(expression)
+
 infix fun <V> Expression<@Exact V>.neq(other: Expression<V>): Expression<Boolean> = NotEqExpression(this, other)
 infix fun <V> Expression<@Exact V>.neq(literal: V): Expression<Boolean> = NotEqExpression(this, LiteralExpression(literal))
 

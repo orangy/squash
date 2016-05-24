@@ -96,7 +96,7 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
         _jdbcConnection?.rollback()
     }
 
-    override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(connection.dialect, this)
+    override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(this)
 
     override fun close() {
         _jdbcConnection?.close()

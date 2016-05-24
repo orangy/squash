@@ -17,7 +17,7 @@ open class TableDefinition(name: String? = null) : Table {
 
     fun <T> addColumn(column: Column<T>): Column<T> {
         require(column.table == this) { "Can't add column '$column' from different table" }
-
+        require(tableColumns.none { it.name.id.equals(column.name.id, ignoreCase = true) }) { "Column with the same identifier '$column' already exists" }
         _tableColumns.add(column)
         return column
     }

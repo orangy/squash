@@ -18,6 +18,7 @@ interface Transaction : AutoCloseable {
      * Executes [sql] on this [Transaction] and returns a [Response]
      */
     fun executeStatement(sql: String): Response
+
     /**
      * Executes an SQL [statement] with arguments on this [Transaction] and returns a [Response]
      */
@@ -41,7 +42,7 @@ interface Transaction : AutoCloseable {
     /**
      * Builds and executes structured statement on this [Transaction]
      */
-    fun <T> Statement<T>.execute(): T = executeStatement(this)
+    fun <T> TransactionExecutable<T>.execute(): T = executeOn(this@Transaction)
 
     /**
      * Fetches database schema on this [Transaction] and returns an instance of [DatabaseSchema]
@@ -49,3 +50,6 @@ interface Transaction : AutoCloseable {
     fun databaseSchema(): DatabaseSchema
 }
 
+interface TransactionExecutable<R> {
+    fun executeOn(transaction: Transaction): R
+}

@@ -6,12 +6,12 @@ import org.jetbrains.squash.dialect.*
 interface DatabaseSchema {
     fun tables(): Sequence<SchemaTable>
 
-    fun create(tables: List<org.jetbrains.squash.definition.Table>, transaction: Transaction)
+    fun create(tables: List<org.jetbrains.squash.definition.Table>)
     fun createStatements(tables: List<org.jetbrains.squash.definition.Table>): List<SQLStatement>
 
     data class DatabaseSchemaValidationItem(val message: String)
 
-    fun validate(tables: List<org.jetbrains.squash.definition.Table>, transaction: Transaction): List<DatabaseSchemaValidationItem>
+    fun validate(tables: List<org.jetbrains.squash.definition.Table>): List<DatabaseSchemaValidationItem>
 
     interface SchemaTable {
         val name: String

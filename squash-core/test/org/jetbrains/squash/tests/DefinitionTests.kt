@@ -89,7 +89,7 @@ abstract class DefinitionTests : DatabaseTests {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))
-                CREATE INDEX IX_t1_name ON t1 (name)
+                CREATE INDEX IF NOT EXISTS IX_t1_name ON t1 (name)
                 """
             }
         }
@@ -105,7 +105,7 @@ abstract class DefinitionTests : DatabaseTests {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL, name VARCHAR(255) NOT NULL, CONSTRAINT PK_t1 PRIMARY KEY (id))
-                CREATE UNIQUE INDEX IX_t1_name ON t1 (name)
+                CREATE UNIQUE INDEX IF NOT EXISTS IX_t1_name ON t1 (name)
                 """
             }
         }
@@ -126,7 +126,7 @@ abstract class DefinitionTests : DatabaseTests {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL, lvalue INT NOT NULL, rvalue INT NOT NULL, CONSTRAINT PK_t2 PRIMARY KEY (id))
-                CREATE INDEX IX_t2_lvalue_rvalue ON t2 (lvalue, rvalue)
+                CREATE INDEX IF NOT EXISTS IX_t2_lvalue_rvalue ON t2 (lvalue, rvalue)
                 """
             }
         }
@@ -143,8 +143,8 @@ abstract class DefinitionTests : DatabaseTests {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
                 """
                 CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL, lvalue INT NOT NULL, rvalue INT NOT NULL, CONSTRAINT PK_t2 PRIMARY KEY (id))
-                CREATE INDEX one ON t2 (lvalue)
-                CREATE INDEX two ON t2 (rvalue)
+                CREATE INDEX IF NOT EXISTS one ON t2 (lvalue)
+                CREATE INDEX IF NOT EXISTS two ON t2 (rvalue)
                 """
             }
         }
