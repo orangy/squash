@@ -1,6 +1,8 @@
 .idea/*
 !.idea/runConfigurations
 !.idea/runConfigurations/*
+!.idea/scopes
+!.idea/scopes/*
 !.idea/vcs.xml
 .gradle
 build

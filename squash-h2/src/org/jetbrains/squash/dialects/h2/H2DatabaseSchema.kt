@@ -1,6 +1,5 @@
 package org.jetbrains.squash.dialects.h2
 
-import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.drivers.*
 
 class H2DatabaseSchema(transaction: JDBCTransaction) : JDBCDatabaseSchema(transaction) {

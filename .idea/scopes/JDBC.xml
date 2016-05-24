@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="JDBC" pattern="lib:javax.sql..*||lib:java.sql..*" />
+</component>
