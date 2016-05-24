@@ -4,29 +4,16 @@ import org.jetbrains.squash.results.*
 import java.sql.*
 import kotlin.reflect.*
 
-class JDBCResponseRow(val response: JDBCResponse, val resultSet: ResultSet) : ResponseRow {
-    val rowData = mutableMapOf<JDBCResponseColumn, Any?>()
-
-    init {
-        response.columns.forEach { column ->
-            rowData[column] = getValue(column)
-        }
-    }
-
-    private fun getValue(column: JDBCResponseColumn): Any? {
-        val value: Any? = resultSet.getObject(column.columnIndex)
-        if (column.nullable && resultSet.wasNull())
-            return null
-        return value
-    }
+class JDBCResponseRow(resultSet: ResultSet, columns: List<JDBCResponseColumn>, val conversion: JDBCDataConversion) : ResponseRow {
+    private val data = columns.associateBy({ it }, { resultSet.getObject(it.columnIndex) })
 
     override fun <V> columnValue(type: KClass<*>, name: String): V {
-        val columnData = rowData.entries.filter { it.key.label.equals(name, ignoreCase = true) }
+        val columnData = data.entries.filter { it.key.label.equals(name, ignoreCase = true) }
         return columnValue(name, type, columnData)
     }
 
     override fun <V> columnValue(type: KClass<*>, index: Int): V {
-        val columnData = rowData.entries.filter { it.key.columnIndex == index + 1 }
+        val columnData = data.entries.filter { it.key.columnIndex == index + 1 }
         return columnValue("?" + index.toString(), type, columnData)
     }
 
@@ -37,11 +24,11 @@ class JDBCResponseRow(val response: JDBCResponse, val resultSet: ResultSet) : Re
                 val value = columnData[0].value
 
                 @Suppress("UNCHECKED_CAST")
-                return response.conversion.convertValueFromDatabase(value, type) as V
+                return conversion.convertValueFromDatabase(value, type) as V
             }
             else -> error("Ambiguous label '$name', ${columnData.size} items in response.")
         }
     }
 }
 
-operator inline fun <reified V> JDBCResponseRow.get(column: JDBCResponseColumn): V = columnValue(V::class, column.name)
+operator inline fun <reified V> JDBCResponseRow.get(column: JDBCResponseColumn): V = columnValue(V::class, column.columnIndex - 1)

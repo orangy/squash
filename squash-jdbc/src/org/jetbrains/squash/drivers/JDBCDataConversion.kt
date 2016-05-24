@@ -1,7 +1,7 @@
 package org.jetbrains.squash.drivers
 
-import org.jetbrains.squash.dialect.*
 import java.sql.*
+import java.time.*
 import kotlin.reflect.*
 
 open class JDBCDataConversion {
@@ -9,9 +9,12 @@ open class JDBCDataConversion {
         if (value == null)
             return null
         val type: KClass<*> = value.javaClass.kotlin
-        when {
-            type.java.isEnum -> return (value as Enum<*>).ordinal
-            else -> return value
+        return when {
+            type.java.isEnum -> (value as Enum<*>).ordinal
+            value is LocalDate -> Date.valueOf(value)
+            value is LocalTime -> Time.valueOf(value)
+            value is LocalDateTime -> Timestamp.valueOf(value)
+            else ->  value
         }
     }
 

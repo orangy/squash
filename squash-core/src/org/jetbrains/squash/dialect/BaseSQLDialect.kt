@@ -4,9 +4,6 @@ import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
-import org.jetbrains.squash.statements.Statement
-import java.sql.*
-import java.time.*
 
 open class BaseSQLDialect(val name: String) : SQLDialect {
     override val definition: DefinitionSQLDialect = BaseDefinitionSQLDialect(this)
@@ -36,10 +33,6 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             builder.append("?")
         when (value) {
             null -> builder.append("NULL")
-            is Enum<*> -> builder.appendArgument(value.ordinal)
-            is LocalDate -> builder.appendArgument(Date.valueOf(value))
-            is LocalTime -> builder.appendArgument(Time.valueOf(value))
-            is LocalDateTime -> builder.appendArgument(Timestamp.valueOf(value))
             else -> builder.appendArgument(value)
         }
     }

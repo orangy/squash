@@ -2,7 +2,6 @@ package org.jetbrains.squash.dialects.h2
 
 import org.jetbrains.squash.dialect.*
 import org.jetbrains.squash.drivers.*
-import java.sql.*
 
 class H2DatabaseSchema(dialect: SQLDialect, transaction: JDBCTransaction) : JDBCDatabaseSchema(transaction) {
     override fun currentSchema(): String {

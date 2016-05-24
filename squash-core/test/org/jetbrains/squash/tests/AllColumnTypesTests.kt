@@ -60,26 +60,21 @@ abstract class AllColumnTypesTests : DatabaseTests {
             assertEquals(UUID::class.java, row[AllColumnTypes.uuid].javaClass)
             assertEquals(UUID.fromString("7cb64fe4-4938-4e88-8d94-17e929d40c99"), row[AllColumnTypes.uuid])
 
-            // clob in h2, string in pg
             assertEquals(String::class.java, row[AllColumnTypes.text].javaClass)
             assertEquals("Lorem Ipsum", row[AllColumnTypes.text])
 
-            // double? 1.0
             assertEquals(BigDecimal::class.java, row[AllColumnTypes.decimal].javaClass)
             assertEquals(BigDecimal.ONE.setScale(2), row[AllColumnTypes.decimal])
 
-            // "c"
             assertEquals(String::class.java, row[AllColumnTypes.char].javaClass)
             assertEquals("c", row[AllColumnTypes.char])
 
-            // java.sql.Date*
             assertEquals(LocalDateTime::class.java, row[AllColumnTypes.datetime].javaClass)
             assertEquals(LocalDateTime.of(LocalDate.of(1976, 11, 24), LocalTime.of(8, 22)), row[AllColumnTypes.datetime])
 
             assertEquals(LocalDate::class.java, row[AllColumnTypes.date].javaClass)
             assertEquals(LocalDate.of(1976, 11, 24), row[AllColumnTypes.date])
 
-            // ordinal
             assertEquals(E::class.java, row[AllColumnTypes.enum].javaClass)
             assertEquals(E.ONE, row[AllColumnTypes.enum])
 

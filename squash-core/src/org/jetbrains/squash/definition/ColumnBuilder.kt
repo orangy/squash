@@ -3,7 +3,6 @@
 package org.jetbrains.squash.definition
 
 import java.math.*
-import java.sql.*
 import java.time.*
 import java.util.*
 
@@ -56,10 +55,6 @@ fun TableDefinition.bool(name: String): Column<Boolean> {
 
 fun TableDefinition.datetime(name: String): Column<LocalDateTime> {
     return createColumn(name, DateTimeColumnType)
-}
-
-fun TableDefinition.blob(name: String): Column<Blob> { // TODO: It's java.sql, avoid
-    return createColumn(name, BlobColumnType)
 }
 
 fun TableDefinition.text(name: String): Column<String> {

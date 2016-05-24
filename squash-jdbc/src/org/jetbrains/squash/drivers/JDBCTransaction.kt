@@ -59,7 +59,6 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
 
     override fun executeStatement(statement: SQLStatement): Response {
         try {
-
             val preparedStatement = jdbcConnection.prepareStatement(statement)
             val executionResult = preparedStatement.execute()
             return when (executionResult) {

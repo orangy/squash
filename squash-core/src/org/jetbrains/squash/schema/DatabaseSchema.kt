@@ -1,8 +1,10 @@
 package org.jetbrains.squash.schema
 
-import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.dialect.*
 
+/**
+ * Provides facilities for querying and modifying database schema
+ */
 interface DatabaseSchema {
     fun tables(): Sequence<SchemaTable>
 
