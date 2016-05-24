@@ -23,3 +23,9 @@ interface NamedExpression<out N : Name, out T> : Expression<T> {
     val name: N
 }
 
+fun Name.referenceName(): String = when (this) {
+    is Identifier -> id
+    is QualifiedIdentifier<*> -> "${parent.referenceName()}_${identifier.referenceName()}"
+    else -> error("Unknown Name '$this'")
+}
+

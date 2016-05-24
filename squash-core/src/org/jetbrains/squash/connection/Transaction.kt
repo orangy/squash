@@ -40,7 +40,7 @@ interface Transaction : AutoCloseable {
     fun <T> executeStatement(statement: Statement<T>): T
 
     /**
-     * Builds and executes structured statement on this [Transaction]
+     * Executes [TransactionExecutable] on this [Transaction]
      */
     fun <T> TransactionExecutable<T>.execute(): T = executeOn(this@Transaction)
 
@@ -50,6 +50,3 @@ interface Transaction : AutoCloseable {
     fun databaseSchema(): DatabaseSchema
 }
 
-interface TransactionExecutable<R> {
-    fun executeOn(transaction: Transaction): R
-}

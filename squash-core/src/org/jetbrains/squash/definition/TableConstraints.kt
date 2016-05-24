@@ -1,10 +1,16 @@
 package org.jetbrains.squash.definition
 
+/**
+ * Represents a collection of constraints in a database
+ */
 interface TableConstraints {
     val elements: List<TableConstraint>
     fun add(constraint: TableConstraint)
 }
 
+/**
+ * Represents a constraint in a database
+ */
 interface TableConstraint {
     val name: Name
 }

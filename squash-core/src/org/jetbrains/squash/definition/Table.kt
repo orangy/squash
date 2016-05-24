@@ -1,5 +1,8 @@
 package org.jetbrains.squash.definition
 
+/**
+ * Represents a Table in a database with the given [tableName] and [tableColumns]
+ */
 interface Table {
     val tableName: Identifier
     val tableColumns: List<Column<*>>

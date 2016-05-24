@@ -1,5 +1,8 @@
 package org.jetbrains.squash.definition
 
+/**
+ * Represents a definition of a table in a database
+ */
 open class TableDefinition(name: String? = null) : Table {
     override val tableName = Identifier(name ?: javaClass.simpleName.removeSuffix("Table"))
 
