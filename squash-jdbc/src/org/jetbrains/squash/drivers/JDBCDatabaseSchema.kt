@@ -5,7 +5,7 @@ import org.jetbrains.squash.schema.*
 import java.sql.*
 
 open class JDBCDatabaseSchema(override val transaction: JDBCTransaction) : DatabaseSchemaBase(transaction) {
-    protected val catalogue: String = transaction.jdbcConnection.catalog
+    protected val catalogue: String? = transaction.jdbcConnection.catalog
     protected val metadata: DatabaseMetaData = transaction.jdbcConnection.metaData
 
     override fun tables(): Sequence<DatabaseSchema.SchemaTable> {
@@ -13,12 +13,10 @@ open class JDBCDatabaseSchema(override val transaction: JDBCTransaction) : Datab
         return JDBCResponse(transaction.connection.conversion, resultSet).rows.map { SchemaTable(it["TABLE_NAME"], this) }
     }
 
-    protected open fun currentSchema(): String = transaction.jdbcConnection.schema
+    protected open fun currentSchema(): String = transaction.jdbcConnection.schema ?: ""
 
     class SchemaColumn(override val name: String,
-                       override val nullable: Boolean,
-                       override val autoIncrement: Boolean,
-                       override val size: Int) : DatabaseSchema.SchemaColumn {
+                       override val nullable: Boolean) : DatabaseSchema.SchemaColumn {
         override fun toString(): String = "[JDBC] Column: $name"
     }
 
@@ -27,11 +25,9 @@ open class JDBCDatabaseSchema(override val transaction: JDBCTransaction) : Datab
             val resultSet = schema.metadata.getColumns(schema.catalogue, schema.currentSchema(), name, null)
             val response = JDBCResponse(schema.transaction.connection.conversion, resultSet)
             return response.rows.map {
-                val columnSize = it.get<Int>("COLUMN_SIZE")
-                val autoIncrement = it.get<String>("IS_AUTOINCREMENT") == "YES"
                 val columnName = it.get<String>("COLUMN_NAME")
                 val nullable = it.get<Int>("NULLABLE") == DatabaseMetaData.columnNullable
-                SchemaColumn(columnName, nullable, autoIncrement, columnSize)
+                SchemaColumn(columnName, nullable)
             }
         }
 

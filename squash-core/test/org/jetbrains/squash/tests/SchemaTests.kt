@@ -16,7 +16,7 @@ abstract class SchemaTests : DatabaseTests {
     @Test
     fun singleTableSchema() {
         withTransaction {
-            executeStatement("CREATE TABLE TEST(ID $idColumnType PRIMARY KEY, NAME VARCHAR(255))")
+            executeStatement("CREATE TABLE TEST(ID $idColumnType, NAME VARCHAR(255))")
             executeStatement("INSERT INTO TEST (NAME) VALUES ('test')")
 
             val schema = databaseSchema()
@@ -26,11 +26,7 @@ abstract class SchemaTests : DatabaseTests {
             val columns = tables[0].columns().toList()
             assertEquals(2, columns.size)
             assertEquals("ID", columns[0].name.toUpperCase())
-            assertEquals(true, columns[0].autoIncrement)
-            assertEquals(10, columns[0].size)
             assertEquals("NAME", columns[1].name.toUpperCase())
-            assertEquals(false, columns[1].autoIncrement)
-            assertEquals(255, columns[1].size)
         }
     }
 
@@ -39,10 +35,10 @@ abstract class SchemaTests : DatabaseTests {
     fun citiesDDL() {
         withCities {
             connection.dialect.definition.tableSQL(Cities).assertSQL {
-                "CREATE TABLE IF NOT EXISTS Cities (id $idColumnType, name VARCHAR(50) NOT NULL, CONSTRAINT PK_Cities PRIMARY KEY (id))"
+                "CREATE TABLE IF NOT EXISTS Cities (id $idColumnType, name VARCHAR(50) NOT NULL${autoPrimaryKey("Cities", "id")})"
             }
             connection.dialect.definition.tableSQL(Citizens).assertSQL {
-                "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL, CONSTRAINT PK_Citizens PRIMARY KEY (id))"
+                "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL${primaryKey("Citizens", "id")})"
             }
         }
     }
@@ -67,14 +63,10 @@ abstract class SchemaTests : DatabaseTests {
                 kotlin.test.assertEquals(2, columns.size)
                 with(columns[0]) {
                     kotlin.test.assertEquals("ID", name.toUpperCase())
-                    kotlin.test.assertEquals(true, autoIncrement)
                     kotlin.test.assertEquals(false, nullable)
-                    kotlin.test.assertEquals(10, size)
                 }
                 with(columns[1]) {
                     kotlin.test.assertEquals("NAME", name.toUpperCase())
-                    kotlin.test.assertEquals(false, autoIncrement)
-                    kotlin.test.assertEquals(50, size)
                     kotlin.test.assertEquals(false, nullable)
                 }
             }
@@ -85,20 +77,14 @@ abstract class SchemaTests : DatabaseTests {
                 kotlin.test.assertEquals(3, columns.size)
                 with(columns[0]) {
                     kotlin.test.assertEquals("ID", name.toUpperCase())
-                    kotlin.test.assertEquals(false, autoIncrement)
                     kotlin.test.assertEquals(false, nullable)
-                    kotlin.test.assertEquals(10, size)
                 }
                 with(columns[1]) {
                     kotlin.test.assertEquals("NAME", name.toUpperCase())
-                    kotlin.test.assertEquals(false, autoIncrement)
-                    kotlin.test.assertEquals(50, size)
                     kotlin.test.assertEquals(false, nullable)
                 }
                 with(columns[2]) {
                     kotlin.test.assertEquals("CITY_ID", name.toUpperCase())
-                    kotlin.test.assertEquals(false, autoIncrement)
-                    kotlin.test.assertEquals(10, size)
                     kotlin.test.assertEquals(true, nullable)
                 }
             }

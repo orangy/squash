@@ -26,15 +26,12 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
                 if (rows.empty)
                     return Unit as T
                 val keyColumn = response.columns.single()
-                return rows.single().get<Any>(keyColumn) as T
+                val columnValue = rows.single().get<Any>(keyColumn)
+                return columnValue as T
             }
             is InsertQueryStatement<*> -> {
-                val response = JDBCResponse(connection.conversion, jdbcStatement.generatedKeys)
-                val rows = response.rows
-                if (rows.empty)
-                    return emptySequence<Nothing>() as T
-                val keyColumn = response.columns.single()
-                return rows.single().get<Any>(keyColumn) as T
+                // TODO: support generating sequence for fetch keys
+                return emptySequence<Nothing>() as T
             }
             is QueryStatement -> {
                 val response = JDBCResponse(connection.conversion, jdbcStatement.resultSet)

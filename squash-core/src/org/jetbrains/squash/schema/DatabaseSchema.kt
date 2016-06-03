@@ -17,13 +17,11 @@ interface DatabaseSchema {
 
     interface SchemaTable {
         val name: String
-        open fun columns(): Sequence<SchemaColumn>
+        fun columns(): Sequence<SchemaColumn>
     }
 
     interface SchemaColumn {
         val name: String
-        val size: Int
         val nullable: Boolean
-        val autoIncrement: Boolean
     }
 }

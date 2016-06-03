@@ -9,7 +9,7 @@ class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet)
     val columns = (1..metadata.columnCount).map {
         index ->
         val name = metadata.getColumnName(index) // name of the column
-        val table = metadata.getTableName(index) // table of the column
+        val table = metadata.getTableName(index) ?: "" // table of the column
         val label = metadata.getColumnLabel(index) // label in query, aka "AS" alias
         val nullable = metadata.isNullable(index) == ResultSetMetaData.columnNullable
 

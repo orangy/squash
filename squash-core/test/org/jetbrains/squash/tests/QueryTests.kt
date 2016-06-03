@@ -10,6 +10,8 @@ import org.junit.*
 import kotlin.test.*
 
 abstract class QueryTests : DatabaseTests {
+    open fun nullsLast(sql: String): String = "$sql NULLS LAST"
+
     @Test fun selectLiteral() {
         withTables() {
             val eugene = literal("eugene")
@@ -246,7 +248,7 @@ abstract class QueryTests : DatabaseTests {
                     .orderBy(Citizens.name)
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY Citizens.name NULLS LAST"
+                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY ${nullsLast("Citizens.name")}"
             }
 
             val rows = query.execute().map { it[Citizens.name] }.toList()
@@ -263,7 +265,7 @@ abstract class QueryTests : DatabaseTests {
                     .orderBy(Citizens.name)
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Citizens.id, Citizens.city_id FROM Citizens ORDER BY Citizens.city_id DESC NULLS LAST, Citizens.name NULLS LAST"
+                "SELECT Citizens.name, Citizens.id, Citizens.city_id FROM Citizens ORDER BY ${nullsLast("Citizens.city_id DESC")}, ${nullsLast("Citizens.name")}"
             }
 
             val rows = query.execute().map { it[Citizens.name] }.toList()
@@ -280,7 +282,7 @@ abstract class QueryTests : DatabaseTests {
                     .orderBy(Citizens.name)
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Citizens.id, Citizens.city_id FROM Citizens ORDER BY Citizens.city_id NULLS LAST, Citizens.name NULLS LAST"
+                "SELECT Citizens.name, Citizens.id, Citizens.city_id FROM Citizens ORDER BY ${nullsLast("Citizens.city_id")}, ${nullsLast("Citizens.name")}"
             }
 
             // PG: NULLs are first, H2: NULLs are last

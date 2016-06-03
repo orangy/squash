@@ -117,14 +117,18 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         builder.append(" ORDER BY ")
         query.order.forEachIndexed { index, order ->
             if (index != 0) builder.append(", ")
-            appendExpression(builder, order.expression)
-            when (order) {
-                is QueryOrder.Ascending -> { /* ASC is default */
-                }
-                is QueryOrder.Descending -> builder.append(" DESC")
-            }
-            builder.append(" NULLS LAST")
+            appendOrderExpression(builder, order)
         }
+    }
+
+    protected open fun appendOrderExpression(builder: SQLStatementBuilder, order: QueryOrder) {
+        appendExpression(builder, order.expression)
+        when (order) {
+            is QueryOrder.Ascending -> { /* ASC is default */
+            }
+            is QueryOrder.Descending -> builder.append(" DESC")
+        }
+        builder.append(" NULLS LAST")
     }
 
     protected open fun appendFilterSQL(builder: SQLStatementBuilder, query: Query) {
