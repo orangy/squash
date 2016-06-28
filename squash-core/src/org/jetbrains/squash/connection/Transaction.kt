@@ -48,5 +48,7 @@ interface Transaction : AutoCloseable {
      * Fetches database schema on this [Transaction] and returns an instance of [DatabaseSchema]
      */
     fun databaseSchema(): DatabaseSchema
+
+    fun createBlob(bytes: ByteArray): BinaryObject
 }
 

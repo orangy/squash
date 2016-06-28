@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All Tests with H2 (Fast)" type="JUnit" factoryName="JUnit">
+  <configuration default="false" name="All Tests with H2 (Fast)" type="JUnit" factoryName="JUnit" singleton="true">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <module name="squash-h2" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />

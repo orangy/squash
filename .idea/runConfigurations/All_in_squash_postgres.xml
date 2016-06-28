@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All in squash-postgres" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+  <configuration default="false" name="All in squash-postgres" type="JUnit" factoryName="JUnit" singleton="true" nameIsGenerated="true">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <module name="squash-postgres" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />

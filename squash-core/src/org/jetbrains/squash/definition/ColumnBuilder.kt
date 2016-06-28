@@ -2,6 +2,7 @@
 
 package org.jetbrains.squash.definition
 
+import org.jetbrains.squash.connection.*
 import java.math.*
 import java.time.*
 import java.util.*
@@ -109,6 +110,13 @@ fun TableDefinition.binary(name: String, length: Int): Column<ByteArray> {
  */
 fun TableDefinition.uuid(name: String): Column<UUID> {
     return createColumn(name, UUIDColumnType)
+}
+
+/**
+ * Creates an BLOB column
+ */
+fun TableDefinition.blob(name: String): Column<BinaryObject> {
+    return createColumn(name, BlobColumnType)
 }
 
 /**

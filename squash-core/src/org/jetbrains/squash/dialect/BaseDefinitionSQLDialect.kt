@@ -117,6 +117,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             is BinaryColumnType -> append("VARBINARY(${type.length})")
             is UUIDColumnType -> append("BINARY(16)")
             is BooleanColumnType -> append("BOOLEAN")
+            is BlobColumnType -> append("BLOB")
             is StringColumnType -> {
                 val sqlType = when (type.length) {
                     in 1..255 -> "VARCHAR(${type.length})"

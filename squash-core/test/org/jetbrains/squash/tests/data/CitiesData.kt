@@ -1,6 +1,7 @@
 package org.jetbrains.squash.tests.data
 
 import org.jetbrains.squash.connection.*
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
@@ -67,6 +68,7 @@ fun DatabaseTests.withCities(statement: Transaction.() -> Unit) {
             it[citizen_id] = "sergey"
             it[comment] = "Comment for Sergey"
             it[value] = 30
+            it[image] = BinaryObject.fromByteArray(this@withTables, byteArrayOf(1,2,3))
         }.execute()
 
         statement()

@@ -141,15 +141,27 @@ abstract class QueryTests : DatabaseTests {
     }
 
     @Test fun selectFromJoinJoin() {
-        withTables {
+        withCities {
             val query = query().from(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
                     .innerJoin(CitizenData) { Citizens.id eq CitizenData.citizen_id }
-                    .select { Citizens.name }.select { Cities.name }
+                    .select { Citizens.name }
+                    .select { Cities.name }
+                    .select { CitizenData.image }
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Cities.name FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id INNER JOIN CitizenData ON Citizens.id = CitizenData.Citizens_id"
+                "SELECT Citizens.name, Cities.name, CitizenData.image FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id INNER JOIN CitizenData ON Citizens.id = CitizenData.Citizens_id"
             }
+
+            val rows = query.execute().toList()
+            assertEquals(2, rows.count())
+            assertEquals("Eugene", rows[0][Citizens.name])
+            assertEquals("Munich", rows[0][Cities.name])
+            assertNull(rows[0][CitizenData.image])
+
+            assertEquals("Sergey", rows[1][Citizens.name])
+            assertEquals("Munich", rows[1][Cities.name])
+            assertEquals(listOf<Byte>(1, 2, 3), rows[1][CitizenData.image]?.bytes?.toList())
         }
     }
 

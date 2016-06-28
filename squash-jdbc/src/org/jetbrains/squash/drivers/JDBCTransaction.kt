@@ -97,4 +97,8 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
     override fun close() {
         _jdbcConnection?.close()
     }
+
+    override fun createBlob(bytes: ByteArray): BinaryObject {
+        return JDBCBinaryObject(bytes)
+    }
 }

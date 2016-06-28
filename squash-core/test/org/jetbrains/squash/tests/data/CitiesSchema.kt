@@ -20,6 +20,7 @@ object CitizenData : TableDefinition() {
     val citizen_id = reference(Citizens.id)
     val comment = varchar("comment", 30)
     val value = integer("value")
+    val image = blob("image").nullable()
 }
 
 object Inhabitants : QueryObject {
