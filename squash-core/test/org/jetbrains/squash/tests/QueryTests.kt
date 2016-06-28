@@ -343,4 +343,38 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
+    @Test fun selectCountGroupByHavingOrder() {
+        withCities {
+            val query = query()
+                    .from(Cities)
+                    .innerJoin(Citizens) { Cities.id eq Citizens.cityId }
+                    .select(Cities.name, Citizens.id.max().alias("last_citizen"))
+                    .groupBy(Cities.name)
+                    .having { Citizens.id.count() gt 0 }
+                    .orderBy(Cities.name)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Cities.name, MAX(Citizens.id) AS last_citizen FROM Cities INNER JOIN Citizens ON Cities.id = Citizens.city_id GROUP BY Cities.name HAVING COUNT(Citizens.id) > ? ORDER BY ${nullsLast("Cities.name")}"
+            }
+
+            query.execute().forEachIndexed { index, row ->
+                val cityName = row[Cities.name]
+                val lastCitizen = row.get<String>("last_citizen")
+
+                when (index) {
+                    0 -> {
+                        assertEquals("Munich", cityName)
+                        assertEquals("sergey", lastCitizen)
+                    }
+                    1 -> {
+                        assertEquals("St. Petersburg", cityName)
+                        assertEquals("andrey", lastCitizen)
+                    }
+                    else -> error("Wrong index $index")
+                }
+            }
+
+        }
+    }
+
 }

@@ -234,9 +234,9 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     protected open fun appendQuerySQL(builder: SQLStatementBuilder, query: Query): Unit = with(builder) {
         appendCompoundSQL(builder, query)
         appendFilterSQL(builder, query)
-        appendOrderSQL(builder, query)
         appendGroupingSQL(builder, query)
         appendHavingSQL(builder, query)
+        appendOrderSQL(builder, query)
     }
 
     private fun tableName(table: Table): String = when (table) {
