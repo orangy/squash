@@ -74,7 +74,41 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                 appendSelectSQL(this, expression.query)
                 append(")")
             }
+            is FunctionExpression -> {
+                appendFunctionExpression(this, expression)
+            }
             else -> error("Expression '$expression' is not supported by $this")
+        }
+    }
+
+    private fun <T> appendFunctionExpression(builder: SQLStatementBuilder, expression: FunctionExpression<T>) = with(builder) {
+        when (expression) {
+            is CountExpression -> {
+                append("COUNT(")
+                appendExpression(this, expression.value)
+                append(")")
+            }
+            is CountDistinctExpression -> {
+                append("COUNT(DISTINCT ")
+                appendExpression(this, expression.value)
+                append(")")
+            }
+            is MaxExpression -> {
+                append("MAX(")
+                appendExpression(this, expression.value)
+                append(")")
+            }
+            is MinExpression -> {
+                append("MIN(")
+                appendExpression(this, expression.value)
+                append(")")
+            }
+            is SumExpression -> {
+                append("SUM(")
+                appendExpression(this, expression.value)
+                append(")")
+            }
+            else -> error("Function '$expression' is not supported by $this")
         }
     }
 
@@ -118,6 +152,28 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         query.order.forEachIndexed { index, order ->
             if (index != 0) builder.append(", ")
             appendOrderExpression(builder, order)
+        }
+    }
+
+    protected open fun appendGroupingSQL(builder: SQLStatementBuilder, query: Query) {
+        if (query.grouping.isEmpty())
+            return
+
+        builder.append(" GROUP BY ")
+        query.grouping.forEachIndexed { index, order ->
+            if (index != 0) builder.append(", ")
+            appendExpression(builder, order)
+        }
+    }
+
+    protected open fun appendHavingSQL(builder: SQLStatementBuilder, query: Query) {
+        if (query.having.isEmpty())
+            return
+
+        builder.append(" HAVING ")
+        query.having.forEachIndexed { index, order ->
+            if (index != 0) builder.append(" AND ")
+            appendExpression(builder, order)
         }
     }
 
@@ -179,6 +235,8 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendCompoundSQL(builder, query)
         appendFilterSQL(builder, query)
         appendOrderSQL(builder, query)
+        appendGroupingSQL(builder, query)
+        appendHavingSQL(builder, query)
     }
 
     private fun tableName(table: Table): String = when (table) {

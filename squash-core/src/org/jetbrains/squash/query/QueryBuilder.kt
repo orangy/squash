@@ -12,6 +12,8 @@ open class QueryBuilder : Query {
     override val selection = mutableListOf<Expression<*>>()
     override val filter = mutableListOf<Expression<Boolean>>()
     override val order = mutableListOf<QueryOrder>()
+    override val grouping = mutableListOf<Expression<*>>()
+    override val having = mutableListOf<Expression<Boolean>>()
 }
 
 fun <Q : QueryBuilder> Q.copy(): QueryStatement = query().apply {
@@ -19,6 +21,8 @@ fun <Q : QueryBuilder> Q.copy(): QueryStatement = query().apply {
     selection.addAll(this@copy.selection)
     filter.addAll(this@copy.filter)
     order.addAll(this@copy.order)
+    grouping.addAll(this@copy.grouping)
+    having.addAll(this@copy.having)
 }
 
 /**
@@ -42,8 +46,6 @@ fun <Q : QueryBuilder> Q.rightJoin(target: Table, on: Expression<Boolean>): Q = 
 fun <Q : QueryBuilder> Q.select(vararg expression: Expression<*>): Q = apply {
     selection.addAll(expression)
 }
-
-fun <Q : Appendable> Q.append(): Q = TODO()
 
 /**
  * Adds [table] to the structure
@@ -70,4 +72,16 @@ fun <Q : QueryBuilder> Q.orderByDescending(expression: Expression<*>): Q = apply
     order.add(QueryOrder.Descending(expression))
 }
 
+/**
+ * Adds grouping [expression] to the Query
+ */
+fun <Q : QueryBuilder> Q.groupBy(vararg expression: Expression<*>): Q = apply {
+    grouping.addAll(expression)
+}
 
+/**
+ * Adds [predicate] to the Query, filtering grouped result set by only rows matching it
+ */
+fun <Q : QueryBuilder> Q.having(predicate: Expression<Boolean>): Q = apply {
+    having.add(predicate)
+}

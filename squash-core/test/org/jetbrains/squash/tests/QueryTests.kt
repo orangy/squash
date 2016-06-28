@@ -290,4 +290,57 @@ abstract class QueryTests : DatabaseTests {
             assertEquals(listOf("Andrey", "Eugene", "Sergey", "Alex", "Something"), rows)
         }
     }
+
+    @Test fun selectCountGroupBy() {
+        withCities {
+            val query = query()
+                    .from(Cities)
+                    .innerJoin(Citizens) { Cities.id eq Citizens.cityId }
+                    .select(Cities.name, Citizens.id.count().alias("citizens"))
+                    .groupBy(Cities.name)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Cities.name, COUNT(Citizens.id) AS citizens FROM Cities INNER JOIN Citizens ON Cities.id = Citizens.city_id GROUP BY Cities.name"
+            }
+
+            query.execute().forEach {
+                val cityName = it[Cities.name]
+                val userCount = it.get<Long>("citizens")
+
+                when (cityName) {
+                    "Munich" -> assertEquals(2, userCount)
+                    "Prague" -> assertEquals(0, userCount)
+                    "St. Petersburg" -> assertEquals(1, userCount)
+                    else -> error("Unknown city $cityName")
+                }
+            }
+        }
+    }
+
+    @Test fun selectMaxGroupByHaving() {
+        withCities {
+            val query = query()
+                    .from(Cities)
+                    .innerJoin(Citizens) { Cities.id eq Citizens.cityId }
+                    .select(Cities.name, Citizens.id.max().alias("last_citizen"))
+                    .groupBy(Cities.name)
+                    .having { Citizens.id.count() gt 0 }
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Cities.name, MAX(Citizens.id) AS last_citizen FROM Cities INNER JOIN Citizens ON Cities.id = Citizens.city_id GROUP BY Cities.name HAVING COUNT(Citizens.id) > ?"
+            }
+
+            query.execute().forEach {
+                val cityName = it[Cities.name]
+                val lastCitizen = it.get<String>("last_citizen")
+
+                when (cityName) {
+                    "Munich" -> assertEquals("sergey", lastCitizen)
+                    "St. Petersburg" -> assertEquals("andrey", lastCitizen)
+                    else -> error("Unmatching city $cityName")
+                }
+            }
+        }
+    }
+
 }
