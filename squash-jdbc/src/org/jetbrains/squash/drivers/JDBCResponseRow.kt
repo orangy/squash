@@ -12,7 +12,7 @@ class JDBCResponseRow(resultSet: ResultSet, columns: List<JDBCResponseColumn>, v
             it.key.label.equals(columnName, ignoreCase = true)
                     && (tableName == null || it.key.table.equals(tableName, ignoreCase = true))
         }
-        return columnValue(columnName, type, columnData)
+        return columnValue("$columnName@${tableName ?: ""}", type, columnData)
     }
 
     override fun <V> columnValue(type: KClass<*>, index: Int): V {
@@ -20,16 +20,16 @@ class JDBCResponseRow(resultSet: ResultSet, columns: List<JDBCResponseColumn>, v
         return columnValue("?" + index.toString(), type, columnData)
     }
 
-    private fun <V> columnValue(name: String, type: KClass<*>, columnData: List<Map.Entry<JDBCResponseColumn, Any?>>): V {
+    private fun <V> columnValue(label: String, type: KClass<*>, columnData: List<Map.Entry<JDBCResponseColumn, Any?>>): V {
         when (columnData.size) {
-            0 -> error("Cannot find data with label '$name' in response.")
+            0 -> error("Cannot find data with label '$label' in response.")
             1 -> {
                 val value = columnData[0].value
 
                 @Suppress("UNCHECKED_CAST")
                 return conversion.convertValueFromDatabase(value, type) as V
             }
-            else -> error("Ambiguous label '$name', ${columnData.size} items in response.")
+            else -> error("Ambiguous label '$label', ${columnData.size} items in response.")
         }
     }
 }
