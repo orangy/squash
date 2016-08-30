@@ -16,9 +16,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     override fun idSQL(name: Name): String {
         val id = name.id
-        if (isSqlIdentifier(id))
-            return "$id"
-        return "\"$id\""
+        return if (isSqlIdentifier(id)) id else "\"$id\""
     }
 
     protected open fun isSqlIdentifier(id: String): Boolean {

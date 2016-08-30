@@ -4,7 +4,7 @@ package org.jetbrains.squash.definition
  * Represents a database column type
  */
 abstract class ColumnType() {
-    override fun toString(): String = "${javaClass.simpleName.removeSuffix("ColumnType")}"
+    override fun toString(): String = javaClass.simpleName.removeSuffix("ColumnType")
 }
 
 object IntColumnType : ColumnType()
@@ -16,7 +16,7 @@ object BooleanColumnType : ColumnType()
 object UUIDColumnType : ColumnType()
 
 class NullableColumnType(val columnType: ColumnType) : ColumnType() {
-    override fun toString(): String = "${columnType.toString()}?"
+    override fun toString(): String = "$columnType?"
 }
 
 class DecimalColumnType(val scale: Int, val precision: Int) : ColumnType() {

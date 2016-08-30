@@ -32,7 +32,7 @@ fun <V> Column<V>.default(value: V): Column<V> = table.replaceColumn(this, Defau
  * Creates a column referencing another column in a different table
  */
 fun <V> TableDefinition.reference(column: Column<V>, name: String? = null): Column<V> {
-    return createColumn(name ?: "${column.name.referenceName()}", ReferenceColumnType(column))
+    return createColumn(name ?: column.name.referenceName(), ReferenceColumnType(column))
 }
 
 /**
