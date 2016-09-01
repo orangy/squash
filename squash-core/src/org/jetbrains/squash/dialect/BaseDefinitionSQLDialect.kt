@@ -74,7 +74,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 }
     }
 
-    private fun appendForeignKey(builder: SQLStatementBuilder, key: ForeignKeyConstraint) = with(builder) {
+    protected open fun appendForeignKey(builder: SQLStatementBuilder, key: ForeignKeyConstraint) = with(builder) {
         append(", ")
         append("CONSTRAINT ${dialect.idSQL(key.name)} FOREIGN KEY (")
         append(key.sources.map { dialect.idSQL(it.name) }.joinToString())
