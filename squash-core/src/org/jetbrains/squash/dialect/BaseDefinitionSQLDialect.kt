@@ -66,10 +66,11 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     }
 
     override fun foreignKeys(table: Table): List<SQLStatement> = table.constraints.elements.filterIsInstance<ForeignKeyConstraint>()
-            .map { fk ->
+            .map { key ->
                 SQLStatementBuilder().apply {
+                    append("ALTER TABLE ${dialect.nameSQL(table.tableName)} DROP CONSTRAINT IF EXISTS ${dialect.idSQL(key.name)};")
                     append("ALTER TABLE ${dialect.nameSQL(table.tableName)} ADD ")
-                    appendForeignKey(this, fk)
+                    appendForeignKey(this, key)
                 }.build()
             }
 
