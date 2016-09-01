@@ -24,6 +24,10 @@ object SqLiteDialect : BaseSQLDialect("SQLite") {
             // Do nothing, automatic primary keys are already created using column definition
         }
 
+        override fun foreignKeys(table: Table): List<SQLStatement> {
+            return listOf() // SqLite doesn't support FK in ALTER statement
+        }
+
         override fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType) {
             when (type) {
                 else -> super.columnTypeSQL(builder, type)

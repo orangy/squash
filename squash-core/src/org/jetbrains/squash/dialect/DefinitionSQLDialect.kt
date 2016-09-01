@@ -4,4 +4,5 @@ import org.jetbrains.squash.definition.*
 
 interface DefinitionSQLDialect {
     fun tableSQL(table: Table): List<SQLStatement>
+    fun foreignKeys(table: Table) : List<SQLStatement>
 }

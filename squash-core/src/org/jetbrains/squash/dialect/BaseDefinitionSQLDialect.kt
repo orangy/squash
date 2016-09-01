@@ -16,7 +16,6 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 }
 
                 appendPrimaryKey(this, table)
-                appendForeignKeys(this, table)
                 append(")")
             }
         }.build()
@@ -66,16 +65,15 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         append(")")
     }
 
-    protected open fun appendForeignKeys(builder: SQLStatementBuilder, table: Table) {
-        table.constraints.elements
-                .filterIsInstance<ForeignKeyConstraint>()
-                .forEachIndexed { index, key ->
-                    appendForeignKey(builder, key)
-                }
-    }
+    override fun foreignKeys(table: Table): List<SQLStatement> = table.constraints.elements.filterIsInstance<ForeignKeyConstraint>()
+            .map { fk ->
+                SQLStatementBuilder().apply {
+                    append("ALTER TABLE ${dialect.nameSQL(table.tableName)} ADD ")
+                    appendForeignKey(this, fk)
+                }.build()
+            }
 
     protected open fun appendForeignKey(builder: SQLStatementBuilder, key: ForeignKeyConstraint) = with(builder) {
-        append(", ")
         append("CONSTRAINT ${dialect.idSQL(key.name)} FOREIGN KEY (")
         append(key.sources.map { dialect.idSQL(it.name) }.joinToString())
         val destinationTable = key.destinations.first().table

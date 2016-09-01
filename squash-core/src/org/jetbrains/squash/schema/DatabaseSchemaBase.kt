@@ -19,13 +19,18 @@ abstract class DatabaseSchemaBase(open val transaction: Transaction) : DatabaseS
         if (tables.isEmpty())
             return statements
 
+        val definition = transaction.connection.dialect.definition
+
         val existingTables = tables().toList()
         for (table in tables) {
             if (existingTables.any { it.name == table.tableName.id })
                 continue
 
-            val tableDefinition = transaction.connection.dialect.definition.tableSQL(table)
+            val tableDefinition = definition.tableSQL(table)
             statements.addAll(tableDefinition)
+        }
+        for (table in tables) {
+            statements.addAll(definition.foreignKeys(table))
         }
         return statements
     }
