@@ -34,7 +34,7 @@ fun <V> Column<V>.default(value: V): Column<V> = table.replaceColumn(this, Defau
 fun <V> TableDefinition.reference(column: Column<V>, name: String? = null): Column<V> {
     val referenceName = name ?: column.name.referenceName()
     val reference = addColumn(ReferenceColumn<V>(this, columnName(referenceName), column))
-    constraints.add(ForeignKeyConstraint(Identifier("FK_$referenceName"), listOf(reference), listOf(column)))
+    constraints.add(ForeignKeyConstraint(Identifier("FK_${tableName.id}_$referenceName"), listOf(reference), listOf(column)))
     return reference
 }
 
