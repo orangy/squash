@@ -74,13 +74,11 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     protected open fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>, properties: Set<BaseSQLDialect.ColumnProperty>): Unit = with(builder) {
         when (column) {
             is DataColumn -> {
-                if (BaseSQLDialect.ColumnProperty.NULLABLE in properties) {
-                    columnTypeSQL(this, column.type)
-                    append(" NULL")
-                } else {
-                    columnTypeSQL(this, column.type)
-                    append(" NOT NULL")
-                }
+                columnTypeSQL(this, column.type, properties)
+            }
+
+            is ReferenceColumn -> {
+                columnTypeSQL(this, column.column.type, properties)
             }
 
             is NullableColumn -> {
@@ -104,9 +102,17 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         }
     }
 
+    protected open fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType, properties: Set<BaseSQLDialect.ColumnProperty>): Unit = with(builder) {
+        columnTypeSQL(builder, type)
+        if (BaseSQLDialect.ColumnProperty.NULLABLE in properties) {
+            append(" NULL")
+        } else {
+            append(" NOT NULL")
+        }
+    }
+
     protected open fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType): Unit = with(builder) {
         when (type) {
-            is ReferenceColumnType<*> -> columnTypeSQL(this, type.column.type)
             is CharColumnType -> append("CHAR")
             is LongColumnType -> append("BIGINT")
             is IntColumnType -> append("INT")

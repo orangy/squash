@@ -39,7 +39,7 @@ class BinaryColumnType(val length: Int) : ColumnType() {
     override fun toString(): String = "Binary[$length]"
 }
 
-class ReferenceColumnType<out V>(val column: Column<V>) : ColumnType() {
-    override fun toString(): String = "Reference -> $column"
+class ReferenceColumnType(val type: ColumnType) : ColumnType() {
+    override fun toString(): String = "Ref[$type]"
 }
 

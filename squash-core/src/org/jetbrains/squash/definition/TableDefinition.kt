@@ -39,5 +39,5 @@ open class TableDefinition(name: String? = null) : Table {
         return replacement
     }
 
-    private fun columnName(name: String): Name = QualifiedIdentifier(tableName, Identifier(name))
+    fun columnName(name: String): Name = QualifiedIdentifier(tableName, Identifier(name))
 }

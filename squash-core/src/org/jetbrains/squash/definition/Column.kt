@@ -25,10 +25,15 @@ data class DataColumn<out V>(override val table: Table, override val name: Name,
 
 class NullableColumn<out V>(val column: Column<V>) : Column<V?> {
     override val table: Table get() = column.table
-    override val type: ColumnType get() = NullableColumnType(column.type)
+    override val type: ColumnType = NullableColumnType(column.type)
     override val name: Name get() = column.name
 
     override fun toString(): String = "$column?"
+}
+
+class ReferenceColumn<out V>(override val table: Table, override val name: Name, val column: Column<V>) : Column<V> {
+    override val type: ColumnType = ReferenceColumnType(column.type)
+    override fun toString(): String = "&$column"
 }
 
 class DefaultValueColumn<out V>(val column: Column<V>, val value: V) : Column<V> by column {
