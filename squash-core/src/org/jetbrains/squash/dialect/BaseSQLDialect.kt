@@ -57,11 +57,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             }
             is NamedExpression<*, T> -> append(nameSQL(expression.name))
             is BinaryExpression<*, *, *> -> {
-                appendExpression(this, expression.left)
-                append(" ")
-                appendBinaryOperator(this, expression)
-                append(" ")
-                appendExpression(this, expression.right)
+                appendBinaryExpression(this, expression)
             }
             is NotExpression -> {
                 append("NOT ")
@@ -79,7 +75,48 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    private fun <T> appendFunctionExpression(builder: SQLStatementBuilder, expression: FunctionExpression<T>) = with(builder) {
+    protected open fun appendBinaryExpression(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
+        if (expression.right is LiteralExpression && expression.right.literal == null) {
+            when (expression) {
+                is EqExpression<*> -> {
+                    appendExpression(this, expression.left)
+                    append(" IS NULL")
+                }
+                is NotEqExpression<*> -> {
+                    appendExpression(this, expression.left)
+                    append(" IS NOT NULL")
+                }
+                else -> error("NULL can only be used in equality operations, but an expression was ${expression.javaClass.simpleName}")
+            }
+        } else {
+            appendExpression(this, expression.left)
+            append(" ")
+            appendBinaryOperator(this, expression)
+            append(" ")
+            appendExpression(this, expression.right)
+        }
+    }
+
+    protected open fun appendBinaryOperator(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
+        append(when (expression) {
+            is EqExpression<*> -> "="
+            is NotEqExpression<*> -> "<>"
+            is LessExpression<*> -> "<"
+            is GreaterExpression<*> -> ">"
+            is LessEqExpression<*> -> "<="
+            is GreaterEqExpression<*> -> ">="
+            is AndExpression -> "AND"
+            is OrExpression -> "OR"
+            is PlusExpression -> "+"
+            is MinusExpression -> "-"
+            is MultiplyExpression -> "*"
+            is DivideExpression -> "/"
+            is LikeExpression -> "LIKE"
+            else -> error("Expression '$expression' is not supported by $this")
+        })
+    }
+
+    protected open fun <T> appendFunctionExpression(builder: SQLStatementBuilder, expression: FunctionExpression<T>) = with(builder) {
         when (expression) {
             is CountExpression -> {
                 append("COUNT(")
@@ -108,25 +145,6 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             }
             else -> error("Function '$expression' is not supported by $this")
         }
-    }
-
-    protected open fun appendBinaryOperator(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
-        append(when (expression) {
-            is EqExpression<*> -> "="
-            is NotEqExpression<*> -> "<>"
-            is LessExpression<*> -> "<"
-            is GreaterExpression<*> -> ">"
-            is LessEqExpression<*> -> "<="
-            is GreaterEqExpression<*> -> ">="
-            is AndExpression -> "AND"
-            is OrExpression -> "OR"
-            is PlusExpression -> "+"
-            is MinusExpression -> "-"
-            is MultiplyExpression -> "*"
-            is DivideExpression -> "/"
-            is LikeExpression -> "LIKE"
-            else -> error("Expression '$expression' is not supported by $this")
-        })
     }
 
     protected open fun appendSelectSQL(builder: SQLStatementBuilder, query: Query) {
