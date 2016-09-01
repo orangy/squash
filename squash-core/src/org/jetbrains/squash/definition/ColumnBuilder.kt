@@ -32,7 +32,10 @@ fun <V> Column<V>.default(value: V): Column<V> = table.replaceColumn(this, Defau
  * Creates a column referencing another column in a different table
  */
 fun <V> TableDefinition.reference(column: Column<V>, name: String? = null): Column<V> {
-    return addColumn(ReferenceColumn<V>(this, columnName(name ?: column.name.referenceName()), column))
+    val referenceName = name ?: column.name.referenceName()
+    val reference = addColumn(ReferenceColumn<V>(this, columnName(referenceName), column))
+    constraints.add(ForeignKeyConstraint(Identifier("FK_$referenceName"), listOf(reference), listOf(column)))
+    return reference
 }
 
 /**

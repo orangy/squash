@@ -38,7 +38,8 @@ abstract class SchemaTests : DatabaseTests {
                 "CREATE TABLE IF NOT EXISTS Cities (id $idColumnType, name VARCHAR(50) NOT NULL${autoPrimaryKey("Cities", "id")})"
             }
             connection.dialect.definition.tableSQL(Citizens).assertSQL {
-                "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL${primaryKey("Citizens", "id")})"
+                "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL" +
+                        "${primaryKey("Citizens", "id")}, CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES Cities(id))"
             }
         }
     }

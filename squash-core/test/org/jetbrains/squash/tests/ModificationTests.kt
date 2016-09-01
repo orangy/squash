@@ -48,6 +48,7 @@ abstract class ModificationTests : DatabaseTests {
             val smthId = query.execute().single()[Citizens.id]
             assertEquals ("smth", smthId)
 
+            deleteFrom(CitizenData).where { CitizenData.citizen_id like "smth" }.execute()
             deleteFrom(Citizens).where { Citizens.name like "%thing" }.execute()
 
             val hasSmth = query.execute().any()

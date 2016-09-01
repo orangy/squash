@@ -19,6 +19,10 @@ class PrimaryKeyConstraint(override val name: Name, val columns: List<Column<*>>
     override fun toString(): String = "[PK] $columns"
 }
 
+class ForeignKeyConstraint(override val name: Name, val sources: List<Column<*>>, val destinations: List<Column<*>>) : TableConstraint {
+    override fun toString(): String = "[FK] $sources -> $destinations"
+}
+
 class IndexConstraint(override val name: Name, val columns: List<Column<*>>, val unique: Boolean) : TableConstraint {
     override fun toString(): String = if (unique) "[UIX] $columns" else "[IX] $columns"
 }

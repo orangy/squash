@@ -15,7 +15,8 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                     columnDefinitionSQL(this, column)
                 }
 
-                appendPrimaryKeys(this, table)
+                appendPrimaryKey(this, table)
+                appendForeignKeys(this, table)
                 append(")")
             }
         }.build()
@@ -37,7 +38,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 }.build()
             }
 
-    protected open fun appendPrimaryKeys(builder: SQLStatementBuilder, table: Table) {
+    protected open fun appendPrimaryKey(builder: SQLStatementBuilder, table: Table) {
         val primaryKeys = table.constraints.elements.filterIsInstance<PrimaryKeyConstraint>()
         when (primaryKeys.size) {
             1 -> {
@@ -59,9 +60,27 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         }
     }
 
-    protected open fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, primaryKey: PrimaryKeyConstraint, table: Table) = with(builder) {
-        append("CONSTRAINT ${dialect.idSQL(primaryKey.name)} PRIMARY KEY (")
-        append(primaryKey.columns.map { dialect.idSQL(it.name) }.joinToString())
+    protected open fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, key: PrimaryKeyConstraint, table: Table) = with(builder) {
+        append("CONSTRAINT ${dialect.idSQL(key.name)} PRIMARY KEY (")
+        append(key.columns.map { dialect.idSQL(it.name) }.joinToString())
+        append(")")
+    }
+
+    protected open fun appendForeignKeys(builder: SQLStatementBuilder, table: Table) {
+        table.constraints.elements
+                .filterIsInstance<ForeignKeyConstraint>()
+                .forEachIndexed { index, key ->
+                    appendForeignKey(builder, key)
+                }
+    }
+
+    private fun appendForeignKey(builder: SQLStatementBuilder, key: ForeignKeyConstraint) = with(builder) {
+        append(", ")
+        append("CONSTRAINT ${dialect.idSQL(key.name)} FOREIGN KEY (")
+        append(key.sources.map { dialect.idSQL(it.name) }.joinToString())
+        val destinationTable = key.destinations.first().table
+        append(") REFERENCES ${dialect.nameSQL(destinationTable.tableName)}(")
+        append(key.destinations.map { dialect.idSQL(it.name) }.joinToString())
         append(")")
     }
 
