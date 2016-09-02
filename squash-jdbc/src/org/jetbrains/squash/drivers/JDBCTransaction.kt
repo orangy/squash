@@ -49,19 +49,25 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
     override fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
         val returnColumn: Column<*>? = if (statement is InsertValuesStatement<*, *>) statement.generatedKeyColumn else null
+        connection.monitor.beforeStatement(this, statementSQL)
         val preparedStatement = jdbcConnection.prepareStatement(statementSQL, returnColumn)
         preparedStatement.execute()
-        return resultFor(preparedStatement, statement)
+        val result = resultFor(preparedStatement, statement)
+        connection.monitor.afterStatement(this, statementSQL, result)
+        return result
     }
 
     override fun executeStatement(statement: SQLStatement): Response {
         try {
             val preparedStatement = jdbcConnection.prepareStatement(statement)
+            connection.monitor.beforeStatement(this, statement)
             val executionResult = preparedStatement.execute()
-            return when (executionResult) {
+            val result = when (executionResult) {
                 true -> JDBCResponse(connection.conversion, preparedStatement.resultSet)
                 false -> Response.Empty
             }
+            connection.monitor.afterStatement(this, statement, result)
+            return result
         } catch (ex: SQLException) {
             if (DriverManager.getLogWriter() != null) {
                 DriverManager.println("SQLStatement: " + statement.toString())

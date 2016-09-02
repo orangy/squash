@@ -12,7 +12,13 @@ interface DatabaseConnection : AutoCloseable {
     val dialect: SQLDialect
 
     /**
+     * [DatabaseConnectionMonitor] for this connection
+     */
+    val monitor: DatabaseConnectionMonitor
+
+    /**
      * Creates a [Transaction]
      */
     fun createTransaction(): Transaction
 }
+
