@@ -56,6 +56,16 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                 append(nameSQL(expression.label))
             }
             is NamedExpression<*, T> -> append(nameSQL(expression.name))
+            is InExpression<*> -> {
+                appendExpression(this, expression.value)
+                append(" IN (")
+                expression.array.forEachIndexed { index, value ->
+                    if (index > 0)
+                        append(", ")
+                    appendLiteralSQL(this, value)
+                }
+                append(")")
+            }
             is BinaryExpression<*, *, *> -> {
                 appendBinaryExpression(this, expression)
             }

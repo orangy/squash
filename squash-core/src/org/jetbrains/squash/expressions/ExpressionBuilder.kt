@@ -35,6 +35,9 @@ infix operator fun <V> Expression<@Exact V>.times(literal: V): Expression<V> = M
 infix operator fun <V> Expression<@Exact V>.div(other: Expression<V>): Expression<V> = DivideExpression(this, other)
 infix operator fun <V> Expression<@Exact V>.div(literal: V): Expression<V> = DivideExpression(this, LiteralExpression(literal))
 
+infix fun <V> Array<out V>.contains(value: Expression<V>): InExpression<V> = InExpression(value, this)
+infix fun <V> Expression<V>.within(array: Array<out V>): InExpression<V> = InExpression(this, array)
+
 fun <V> literal(value: V) = LiteralExpression(value)
 fun <V> subquery(body: QueryBuilder.() -> Unit) = SubQueryExpression<V>(query().apply(body))
 infix fun Expression<String>.like(literal: String): Expression<Boolean> = LikeExpression(this, LiteralExpression(literal))

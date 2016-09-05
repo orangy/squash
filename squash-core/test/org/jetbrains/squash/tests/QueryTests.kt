@@ -41,6 +41,26 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
+    @Test fun selectFromWhereIn() {
+        withCities {
+            val query = query(Citizens)
+                    .where { arrayOf("eugene", "sergey") contains Citizens.id }
+                    .select(Citizens.name, Citizens.id)
+                    .orderBy(Citizens.id)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.name, Citizens.id FROM Citizens WHERE Citizens.id IN (?, ?) ORDER BY ${nullsLast("Citizens.id")}"
+            }
+
+            val rows = query.execute().toList()
+            assertEquals(2, rows.size)
+            assertEquals("eugene", rows[0][Citizens.id])
+            assertEquals("Eugene", rows[0][Citizens.name])
+            assertEquals("sergey", rows[1][Citizens.id])
+            assertEquals("Sergey", rows[1][Citizens.name])
+        }
+    }
+
     @Ignore @Test fun selectFromAliasWhere() {
         withCities {
             val eugene = literal("eugene")
