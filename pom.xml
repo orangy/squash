@@ -10,8 +10,8 @@
     <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.0.3</kotlin.version>
-        <dokka.version>0.9.8</dokka.version>
+        <kotlin.version>1.0.4</kotlin.version>
+        <dokka.version>0.9.9</dokka.version>
     </properties>
 
     <modules>
@@ -72,6 +72,14 @@
             <version>1.6.5</version>
         </dependency>
     </dependencies>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>bintray-kotlin-dokka</id>
+            <name>bintray-kotlin-dokka</name>
+            <url>https://dl.bintray.com/kotlin/dokka</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
