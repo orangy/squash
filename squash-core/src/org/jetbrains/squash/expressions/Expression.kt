@@ -29,4 +29,4 @@ class LiteralExpression<out V>(val literal: V) : Expression<V>
 class SubQueryExpression<out V>(val query: Query) : Expression<V>
 
 class LikeExpression(left: Expression<String>, right: LiteralExpression<String>) : BinaryExpression<String, String, Boolean>(left, right)
-class InExpression<out V>(val value: Expression<V>, val values: List<V>) : Expression<Boolean>
+class InExpression<out V>(val value: Expression<V>, val values: Collection<V>) : Expression<Boolean>

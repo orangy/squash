@@ -36,7 +36,7 @@ infix operator fun <V> Expression<@Exact V>.div(other: Expression<V>): Expressio
 infix operator fun <V> Expression<@Exact V>.div(literal: V): Expression<V> = DivideExpression(this, LiteralExpression(literal))
 
 infix fun <V> List<V>.contains(value: Expression<V>): InExpression<V> = InExpression(value, this)
-infix fun <V> Expression<V>.within(values: List<V>): InExpression<V> = InExpression(this, values)
+infix fun <V> Expression<V>.within(values: Collection<V>): InExpression<V> = InExpression(this, values)
 
 fun <V> literal(value: V) = LiteralExpression(value)
 fun <V> subquery(body: QueryBuilder.() -> Unit) = SubQueryExpression<V>(query().apply(body))
