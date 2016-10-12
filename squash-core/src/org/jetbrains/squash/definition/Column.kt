@@ -23,7 +23,7 @@ data class DataColumn<out V>(override val table: Table, override val name: Name,
     override fun toString(): String = "$name: $type"
 }
 
-class NullableColumn<out V>(val column: Column<V>) : Column<V?> {
+class NullableColumn<out V, out TColumn : Column<V>>(val column: TColumn) : Column<V?> {
     override val table: Table get() = column.table
     override val type: ColumnType = NullableColumnType(column.type)
     override val name: Name get() = column.name

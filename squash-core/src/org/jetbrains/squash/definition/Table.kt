@@ -8,7 +8,7 @@ interface Table {
     val tableColumns: List<Column<*>>
     val constraints: TableConstraints
 
-    fun <T1, T2> replaceColumn(original: Column<T1>, replacement: Column<T2>): Column<T2>
+    fun <T1, T2, TColumn : Column<T2>> replaceColumn(original: Column<T1>, replacement: TColumn): TColumn
 
 }
 

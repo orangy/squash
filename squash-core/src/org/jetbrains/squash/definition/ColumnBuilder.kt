@@ -21,7 +21,7 @@ fun Column<Long>.autoIncrement(): Column<Long> = table.replaceColumn(this, AutoI
 /**
  * Modifies this column to represent a nullable [Column]
  */
-fun <V> Column<V>.nullable(): Column<V?> = table.replaceColumn(this, NullableColumn(this))
+fun <V, TColumn : Column<V>> TColumn.nullable(): NullableColumn<V?, TColumn> = table.replaceColumn(this, NullableColumn(this))
 
 /**
  * Modifies this column to represent a [Column] with a default [value]
@@ -31,7 +31,7 @@ fun <V> Column<V>.default(value: V): Column<V> = table.replaceColumn(this, Defau
 /**
  * Creates a column referencing another column in a different table
  */
-fun <V> TableDefinition.reference(column: Column<V>, name: String? = null): Column<V> {
+fun <V> TableDefinition.reference(column: Column<V>, name: String? = null): ReferenceColumn<V> {
     val referenceName = name ?: column.name.referenceName()
     val reference = addColumn(ReferenceColumn<V>(this, columnName(referenceName), column))
     constraints.add(ForeignKeyConstraint(Identifier("FK_${tableName.id}_$referenceName"), listOf(reference), listOf(column)))

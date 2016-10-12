@@ -99,7 +99,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 columnTypeSQL(this, column.column.type, properties)
             }
 
-            is NullableColumn -> {
+            is NullableColumn<*, *> -> {
                 require(BaseSQLDialect.ColumnProperty.AUTOINCREMENT !in properties) { "Column ${column.name} cannot be both AUTOINCREMENT and NULL" }
                 columnTypeSQL(this, column.column, properties + BaseSQLDialect.ColumnProperty.NULLABLE)
             }
