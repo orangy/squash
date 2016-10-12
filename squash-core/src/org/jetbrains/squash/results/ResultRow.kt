@@ -27,3 +27,8 @@ fun <V> ResultRow.columnValue(type: KClass<*>, column: Column<V>): V {
     val label = if (column is AliasColumn) column.label.id else column.name.id
     return columnValue(type, label, column.table.tableName.id) as V
 }
+
+fun <V> ResultRow.columnValue(column: Column<V>): V {
+    val label = if (column is AliasColumn) column.label.id else column.name.id
+    return columnValue(column.type.runtimeType, label, column.table.tableName.id) as V
+}
