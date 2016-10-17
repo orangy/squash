@@ -41,7 +41,6 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         val primaryKeys = table.constraints.elements.filterIsInstance<PrimaryKeyConstraint>()
         when (primaryKeys.size) {
             1 -> {
-                builder.append(", ")
                 primaryKeyDefinitionSQL(builder, primaryKeys[0], table)
             }
             0 -> appendAutoPrimaryKeys(builder, table)
@@ -52,7 +51,6 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     protected open fun appendAutoPrimaryKeys(builder: SQLStatementBuilder, table: Table) {
         val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
         if (autoIncrement.any()) {
-            builder.append(", ")
             val name = Identifier("PK_${dialect.nameSQL(table.tableName)}")
             val pkAutoIncrement = PrimaryKeyConstraint(name, autoIncrement)
             primaryKeyDefinitionSQL(builder, pkAutoIncrement, table)
@@ -60,6 +58,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     }
 
     protected open fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, key: PrimaryKeyConstraint, table: Table) = with(builder) {
+        append(", ")
         append("CONSTRAINT ${dialect.idSQL(key.name)} PRIMARY KEY (")
         append(key.columns.map { dialect.idSQL(it.name) }.joinToString())
         append(")")

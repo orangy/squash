@@ -10,13 +10,13 @@ import java.util.*
 /**
  * Modifies this [Int] column to represent an automatically incrementing [Column]
  */
-fun Column<Int>.autoIncrement(): Column<Int> = table.replaceColumn(this, AutoIncrementColumn(this))
+fun Column<Int>.autoIncrement(): AutoIncrementColumn<Int> = table.replaceColumn(this, AutoIncrementColumn(this))
 
 /**
  * Modifies this [Long] column to represent an automatically incrementing [Column]
  */
 @JvmName("autoIncrementLong")
-fun Column<Long>.autoIncrement(): Column<Long> = table.replaceColumn(this, AutoIncrementColumn(this))
+fun Column<Long>.autoIncrement(): AutoIncrementColumn<Long> = table.replaceColumn(this, AutoIncrementColumn(this))
 
 /**
  * Modifies this column to represent a nullable [Column]
