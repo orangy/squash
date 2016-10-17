@@ -11,7 +11,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     override fun nameSQL(name: Name): String = when (name) {
         is QualifiedIdentifier<*> -> "${nameSQL(name.parent)}.${nameSQL(name.identifier)}"
         is Identifier -> idSQL(name)
-        else -> error("Name '$name' is not supported by $this")
+        else -> error("Name '$name' is not supported by ${this@BaseSQLDialect}")
     }
 
     override fun idSQL(name: Name): String {
@@ -37,6 +37,10 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     protected open fun <T> appendDeclarationExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
         when (expression) {
+            is AllTableColumnsExpression -> {
+                append(nameSQL(expression.table.tableName))
+                append(".*")
+            }
             is AliasExpression<T> -> {
                 appendExpression(this, expression.expression)
                 append(" AS ${nameSQL(expression.name)}")
@@ -81,7 +85,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             is FunctionExpression -> {
                 appendFunctionExpression(this, expression)
             }
-            else -> error("Expression '$expression' is not supported by $this")
+            else -> error("Expression '$expression' is not supported by ${this@BaseSQLDialect}")
         }
     }
 
@@ -122,7 +126,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             is MultiplyExpression -> "*"
             is DivideExpression -> "/"
             is LikeExpression -> "LIKE"
-            else -> error("Expression '$expression' is not supported by $this")
+            else -> error("Expression '$expression' is not supported by ${this@BaseSQLDialect}")
         })
     }
 
@@ -153,7 +157,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                 appendExpression(this, expression.value)
                 append(")")
             }
-            else -> error("Function '$expression' is not supported by $this")
+            else -> error("Function '$expression' is not supported by ${this@BaseSQLDialect}")
         }
     }
 
@@ -268,13 +272,13 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     private fun tableName(table: Table): String = when (table) {
         is AliasTable<*> -> idSQL(table.label)
         is Table -> nameSQL(table.tableName)
-        else -> error("Table '$table' is not supported by $this")
+        else -> error("Table '$table' is not supported by ${this@BaseSQLDialect}")
     }
 
     private fun tableDeclarationName(table: Table): String = when (table) {
         is AliasTable<*> -> nameSQL(table.tableName) + " AS " + idSQL(table.label)
         is Table -> nameSQL(table.tableName)
-        else -> error("Table '$table' is not supported by $this")
+        else -> error("Table '$table' is not supported by ${this@BaseSQLDialect}")
     }
 
     override fun <T> statementSQL(statement: Statement<T>): SQLStatement = when (statement) {
@@ -283,7 +287,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         is InsertQueryStatement<*> -> insertQueryStatementSQL(statement)
         is UpdateQueryStatement<*> -> updateQueryStatementSQL(statement)
         is DeleteQueryStatement<*> -> deleteQueryStatementSQL(statement)
-        else -> error("Statement '$statement' is not supported by $this")
+        else -> error("Statement '$statement' is not supported by ${this@BaseSQLDialect}")
     }
 
     protected open fun queryStatementSQL(query: QueryStatement): SQLStatement {

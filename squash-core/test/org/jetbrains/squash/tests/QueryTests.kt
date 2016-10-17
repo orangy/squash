@@ -137,6 +137,18 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
+    @Test fun selectFromJoinLimited() {
+        withTables {
+            val query = query(Citizens)
+                    .innerJoin(Cities) { Cities.id eq Citizens.cityId }
+                    .select(Citizens)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.* FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id"
+            }
+        }
+    }
+
     @Test fun selectFromJoinAliased() {
         withCities {
             val citizenName = Citizens.name.alias("citizenName")
