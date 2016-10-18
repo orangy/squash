@@ -11,20 +11,20 @@ class PgDatabaseTests : DatabaseTests {
     override fun primaryKey(table: String, column: String): String = ", CONSTRAINT PK_$table PRIMARY KEY ($column)"
     override fun autoPrimaryKey(table: String, column: String): String = primaryKey(table, column)
 
-    fun withConnection(block: (DatabaseConnection) -> Unit) {
+    fun <R> withConnection(block: (DatabaseConnection) -> R): R {
         val connection = PgConnection.create("localhost:5432/", "postgres")
-        block(connection)
+        return block(connection)
     }
 
-    override fun withTables(vararg tables: Table, statement: Transaction.() -> Unit) {
-        withTransaction {
+    override fun <R> withTables(vararg tables: Table, statement: Transaction.() -> R): R {
+        return withTransaction {
             databaseSchema().create(tables.toList())
             statement()
         }
     }
 
-    override fun withTransaction(statement: Transaction.() -> Unit) {
-        withConnection { connection ->
+    override fun <R> withTransaction(statement: Transaction.() -> R): R {
+        return withConnection { connection ->
             connection.createTransaction().use {
                 it.executeStatement("SET search_path TO pg_temp")
                 it.statement()

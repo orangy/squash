@@ -6,8 +6,8 @@ import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.*
 
-fun DatabaseTests.withCities(statement: Transaction.() -> Unit) {
-    withTables(Cities, CitizenData, Citizens, CitizenDataLink) {
+fun <R> DatabaseTests.withCities(statement: Transaction.() -> R) :R {
+    return withTables(Cities, CitizenData, Citizens, CitizenDataLink) {
 
         val spbId = insertInto(Cities).values {
             it[name] = "St. Petersburg"

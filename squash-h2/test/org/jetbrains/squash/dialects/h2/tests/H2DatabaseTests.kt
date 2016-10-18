@@ -11,21 +11,20 @@ class H2DatabaseTests : DatabaseTests {
     override fun primaryKey(table: String, column: String): String = ", CONSTRAINT PK_$table PRIMARY KEY ($column)"
     override fun autoPrimaryKey(table: String, column: String): String = primaryKey(table, column)
 
-    fun withConnection(block: (DatabaseConnection) -> Unit) {
-        H2Connection.createMemoryConnection().use(block)
+    fun <R> withConnection(block: (DatabaseConnection) -> R): R {
+        val connection = H2Connection.createMemoryConnection()
+        return block(connection)
     }
 
-    override fun withTables(vararg tables: Table, statement: Transaction.() -> Unit) {
-        withConnection { connection ->
-            connection.createTransaction().use { transaction ->
-                transaction.databaseSchema().create(tables.toList())
-                transaction.statement()
-            }
+    override fun <R> withTables(vararg tables: Table, statement: Transaction.() -> R): R {
+        return withTransaction {
+            databaseSchema().create(tables.toList())
+            statement()
         }
     }
 
-    override fun withTransaction(statement: Transaction.() -> Unit) {
-        withConnection { connection ->
+    override fun <R> withTransaction(statement: Transaction.() -> R): R {
+        return withConnection { connection ->
             connection.createTransaction().use(statement)
         }
     }
