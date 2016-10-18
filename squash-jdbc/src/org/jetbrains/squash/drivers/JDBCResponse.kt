@@ -28,18 +28,18 @@ class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet)
         return JDBCResponseRowSequence()
     }
 
-    inner class JDBCResponseRowSequence() : Sequence<JDBCResponseRow> {
+    inner class JDBCResponseRowSequence() : Sequence<JDBCResultRow> {
         val empty = !resultSet.next()
-        override operator fun iterator(): Iterator<JDBCResponseRow> = object : Iterator<JDBCResponseRow> {
+        override operator fun iterator(): Iterator<JDBCResultRow> = object : Iterator<JDBCResultRow> {
             var hasNext = !empty
             override fun hasNext(): Boolean = hasNext
-            override fun next(): JDBCResponseRow = JDBCResponseRow(resultSet, columns, conversion).apply {
+            override fun next(): JDBCResultRow = JDBCResultRow(resultSet, columns, conversion).apply {
                 hasNext = resultSet.next()
             }
         }
     }
 
-    override fun iterator(): Iterator<ResponseRow> = rows.iterator()
+    override fun iterator(): Iterator<ResultRow> = rows.iterator()
 
     override fun toString(): String = "JDBCResponse$columns"
 }

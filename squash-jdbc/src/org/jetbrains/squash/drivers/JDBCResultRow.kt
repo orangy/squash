@@ -4,7 +4,7 @@ import org.jetbrains.squash.results.*
 import java.sql.*
 import kotlin.reflect.*
 
-class JDBCResponseRow(resultSet: ResultSet, columns: List<JDBCResponseColumn>, val conversion: JDBCDataConversion) : ResponseRow {
+class JDBCResultRow(resultSet: ResultSet, columns: List<JDBCResponseColumn>, val conversion: JDBCDataConversion) : ResultRow {
     private val data = columns.associateBy({ it }, { resultSet.getObject(it.columnIndex) })
 
     override fun columnValue(type: KClass<*>, columnName: String, tableName: String?): Any? {

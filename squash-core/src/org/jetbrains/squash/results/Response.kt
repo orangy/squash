@@ -1,13 +1,13 @@
 package org.jetbrains.squash.results
 
 /**
- * Represents a response from the database server, being essentially [Sequence] of [ResponseRow]
+ * Represents a response from the database server, being essentially [Sequence] of [ResultRow]
  */
-interface Response : Sequence<ResponseRow> {
+interface Response : Sequence<ResultRow> {
     companion object {
         val Empty = object : Response {
-            val sequence = emptySequence<ResponseRow>()
-            override fun iterator(): Iterator<ResponseRow> = sequence.iterator()
+            val sequence = emptySequence<ResultRow>()
+            override fun iterator(): Iterator<ResultRow> = sequence.iterator()
         }
     }
 }
