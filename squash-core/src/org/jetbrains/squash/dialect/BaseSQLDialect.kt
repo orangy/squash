@@ -59,7 +59,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             is InExpression<*> -> {
                 appendExpression(this, expression.value)
                 append(" IN (")
-                expression.array.forEachIndexed { index, value ->
+                expression.values.forEachIndexed { index, value ->
                     if (index > 0)
                         append(", ")
                     appendLiteralSQL(this, value)

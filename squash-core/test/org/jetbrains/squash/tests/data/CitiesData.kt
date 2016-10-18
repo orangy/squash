@@ -54,30 +54,30 @@ fun DatabaseTests.withCities(statement: Transaction.() -> Unit) {
         insertInto(CitizenData).values {
             it[comment] = "Something is here"
             it[value] = DataKind.Normal
-        }.fetch(CitizenData.id).execute().let { data ->
+        }.fetch(CitizenData.id).execute().let { ref ->
             insertInto(CitizenDataLink).values {
                 it[citizen_id] = "smth"
-                it[citizendata_id] = data
+                it[citizendata_id] = ref
             }.execute()
         }
 
         insertInto(CitizenData).values {
             it[comment] = "First comment for Eugene"
             it[value] = DataKind.Normal
-        }.fetch(CitizenData.id).execute().let { data ->
+        }.fetch(CitizenData.id).execute().let { ref ->
             insertInto(CitizenDataLink).values {
                 it[citizen_id] = "eugene"
-                it[citizendata_id] = data
+                it[citizendata_id] = ref
             }.execute()
         }
         insertInto(CitizenData).values {
             it[comment] = "Second comment for Eugene"
             it[value] = DataKind.Extended
             it[image] = BinaryObject.fromByteArray(this@withTables, byteArrayOf(1, 2, 3))
-        }.fetch(CitizenData.id).execute().let { data ->
+        }.fetch(CitizenData.id).execute().let { ref ->
             insertInto(CitizenDataLink).values {
                 it[citizen_id] = "eugene"
-                it[citizendata_id] = data
+                it[citizendata_id] = ref
             }.execute()
         }
 

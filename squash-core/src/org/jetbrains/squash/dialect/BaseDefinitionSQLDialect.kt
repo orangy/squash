@@ -95,7 +95,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             }
 
             is ReferenceColumn -> {
-                columnTypeSQL(this, column.column.type, properties)
+                columnTypeSQL(this, column.reference.type, properties)
             }
 
             is NullableColumn<*, *> -> {

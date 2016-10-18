@@ -21,15 +21,19 @@ open class JDBCDataConversion {
     }
 
     open fun convertValueFromDatabase(value: Any?, type: KClass<*>): Any? {
-        when {
-            value is Int && type.java.isEnum -> return type.java.enumConstants[value]
-            value is Clob -> return value.characterStream.readText()
-            value is Timestamp -> return value.toLocalDateTime()
-            value is Date -> return value.toLocalDate()
-            value is Time -> return value.toLocalTime()
-            value is Blob -> return JDBCBinaryObject(value.getBytes(1, value.length().toInt()))
-            value is ByteArray && type == BinaryObject::class -> return JDBCBinaryObject(value)
-            else -> return value
+        return when {
+            value == null -> null
+            value is Int && type.java.isEnum -> type.java.enumConstants[value]
+            value is Clob -> value.characterStream.readText()
+            value is Timestamp -> value.toLocalDateTime()
+            value is Date -> value.toLocalDate()
+            value is Time -> value.toLocalTime()
+            value is Blob -> JDBCBinaryObject(value.getBytes(1, value.length().toInt()))
+            value is ByteArray && type == BinaryObject::class -> JDBCBinaryObject(value)
+            type.javaObjectType.isInstance(value) -> value
+            value is Long && type.javaObjectType == Int::class.javaObjectType -> value.toInt()
+            value is Int && type.javaObjectType == Long::class.javaObjectType -> value.toLong()
+            else -> error("Cannot convert value of type `${value.javaClass}` to type `$type`")
         }
     }
 }

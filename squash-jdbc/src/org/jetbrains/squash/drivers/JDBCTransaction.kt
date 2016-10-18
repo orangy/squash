@@ -21,13 +21,18 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
     private fun <T> resultFor(jdbcStatement: PreparedStatement, statement: Statement<T>): T {
         when (statement) {
             is InsertValuesStatement<*, *> -> {
-                val response = JDBCResponse(connection.conversion, jdbcStatement.generatedKeys)
-                val rows = response.rows
-                if (rows.empty)
+                val keyColumn = statement.generatedKeyColumn
+                if (keyColumn == null) {
                     return Unit as T
-                val keyColumn = response.columns.single()
-                val columnValue = rows.single().get<Any>(keyColumn)
-                return columnValue as T
+                } else {
+                    val response = JDBCResponse(connection.conversion, jdbcStatement.generatedKeys)
+                    val rows = response.rows
+                    if (rows.empty)
+                        return Unit as T
+                    val generatedColumn = response.columns.single()
+                    val columnValue = rows.single().columnValue(keyColumn.type.runtimeType, generatedColumn.columnIndex - 1)
+                    return columnValue as T
+                }
             }
             is InsertQueryStatement<*> -> {
                 // TODO: support generating sequence for fetch keys

@@ -44,7 +44,7 @@ abstract class QueryTests : DatabaseTests {
     @Test fun selectFromWhereIn() {
         withCities {
             val query = query(Citizens)
-                    .where { arrayOf("eugene", "sergey") contains Citizens.id }
+                    .where { listOf("eugene", "sergey") contains Citizens.id }
                     .select(Citizens.name, Citizens.id)
                     .orderBy(Citizens.id)
 

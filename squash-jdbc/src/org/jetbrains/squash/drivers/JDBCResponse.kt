@@ -21,7 +21,12 @@ class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet)
         JDBCResponseColumn(index, label, table, name, nullable)
     }
 
-    val rows = JDBCResponseRowSequence()
+    private var rowsAcquired = false
+    val rows: JDBCResponseRowSequence get() {
+        require(!rowsAcquired) { "ResponseRow sequence has already been acquired" }
+        rowsAcquired = true
+        return JDBCResponseRowSequence()
+    }
 
     inner class JDBCResponseRowSequence() : Sequence<JDBCResponseRow> {
         val empty = !resultSet.next()
@@ -35,6 +40,8 @@ class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet)
     }
 
     override fun iterator(): Iterator<ResponseRow> = rows.iterator()
+
+    override fun toString(): String = "JDBCResponse$columns"
 }
 
 class JDBCResponseColumn(val columnIndex: Int,
@@ -43,7 +50,6 @@ class JDBCResponseColumn(val columnIndex: Int,
                          val name: String,
                          val nullable: Boolean
 ) {
-
-    override fun toString(): String = "JDBCResponseColumn('$label')"
+    override fun toString(): String = "$label@$table"
 }
 

@@ -31,9 +31,9 @@ class NullableColumn<out V, out TColumn : Column<V>>(val column: TColumn) : Colu
     override fun toString(): String = "$column?"
 }
 
-class ReferenceColumn<out V>(override val table: Table, override val name: Name, val column: Column<V>) : Column<V> {
-    override val type: ColumnType = ReferenceColumnType(column.type)
-    override fun toString(): String = "&$column"
+class ReferenceColumn<out V>(override val table: Table, override val name: Name, val reference: Column<V>) : Column<V> {
+    override val type: ColumnType = ReferenceColumnType(reference.type)
+    override fun toString(): String = "&$reference"
 }
 
 class DefaultValueColumn<out V>(val column: Column<V>, val value: V) : Column<V> by column {

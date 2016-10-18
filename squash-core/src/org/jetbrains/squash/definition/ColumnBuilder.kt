@@ -56,7 +56,7 @@ fun TableDefinition.char(name: String, length: Int = 1): Column<String> {
  * Creates an [Enum] column
  */
 inline fun <reified V : Enum<V>> TableDefinition.enumeration(name: String): Column<V> {
-    return createColumn(name, EnumColumnType(V::class.java))
+    return createColumn(name, EnumColumnType(V::class))
 }
 
 /**
