@@ -6,20 +6,26 @@ import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 
 object Cities : TableDefinition() {
-    val id = integer("id").autoIncrement() // PKColumn<Int>
-    val name = varchar("name", 50) // Column<String>
+    val id = integer("id").autoIncrement()
+    val name = varchar("name", 50)
 }
 
 object Citizens : TableDefinition() {
-    val id = varchar("id", 10).primaryKey() // PKColumn<String>
-    val name = varchar("name", length = 50) // Column<String>
-    val cityId = reference(Cities.id, "city_id").nullable() // Column<Int?>
+    val id = varchar("id", 10).primaryKey()
+    val name = varchar("name", length = 50)
+    val cityId = reference(Cities.id, "city_id").nullable()
+}
+
+object CitizenDataLink : TableDefinition() {
+    val id = integer("id").autoIncrement()
+    val citizen_id = reference(Citizens.id)
+    val citizendata_id = reference(CitizenData.id)
 }
 
 object CitizenData : TableDefinition() {
-    val citizen_id = reference(Citizens.id)
+    val id = integer("id").autoIncrement()
     val comment = varchar("comment", 30)
-    val value = integer("value")
+    val value = enumeration<DataKind>("value")
     val image = blob("image").nullable()
 }
 
@@ -33,3 +39,4 @@ object Inhabitants : QueryObject {
             .select(citizenName, cityName)
 }
 
+enum class DataKind { Normal, Extended }

@@ -164,13 +164,14 @@ abstract class QueryTests : DatabaseTests {
         withCities {
             val query = query().from(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
-                    .innerJoin(CitizenData) { Citizens.id eq CitizenData.citizen_id }
+                    .innerJoin(CitizenDataLink) { Citizens.id eq CitizenDataLink.citizen_id }
+                    .innerJoin(CitizenData) { CitizenData.id eq CitizenDataLink.citizendata_id }
                     .select { Citizens.name }
                     .select { Cities.name }
                     .select { CitizenData.image }
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.name, Cities.name, CitizenData.image FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id INNER JOIN CitizenData ON Citizens.id = CitizenData.Citizens_id"
+                "SELECT Citizens.name, Cities.name, CitizenData.image FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id INNER JOIN CitizenDataLink ON Citizens.id = CitizenDataLink.Citizens_id INNER JOIN CitizenData ON CitizenData.id = CitizenDataLink.CitizenData_id"
             }
 
             val rows = query.execute().toList()
@@ -179,7 +180,7 @@ abstract class QueryTests : DatabaseTests {
             assertEquals("Munich", rows[0][Cities.name])
             assertNull(rows[0][CitizenData.image])
 
-            assertEquals("Sergey", rows[1][Citizens.name])
+            assertEquals("Eugene", rows[1][Citizens.name])
             assertEquals("Munich", rows[1][Cities.name])
             assertEquals(listOf<Byte>(1, 2, 3), rows[1][CitizenData.image]?.bytes?.toList())
         }

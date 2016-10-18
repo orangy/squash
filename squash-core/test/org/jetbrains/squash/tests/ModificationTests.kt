@@ -36,6 +36,7 @@ abstract class ModificationTests : DatabaseTests {
 
     @Test fun deleteAll() {
         withCities {
+            deleteFrom(CitizenDataLink).execute()
             deleteFrom(CitizenData).execute()
             val exists = query().from(CitizenData).execute().any()
             assertEquals(false, exists)
@@ -48,7 +49,7 @@ abstract class ModificationTests : DatabaseTests {
             val smthId = query.execute().single()[Citizens.id]
             assertEquals ("smth", smthId)
 
-            deleteFrom(CitizenData).where { CitizenData.citizen_id like "smth" }.execute()
+            deleteFrom(CitizenDataLink).where { CitizenDataLink.citizen_id like "smth" }.execute()
             deleteFrom(Citizens).where { Citizens.name like "%thing" }.execute()
 
             val hasSmth = query.execute().any()

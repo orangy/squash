@@ -1,14 +1,13 @@
 package org.jetbrains.squash.tests.data
 
 import org.jetbrains.squash.connection.*
-import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.*
 
 fun DatabaseTests.withCities(statement: Transaction.() -> Unit) {
-    withTables(Cities, CitizenData, Citizens) {
+    withTables(Cities, CitizenData, Citizens, CitizenDataLink) {
 
         val spbId = insertInto(Cities).values {
             it[name] = "St. Petersburg"
@@ -53,23 +52,34 @@ fun DatabaseTests.withCities(statement: Transaction.() -> Unit) {
         }.execute()
 
         insertInto(CitizenData).values {
-            it[citizen_id] = "smth"
             it[comment] = "Something is here"
-            it[value] = 10
-        }.execute()
+            it[value] = DataKind.Normal
+        }.fetch(CitizenData.id).execute().let { data ->
+            insertInto(CitizenDataLink).values {
+                it[citizen_id] = "smth"
+                it[citizendata_id] = data
+            }.execute()
+        }
 
         insertInto(CitizenData).values {
-            it[citizen_id] = "eugene"
-            it[comment] = "Comment for Eugene"
-            it[value] = 20
-        }.execute()
-
+            it[comment] = "First comment for Eugene"
+            it[value] = DataKind.Normal
+        }.fetch(CitizenData.id).execute().let { data ->
+            insertInto(CitizenDataLink).values {
+                it[citizen_id] = "eugene"
+                it[citizendata_id] = data
+            }.execute()
+        }
         insertInto(CitizenData).values {
-            it[citizen_id] = "sergey"
-            it[comment] = "Comment for Sergey"
-            it[value] = 30
-            it[image] = BinaryObject.fromByteArray(this@withTables, byteArrayOf(1,2,3))
-        }.execute()
+            it[comment] = "Second comment for Eugene"
+            it[value] = DataKind.Extended
+            it[image] = BinaryObject.fromByteArray(this@withTables, byteArrayOf(1, 2, 3))
+        }.fetch(CitizenData.id).execute().let { data ->
+            insertInto(CitizenDataLink).values {
+                it[citizen_id] = "eugene"
+                it[citizendata_id] = data
+            }.execute()
+        }
 
         statement()
     }
