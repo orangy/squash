@@ -5,7 +5,6 @@ import java.sql.*
 
 class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet) : Response {
     private val metadata = resultSet.metaData
-
     val columns = (1..metadata.columnCount).map {
         index ->
         val name = metadata.getColumnName(index) // name of the column
@@ -20,6 +19,7 @@ class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet)
         val dbtype = metadata.getColumnTypeName(index) // database type
         JDBCResponseColumn(index, label, table, name, nullable)
     }
+    private val columnMap = columns.groupBy { it.label.toLowerCase() }
 
     private var rowsAcquired = false
     val rows: JDBCResponseRowSequence get() {
@@ -33,8 +33,11 @@ class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet)
         override operator fun iterator(): Iterator<JDBCResultRow> = object : Iterator<JDBCResultRow> {
             var hasNext = !empty
             override fun hasNext(): Boolean = hasNext
-            override fun next(): JDBCResultRow = JDBCResultRow(resultSet, columns, conversion).apply {
+            override fun next(): JDBCResultRow {
+                val data = columns.indices.map { resultSet.getObject(it + 1) }
+                val row = JDBCResultRow(data, columnMap, conversion)
                 hasNext = resultSet.next()
+                return row
             }
         }
     }
