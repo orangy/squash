@@ -9,6 +9,40 @@ import org.junit.*
 import kotlin.test.*
 
 abstract class GraphTests : DatabaseTests {
+    @Test fun cyclicBinding() {
+        val bindings = bindings {
+            bind<City>(Cities.id) {
+                references(City::citizens, Citizens.cityId.column)
+            }
+            bind<Citizen>(Citizens.id) {
+                reference(Citizen::city, Citizens.cityId.column)
+                references(Citizen::data, CitizenDataLink.citizen_id, CitizenDataLink.citizendata_id)
+            }
+        }
+
+        val query = query(Citizens).where { Citizens.id eq "andrey" }
+        var queries = 0
+        val citizen = withCities {
+            connection.monitor {
+                before {
+                    queries++
+                }
+            }
+            query.bind<Citizen>(bindings).execute()
+        }.single()
+
+        assertEquals(4, queries)
+        with(citizen) {
+            assertEquals("andrey", id)
+            assertEquals("Andrey", name)
+            assertNotNull(city)
+            assertEquals("St. Petersburg", city!!.name)
+            assertEquals("Andrey", city!!.citizens.joinToString { it.name })
+            assertTrue(citizen === city!!.citizens.single())
+        }
+
+    }
+
     @Test fun mapCitizen() {
         var queries = 0
         val person = withCities {
@@ -113,11 +147,11 @@ abstract class GraphTests : DatabaseTests {
         assertEquals(5, citizens.size)
         assertEquals("Alex", citizens[0].name)
         val transform: (Data) -> Pair<String, DataKind> = { it.comment to it.value }
-        assertEquals(listOf(), citizens[0].data.map(transform).toList())
+        assertEquals(listOf(), citizens[0].data.map(transform))
         assertEquals("Andrey", citizens[1].name)
-        assertEquals(listOf(), citizens[1].data.map(transform).toList())
+        assertEquals(listOf(), citizens[1].data.map(transform))
         assertEquals("Eugene", citizens[2].name)
-        assertEquals(listOf("First comment for Eugene" to DataKind.Normal, "Second comment for Eugene" to DataKind.Extended), citizens[2].data.map(transform).toList())
+        assertEquals(listOf("First comment for Eugene" to DataKind.Normal, "Second comment for Eugene" to DataKind.Extended), citizens[2].data.map(transform))
     }
 
     @Test fun mapHierarchy() {
@@ -131,8 +165,8 @@ abstract class GraphTests : DatabaseTests {
 
             val query = query(HierarchyTable).orderBy { HierarchyTable.name }
             val binding = query.bind<Hierarchy>(HierarchyTable) {
-                reference(node, Hierarchy::parent, HierarchyTable.parent_id.column)
-                references(node, Hierarchy::children, HierarchyTable.parent_id.column)
+                reference(Hierarchy::parent, HierarchyTable.parent_id.column)
+                references(Hierarchy::children, HierarchyTable.parent_id.column)
             }
 
             binding.execute().toList()
@@ -180,8 +214,8 @@ abstract class GraphTests : DatabaseTests {
 
             val query = query(HierarchyTable).orderBy { HierarchyTable.name }.where { HierarchyTable.name like "%1" }
             val binding = query.bind<Hierarchy>(HierarchyTable) {
-                reference(node, Hierarchy::parent, HierarchyTable.parent_id.column)
-                references(node, Hierarchy::children, HierarchyTable.parent_id.column)
+                reference(Hierarchy::parent, HierarchyTable.parent_id.column)
+                references(Hierarchy::children, HierarchyTable.parent_id.column)
             }
 
             binding.execute().toList()

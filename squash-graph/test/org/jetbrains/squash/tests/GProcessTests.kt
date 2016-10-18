@@ -3,6 +3,7 @@ package org.jetbrains.squash.tests
 import org.jetbrains.squash.graph.*
 import org.junit.*
 import java.lang.reflect.*
+import kotlin.reflect.*
 import kotlin.test.*
 
 interface A {
@@ -22,9 +23,15 @@ interface H {
     val children: List<H>
 }
 
-class MapProcess : GProcess<MapProcess>()
+class MapProcess : GraphProcess<MapProcess>()
+class MapNode(type: KClass<*>, val items: Set<Map<String, Any?>>) : GraphNode<MapProcess, Map<String, Any?>, Int>(type) {
+    override fun fetch(process: MapProcess, keys: Set<Int>): Set<Map<String, Any?>> = items.filter { it["id"] in keys }.toSet()
+    override fun id(data: Map<String, Any?>): Int = data["id"] as Int
+    override fun dataValue(data: Map<String, Any?>, name: String, type: Type): Any? = data[name]
+}
+
 class GProcessTests {
-    fun setupHierarchy(): GNode<MapProcess, Map<String, Any?>, Any> {
+    fun setupHierarchy(): GraphNode<MapProcess, Map<String, Any?>, Int> {
         val hrows = setOf(
                 mapOf("id" to 1, "pid" to null, "name" to "!"),
                 mapOf("id" to 2, "pid" to 1, "name" to "A"),
@@ -33,18 +40,12 @@ class GProcessTests {
                 mapOf("id" to 5, "pid" to 3, "name" to "B1")
         )
 
-        val id: (Map<String, Any?>) -> Any = { it["id"]!! }
-        val property: (Map<String, Any?>, String, Type) -> Any? = { data, name, type -> data[name] }
-
-        val node = GNode(id, { process: MapProcess, keys ->
-            hrows.filter { it["id"] in keys }.toSet()
-        }, property, H::class)
-
-        node.references.put("parent", object : GReference<MapProcess> {
+        val node = MapNode(H::class, hrows)
+        node.references.put("parent", object : GraphReference<MapProcess> {
             override val to = node
             override val from = node
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GNodeStub<MapProcess, *, *>>) {
+            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.dataValue("pid", Int::class.java) }.filterNotNull().toSet()
                 if (ids.isNotEmpty()) {
                     val toStubs = to.fetchIdentities(process, ids)
@@ -55,11 +56,11 @@ class GProcessTests {
                 }
             }
         })
-        node.references.put("children", object : GReference<MapProcess> {
+        node.references.put("children", object : GraphReference<MapProcess> {
             override val to = node
             override val from = node
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GNodeStub<MapProcess, *, *>>) {
+            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.id }.distinct()
                 if (ids.isNotEmpty()) {
                     val rows = hrows.filter { it["pid"] in ids }.toSet()
@@ -133,21 +134,14 @@ class GProcessTests {
                 mapOf("id" to 3, "pid" to 1, "caption" to "Heavy Thing", "value" to 999)
         )
 
-        val id: (Map<String, Any>) -> Any = { it["id"]!! }
-        val property: (Map<String, Any>, String, Type) -> Any? = { data, name, type -> data[name] }
+        val nodeA = MapNode(A::class, arows)
+        val nodeB = MapNode(B::class, brows)
 
-        val nodeA = GNode(id, { process: MapProcess, keys ->
-            arows.filter { it["id"] in keys }.toSet()
-        }, property, A::class)
-        val nodeB = GNode(id, { process: MapProcess, keys ->
-            brows.filter { it["id"] in keys }.toSet()
-        }, property, B::class)
-
-        nodeA.references.put("items", object : GReference<MapProcess> {
+        nodeA.references.put("items", object : GraphReference<MapProcess> {
             override val to = nodeB
             override val from = nodeA
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GNodeStub<MapProcess, *, *>>) {
+            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.id }.distinct()
                 if (ids.isNotEmpty()) {
                     val rows = brows.filter { it["pid"] in ids }.toSet()
@@ -162,11 +156,11 @@ class GProcessTests {
             }
         })
 
-        nodeB.references.put("parent", object : GReference<MapProcess> {
+        nodeB.references.put("parent", object : GraphReference<MapProcess> {
             override val from = nodeB
             override val to = nodeA
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GNodeStub<MapProcess, *, *>>) {
+            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.dataValue("pid", Int::class.java) }.filterNotNull().toSet()
                 if (ids.isNotEmpty()) {
                     val toStubs = to.fetchIdentities(process, ids)
