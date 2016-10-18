@@ -4,7 +4,7 @@
     <parent>
         <artifactId>squash</artifactId>
         <groupId>org.jetbrains.squash</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>squash-postgres</artifactId>
@@ -17,11 +17,24 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
+            <artifactId>squash-graph</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-core</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.squash</groupId>
+            <artifactId>squash-graph</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-jdbc</artifactId>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>squash</artifactId>
         <groupId>org.jetbrains.squash</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>squash-h2</artifactId>
@@ -17,6 +17,25 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
+            <artifactId>squash-jdbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.squash</groupId>
+            <artifactId>squash-graph</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- ENGINE -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.191</version>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-core</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
@@ -24,13 +43,10 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
-            <artifactId>squash-jdbc</artifactId>
+            <artifactId>squash-graph</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.191</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

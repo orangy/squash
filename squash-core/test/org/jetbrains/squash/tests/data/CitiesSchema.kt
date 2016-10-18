@@ -6,7 +6,7 @@ import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 
 object Cities : TableDefinition() {
-    val id = integer("id").autoIncrement()
+    val id = integer("id").autoIncrement().primaryKey()
     val name = varchar("name", 50)
 }
 
@@ -25,7 +25,7 @@ object CitizenDataLink : TableDefinition() {
 }
 
 object CitizenData : TableDefinition() {
-    val id = integer("id").autoIncrement()
+    val id = integer("id").autoIncrement().primaryKey()
     val comment = varchar("comment", 30)
     val value = enumeration<DataKind>("value")
     val image = blob("image").nullable()
