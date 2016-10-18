@@ -5,15 +5,15 @@ import org.jetbrains.squash.schema.*
 import java.sql.*
 
 open class JDBCDatabaseSchema(override val transaction: JDBCTransaction) : DatabaseSchemaBase(transaction) {
-    protected val catalogue: String? = transaction.jdbcConnection.catalog
-    protected val metadata: DatabaseMetaData = transaction.jdbcConnection.metaData
+    protected val catalogue: String? = transaction.jdbcTransaction.catalog
+    protected val metadata: DatabaseMetaData = transaction.jdbcTransaction.metaData
 
     override fun tables(): Sequence<DatabaseSchema.SchemaTable> {
         val resultSet = metadata.getTables(catalogue, currentSchema(), null, arrayOf("TABLE"))
         return JDBCResponse(transaction.connection.conversion, resultSet).rows.map { SchemaTable(it["TABLE_NAME"], this) }
     }
 
-    protected open fun currentSchema(): String = transaction.jdbcConnection.schema ?: ""
+    protected open fun currentSchema(): String = transaction.jdbcTransaction.schema ?: ""
 
     class SchemaColumn(override val name: String,
                        override val nullable: Boolean) : DatabaseSchema.SchemaColumn {

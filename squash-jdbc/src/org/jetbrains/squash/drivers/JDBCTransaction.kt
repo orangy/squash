@@ -10,11 +10,17 @@ import org.jetbrains.squash.statements.Statement
 import java.sql.*
 
 open class JDBCTransaction(override val connection: JDBCConnection) : Transaction {
-    private var _jdbcConnection: Connection? = null
+    private var _jdbcTransaction: Connection? = null
 
-    val jdbcConnection: Connection get() = _jdbcConnection ?: run {
-        _jdbcConnection = connection.connector()
-        _jdbcConnection!!
+    val jdbcTransaction: Connection get() {
+        return _jdbcTransaction?.apply { checkValid(this) } ?: run {
+            _jdbcTransaction = connection.connector()
+            _jdbcTransaction!!
+        }
+    }
+
+    private fun checkValid(connection: Connection) {
+        check(!connection.isClosed) { "Connection $connection is already closed."}
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -55,7 +61,7 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
         val statementSQL = connection.dialect.statementSQL(statement)
         val returnColumn: Column<*>? = if (statement is InsertValuesStatement<*, *>) statement.generatedKeyColumn else null
         connection.monitor.beforeStatement(this, statementSQL)
-        val preparedStatement = jdbcConnection.prepareStatement(statementSQL, returnColumn)
+        val preparedStatement = jdbcTransaction.prepareStatement(statementSQL, returnColumn)
         preparedStatement.execute()
         val result = resultFor(preparedStatement, statement)
         connection.monitor.afterStatement(this, statementSQL, result)
@@ -64,7 +70,7 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
 
     override fun executeStatement(statement: SQLStatement): Response {
         try {
-            val preparedStatement = jdbcConnection.prepareStatement(statement)
+            val preparedStatement = jdbcTransaction.prepareStatement(statement)
             connection.monitor.beforeStatement(this, statement)
             val executionResult = preparedStatement.execute()
             val result = when (executionResult) {
@@ -96,17 +102,17 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
     override fun executeStatement(sql: String): Response = executeStatement(SQLStatement(sql, emptyList()))
 
     override fun commit() {
-        _jdbcConnection?.commit()
+        _jdbcTransaction?.commit()
     }
 
     override fun rollback() {
-        _jdbcConnection?.rollback()
+        _jdbcTransaction?.rollback()
     }
 
     override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(this)
 
     override fun close() {
-        _jdbcConnection?.close()
+        _jdbcTransaction?.close()
     }
 
     override fun createBlob(bytes: ByteArray): BinaryObject {
