@@ -4,6 +4,7 @@ package org.jetbrains.squash.definition
  * Represents a collection of constraints in a database
  */
 interface TableConstraints {
+    var primaryKey : PrimaryKeyConstraint?
     val elements: List<TableConstraint>
     fun add(constraint: TableConstraint)
 }

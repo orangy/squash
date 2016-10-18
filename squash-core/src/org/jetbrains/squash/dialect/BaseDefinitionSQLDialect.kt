@@ -38,23 +38,21 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             }
 
     protected open fun appendPrimaryKey(builder: SQLStatementBuilder, table: Table) {
-        val primaryKeys = table.constraints.elements.filterIsInstance<PrimaryKeyConstraint>()
-        when (primaryKeys.size) {
-            1 -> {
-                primaryKeyDefinitionSQL(builder, primaryKeys[0], table)
-            }
-            0 -> appendAutoPrimaryKeys(builder, table)
-            else -> error("Table cannot have more than one PrimaryKey constraint")
+        val primaryKey = table.constraints.primaryKey ?: createAutoPrimaryKeyConstraint(table)
+        if (primaryKey != null) {
+            primaryKeyDefinitionSQL(builder, primaryKey, table)
         }
     }
 
-    protected open fun appendAutoPrimaryKeys(builder: SQLStatementBuilder, table: Table) {
+    protected open fun createAutoPrimaryKeyConstraint(table: Table): PrimaryKeyConstraint? {
         val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
         if (autoIncrement.any()) {
             val name = Identifier("PK_${dialect.nameSQL(table.tableName)}")
-            val pkAutoIncrement = PrimaryKeyConstraint(name, autoIncrement)
-            primaryKeyDefinitionSQL(builder, pkAutoIncrement, table)
+            val primaryKey = PrimaryKeyConstraint(name, autoIncrement)
+            table.constraints.primaryKey = primaryKey
+            return primaryKey
         }
+        return null
     }
 
     protected open fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, key: PrimaryKeyConstraint, table: Table) = with(builder) {

@@ -9,6 +9,7 @@ open class TableDefinition(name: String? = null) : Table {
     override fun toString(): String = "$tableName"
 
     override val constraints: TableConstraints = object : TableConstraints {
+        override var primaryKey: PrimaryKeyConstraint? = null
         override val elements = mutableListOf<TableConstraint>()
         override fun add(constraint: TableConstraint) {
             elements.add(constraint)

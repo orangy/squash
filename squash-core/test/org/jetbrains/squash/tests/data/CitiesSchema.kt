@@ -17,9 +17,11 @@ object Citizens : TableDefinition() {
 }
 
 object CitizenDataLink : TableDefinition() {
-    val id = integer("id").autoIncrement()
     val citizen_id = reference(Citizens.id)
     val citizendata_id = reference(CitizenData.id)
+    init {
+        primaryKey(citizen_id, citizendata_id)
+    }
 }
 
 object CitizenData : TableDefinition() {

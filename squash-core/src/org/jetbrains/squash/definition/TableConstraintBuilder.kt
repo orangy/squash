@@ -2,10 +2,6 @@
 
 package org.jetbrains.squash.definition
 
-fun <V> Column<V>.primaryKey(pkName: String? = null): Column<V> = apply {
-    table.constraints.add(PrimaryKeyConstraint(Identifier(pkName ?: "PK_${table.tableName.id}"), listOf(this)))
-}
-
 fun <V> Column<V>.uniqueIndex() = index(unique = true)
 fun <V> Column<V>.index(name: String? = null, unique: Boolean = false): Column<V> = apply {
     val indexName = name ?: "IX_${this.name.referenceName()}"
@@ -21,5 +17,21 @@ fun <V> Column<V>.index(name: String? = null, unique: Boolean = false): Column<V
 fun Table.index(vararg columns: Column<*>, name: String? = null, unique: Boolean = false) {
     val indexName = name ?: "IX_${tableName.id}_${columns.joinToString("_") { it.name.id }}"
     constraints.add(IndexConstraint(Identifier(indexName), columns.toList(), unique))
+}
+
+fun <V> Column<V>.primaryKey(pkName: String? = null): Column<V> = apply {
+    val indexName = "PK_${table.tableName.id}"
+    check(table.constraints.primaryKey == null) {
+        "Cannot set primary key to $indexName because it was already created for table `$this`"
+    }
+    table.constraints.primaryKey = PrimaryKeyConstraint(Identifier(pkName ?: indexName), listOf(this))
+}
+
+fun Table.primaryKey(vararg columns: Column<*>, name: String? = null) {
+    val indexName = name ?: "PK_${tableName.id}_${columns.joinToString("_") { it.name.id }}"
+    check(constraints.primaryKey == null) {
+        "Cannot set primary key to $indexName because it was already created for table `$this`"
+    }
+    constraints.primaryKey = PrimaryKeyConstraint(Identifier(indexName), columns.toList())
 }
 

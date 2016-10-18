@@ -21,14 +21,9 @@ object SqLiteDialect : BaseSQLDialect("SQLite") {
         }
 
         override fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, key: PrimaryKeyConstraint, table: Table): SQLStatementBuilder {
-            val column = key.columns.single()
-            if (column is AutoIncrementColumn) // ignore PK from autoincrement columns
+            if (key.columns.all { it is AutoIncrementColumn }) // ignore PK from autoincrement columns
                 return builder
             return super.primaryKeyDefinitionSQL(builder, key, table)
-        }
-
-        override fun appendAutoPrimaryKeys(builder: SQLStatementBuilder, table: Table) {
-            // Do nothing, automatic primary keys are already created using column definition
         }
 
         override fun foreignKeys(table: Table): List<SQLStatement> {
