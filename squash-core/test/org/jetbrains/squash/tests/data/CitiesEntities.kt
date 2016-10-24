@@ -5,14 +5,17 @@ import java.io.*
 interface Citizen {
     val id: String
     val name: String
-    val city: City?
+    val city: InhabitedCity?
     val data: List<Data>
+}
+
+interface InhabitedCity : City {
+    val citizens: List<Citizen>
 }
 
 interface City {
     val id: Int
     val name: String
-    val citizens: List<Citizen>
 }
 
 interface Data {

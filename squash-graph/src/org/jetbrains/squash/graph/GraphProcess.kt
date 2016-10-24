@@ -2,7 +2,6 @@ package org.jetbrains.squash.graph
 
 import java.lang.reflect.*
 import java.util.*
-import kotlin.reflect.*
 
 open class GraphProcess<TProcess : GraphProcess<TProcess>>() : DynamicAccessor<GraphStub<TProcess, *, *>> {
     private val queue = LinkedHashSet<GraphNode<TProcess, *, *>>()
@@ -30,7 +29,7 @@ open class GraphProcess<TProcess : GraphProcess<TProcess>>() : DynamicAccessor<G
 
     fun instanceFactory(node: GraphNode<TProcess, *, *>): (GraphStub<TProcess, *, *>) -> Any {
         return factories.getOrPut(node) {
-            val constructor = factoryForInterface(node.type, GraphStub::class)
+            val constructor = factoryForInterface<GraphStub<*, *, *>>(node.types, GraphStub::class)
             return@getOrPut { stub -> constructor.newInstance(stub, this) }
         }
     }

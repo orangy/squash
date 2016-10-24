@@ -4,7 +4,7 @@ import java.lang.reflect.*
 import kotlin.reflect.*
 
 /**
- * Node in a graph representing an object of specific [type]
+ * Node in a graph representing an object of specific [types]
  *
  * Each node may have [references] to other nodes
  * During the [GraphProcess] nodes will be called [execute] method to process their stubs from state to state
@@ -12,7 +12,8 @@ import kotlin.reflect.*
  * @param TData type of data this node is using as a source
  * @param TKey type of key values
  */
-abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(val type: KClass<*>) {
+abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(types: List<KClass<*>>) {
+    val types = types.toMutableList()
     val references = mutableMapOf<String, GraphReference<TProcess>>()
 
     /**
@@ -99,5 +100,5 @@ abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(val typ
         }
     }
 
-    override fun toString(): String = "GraphNode($type)"
+    override fun toString(): String = "GraphNode(${types.joinToString { it.simpleName!! }})"
 }

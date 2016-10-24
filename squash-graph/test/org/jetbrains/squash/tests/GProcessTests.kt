@@ -23,8 +23,18 @@ interface H {
     val children: List<H>
 }
 
+interface X {
+    val name: String
+}
+
+interface Y {
+    val age: Int
+}
+
 class MapProcess : GraphProcess<MapProcess>()
-class MapNode(type: KClass<*>, val items: Set<Map<String, Any?>>) : GraphNode<MapProcess, Map<String, Any?>, Int>(type) {
+
+fun MapNode(type: KClass<*>, items: Set<Map<String, Any?>>) = MapNode(listOf(type), items)
+class MapNode(types: List<KClass<*>>, val items: Set<Map<String, Any?>>) : GraphNode<MapProcess, Map<String, Any?>, Int>(types) {
     override fun fetch(process: MapProcess, keys: Set<Int>): Set<Map<String, Any?>> = items.filter { it["id"] in keys }.toSet()
     override fun id(data: Map<String, Any?>): Int = data["id"] as Int
     override fun dataValue(data: Map<String, Any?>, name: String, type: Type): Any? = data[name]
@@ -189,5 +199,19 @@ class GProcessTests {
             assertEquals(999, b.value)
             assertEquals(a, b.parent)
         }
+    }
+
+    @Test fun multipleTypes() {
+        val rows = setOf(mapOf("id" to 1, "name" to "John", "age" to 42))
+        val node = MapNode(listOf(X::class, Y::class), rows)
+        val process = MapProcess()
+        node.fetchIdentities(process, setOf(1))
+        process.queueNode(node)
+        process.execute()
+        val instance = process.stubMap(node)[1]!!.getOrCreateInstance(process)
+        val x = assertNotNull(instance as? X)
+        val y = assertNotNull(instance as? Y)
+        assertEquals("John", x.name)
+        assertEquals(42, y.age)
     }
 }

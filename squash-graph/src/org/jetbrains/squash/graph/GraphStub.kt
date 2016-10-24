@@ -40,5 +40,5 @@ class GraphStub<TProcess : GraphProcess<TProcess>, TData, TKey>(val id: TKey, va
         return node.dataValue(data!!, name, type) as? T
     }
 
-    override fun toString(): String = "GraphStub($id : ${node.type.simpleName}"
+    override fun toString(): String = "GraphStub($id : ${node.types.joinToString { it.simpleName!! }}"
 }

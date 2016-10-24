@@ -9,10 +9,56 @@ import org.junit.*
 import kotlin.test.*
 
 abstract class GraphTests : DatabaseTests {
+    @Test fun importAspect() {
+        val cityBinding = bindings {
+            bind<City>(Cities.id)
+        }
+
+        val citizenBinding = bindings {
+            import<City>(cityBinding)
+            extend<City, InhabitedCity> {
+                references(InhabitedCity::citizens, Citizens.cityId.column)
+            }
+            bind<Citizen>(Citizens.id) {
+                reference(Citizen::city, Citizens.cityId.column)
+                references(Citizen::data, CitizenDataLink.citizen_id, CitizenDataLink.citizendata_id)
+            }
+        }
+
+        println("--- City:")
+        println(cityBinding)
+
+        println("--- Citizen:")
+        println(citizenBinding)
+
+        val query = query(Citizens).where { Citizens.id eq "andrey" }
+        var queries = 0
+        val citizen = withCities {
+            connection.monitor {
+                before {
+                    println(it)
+                    queries++
+                }
+            }
+            query.bind<Citizen>(citizenBinding).execute()
+        }.single()
+
+        assertEquals(4, queries)
+        with(citizen) {
+            assertEquals("andrey", id)
+            assertEquals("Andrey", name)
+            with (assertNotNull(city)) {
+                assertEquals("St. Petersburg", name)
+                assertEquals("Andrey", citizens.joinToString { it.name })
+                assertTrue(citizen === citizens.single())
+            }
+        }
+    }
+
     @Test fun cyclicBinding() {
         val bindings = bindings {
-            bind<City>(Cities.id) {
-                references(City::citizens, Citizens.cityId.column)
+            bind<InhabitedCity>(Cities.id) {
+                references(InhabitedCity::citizens, Citizens.cityId.column)
             }
             bind<Citizen>(Citizens.id) {
                 reference(Citizen::city, Citizens.cityId.column)
@@ -72,8 +118,8 @@ abstract class GraphTests : DatabaseTests {
             }
 
             val query = query(Cities)
-            val binding = query.bind<City>(Cities) {
-                references(City::citizens, Citizens.cityId.column)
+            val binding = query.bind<InhabitedCity>(Cities) {
+                references(InhabitedCity::citizens, Citizens.cityId.column)
             }
 
             binding.execute().toList()

@@ -19,7 +19,7 @@ interface DynamicAccessor<in TSource> {
     fun callFunction(source: TSource, name: String, type: Type, values: Array<Any?>): Any?
 }
 
-fun <Interface : Any, Source : Any> factoryForInterface(interfaceKlass: KClass<Interface>, sourceKlass: KClass<Source>): Constructor<*> {
+fun <Source : Any> factoryForInterface(interfaces: List<KClass<*>>, sourceKlass: KClass<Source>): Constructor<*> {
     val holderType = TypeDescription.Generic.Builder.parameterizedType(SourceHolder::class.java, sourceKlass.java).build()
 
     val interceptor = MethodDelegation.to(Interceptor<Source>())
@@ -29,12 +29,12 @@ fun <Interface : Any, Source : Any> factoryForInterface(interfaceKlass: KClass<I
 
     val definition = ByteBuddy()
             .subclass<SourceHolder<Source>>(holderType)
-            .implement(interfaceKlass.java)
+            .implement(interfaces.map { it.java })
             .method(ElementMatchers.isDeclaredBy(ElementMatchers.isInterface())).intercept(interceptor)
 
     val klass = definition
             .make()
-            .load(interfaceKlass.java.classLoader, net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.WRAPPER)
+            .load(interfaces.first().java.classLoader, net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.WRAPPER)
             .loaded
 
     val constructor = klass.getConstructor(sourceKlass.java, DynamicAccessor::class.java)
