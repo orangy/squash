@@ -10,7 +10,7 @@
     <version>0.2-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.0.4</kotlin.version>
+        <kotlin.version>1.0.5-eap-83</kotlin.version>
         <dokka.version>0.9.9</dokka.version>
     </properties>
 
@@ -29,6 +29,14 @@
             <id>bintray-kotlin-kotlinx.support</id>
             <name>bintray</name>
             <url>http://dl.bintray.com/kotlin/kotlinx.support</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-kotlin-kotlin-eap</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/kotlin/kotlin-eap</url>
         </repository>
     </repositories>
 
@@ -79,6 +87,14 @@
             <id>bintray-kotlin-dokka</id>
             <name>bintray-kotlin-dokka</name>
             <url>https://dl.bintray.com/kotlin/dokka</url>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-kotlin-kotlin-eap</id>
+            <name>bintray-plugins</name>
+            <url>http://dl.bintray.com/kotlin/kotlin-eap</url>
         </pluginRepository>
     </pluginRepositories>
 
