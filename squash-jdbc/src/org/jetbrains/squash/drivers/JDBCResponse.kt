@@ -34,7 +34,7 @@ class JDBCResponse(val conversion: JDBCDataConversion, val resultSet: ResultSet)
             var hasNext = !empty
             override fun hasNext(): Boolean = hasNext
             override fun next(): JDBCResultRow {
-                val data = columns.indices.map { resultSet.getObject(it + 1) }
+                val data = Array<Any?>(columns.size) { resultSet.getObject(it + 1) }
                 val row = JDBCResultRow(data, columnMap, conversion)
                 hasNext = resultSet.next()
                 return row
