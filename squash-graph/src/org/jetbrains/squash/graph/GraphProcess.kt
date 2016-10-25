@@ -29,7 +29,7 @@ open class GraphProcess<TProcess : GraphProcess<TProcess>>() : DynamicAccessor<G
 
     fun instanceFactory(node: GraphNode<TProcess, *, *>): (GraphStub<TProcess, *, *>) -> Any {
         return factories.getOrPut(node) {
-            val constructor = factoryForInterface<GraphStub<*, *, *>>(node.types, GraphStub::class)
+            val constructor = implementationFactory(node.types, GraphStub::class)
             return@getOrPut { stub -> constructor.newInstance(stub, this) }
         }
     }

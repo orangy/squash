@@ -11,6 +11,7 @@ import net.bytebuddy.implementation.bytecode.assign.*
 import net.bytebuddy.implementation.bytecode.constant.*
 import net.bytebuddy.matcher.*
 import java.lang.reflect.*
+import java.util.concurrent.*
 import kotlin.reflect.*
 
 interface DynamicAccessor<in TSource> {
@@ -19,26 +20,34 @@ interface DynamicAccessor<in TSource> {
     fun callFunction(source: TSource, name: String, type: Type, values: Array<Any?>): Any?
 }
 
-fun <Source : Any> factoryForInterface(interfaces: List<KClass<*>>, sourceKlass: KClass<Source>): Constructor<*> {
-    val holderType = TypeDescription.Generic.Builder.parameterizedType(SourceHolder::class.java, sourceKlass.java).build()
+data class ImplementationKey(val interfaces: List<KClass<*>>, val sourceKlass: KClass<*>)
+val buddy = ByteBuddy()
+val interceptors = ConcurrentHashMap<KClass<*>, Interceptor<*>>()
+val implementations = ConcurrentHashMap<ImplementationKey, Constructor<*>>()
 
-    val interceptor = MethodDelegation.to(Interceptor<Source>())
-            .appendParameterBinder(FunctionNameBinder)
-            .appendParameterBinder(PropertyNameBinder)
-            .appendParameterBinder(PropertyTypeBinder)
+fun <Source : Any> implementationFactory(interfaces: List<KClass<*>>, sourceKlass: KClass<Source>): Constructor<*> {
+    val key = ImplementationKey(interfaces, sourceKlass)
+    return implementations.computeIfAbsent(key) {
+        val holderType = TypeDescription.Generic.Builder.parameterizedType(SourceHolder::class.java, sourceKlass.java).build()
 
-    val definition = ByteBuddy()
-            .subclass<SourceHolder<Source>>(holderType)
-            .implement(interfaces.map { it.java })
-            .method(ElementMatchers.isDeclaredBy(ElementMatchers.isInterface())).intercept(interceptor)
+        val interceptor = interceptors.computeIfAbsent(sourceKlass) { Interceptor<Source>() }
+        val delegation = MethodDelegation.to(interceptor)
+                .appendParameterBinder(FunctionNameBinder)
+                .appendParameterBinder(PropertyNameBinder)
+                .appendParameterBinder(PropertyTypeBinder)
 
-    val klass = definition
-            .make()
-            .load(interfaces.first().java.classLoader, net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.WRAPPER)
-            .loaded
+        val definition = buddy
+                .subclass<SourceHolder<Source>>(holderType)
+                .implement(interfaces.map { it.java })
+                .method(ElementMatchers.isDeclaredBy(ElementMatchers.isInterface())).intercept(delegation)
 
-    val constructor = klass.getConstructor(sourceKlass.java, DynamicAccessor::class.java)
-    return constructor
+        val klass = definition
+                .make()
+                .load(interfaces.first().java.classLoader, net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.WRAPPER)
+                .loaded
+
+        klass.getConstructor(sourceKlass.java, DynamicAccessor::class.java)
+    }
 }
 
 private annotation class FunctionName()
