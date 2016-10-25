@@ -1,8 +1,17 @@
 package org.jetbrains.squash.drivers
 
 import org.jetbrains.squash.connection.*
+import java.lang.Boolean as JavaLangBoolean
+import java.lang.Byte as JavaLangByte
+import java.lang.Character as JavaLangCharacter
+import java.lang.Double as JavaLangDouble
+import java.lang.Float as JavaLangFloat
+import java.lang.Integer as JavaLangInteger
+import java.lang.Long as JavaLangLong
+import java.lang.Short as JavaLangShort
 import java.sql.*
 import java.time.*
+import kotlin.jvm.internal.*
 import kotlin.reflect.*
 
 open class JDBCDataConversion {
@@ -19,6 +28,25 @@ open class JDBCDataConversion {
             else -> value
         }
     }
+
+    private val <T : Any> KClass<T>.javaObjectType: Class<T>
+        get() {
+            val thisJClass = (this as ClassBasedDeclarationContainer).jClass
+            if (!thisJClass.isPrimitive) return thisJClass as Class<T>
+
+            return when (thisJClass.name) {
+                "boolean" -> JavaLangBoolean::class.java
+                "char"    -> JavaLangCharacter::class.java
+                "byte"    -> JavaLangByte::class.java
+                "short"   -> JavaLangShort::class.java
+                "int"     -> JavaLangInteger::class.java
+                "float"   -> JavaLangFloat::class.java
+                "long"    -> JavaLangLong::class.java
+                "double"  -> JavaLangDouble::class.java
+                else -> thisJClass
+            } as Class<T>
+        }
+
 
     open fun convertValueFromDatabase(value: Any?, type: KClass<*>): Any? {
         return when {
