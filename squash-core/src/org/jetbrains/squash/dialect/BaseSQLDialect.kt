@@ -19,11 +19,11 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         return if (isSqlIdentifier(id)) id else "\"$id\""
     }
 
+    inline private fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
     protected open fun isSqlIdentifier(id: String): Boolean {
+        if (id.isEmpty()) return false
         if (id.toUpperCase() in SQL92_2003.keywords) return false
-        fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
-        fun String.isIdentifier() = !isEmpty() && first().isIdentifierStart() && all { it.isIdentifierStart() || it in '0'..'9' }
-        return id.isIdentifier()
+        return id[0].isIdentifierStart() && id.all { it.isIdentifierStart() || it in '0'..'9' }
     }
 
     override fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?) {
