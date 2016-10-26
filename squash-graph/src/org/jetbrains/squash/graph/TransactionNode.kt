@@ -10,11 +10,15 @@ import kotlin.reflect.*
 open class TransactionNode<TKey>(types: List<KClass<*>>, val identityColumn: Column<TKey>)
     : GraphNode<TransactionProcess, ResultRow, TKey>(types) {
 
-    override fun fetch(process: TransactionProcess, keys: Set<TKey>): Set<ResultRow> {
-        return query(identityColumn.table).where { identityColumn within keys }.executeOn(process.transaction).toSet()
+    override fun fetch(process: TransactionProcess, keys: Set<TKey>): Sequence<ResultRow> {
+        return query(identityColumn.table).where { identityColumn within keys }.executeOn(process.transaction)
     }
 
-    override fun id(data: ResultRow): TKey = data.columnValue(identityColumn)
+    override fun id(data: ResultRow): TKey {
+        return data.columnValue(identityColumn)
+    }
 
-    override fun dataValue(data: ResultRow, name: String, type: Type) = data.columnValue((type as Class<*>).kotlin, name)
+    override fun dataValue(data: ResultRow, name: String, type: Type): Any? {
+        return data.columnValue((type as Class<*>).kotlin, name)
+    }
 }

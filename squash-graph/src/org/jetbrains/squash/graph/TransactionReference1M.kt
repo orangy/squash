@@ -16,7 +16,6 @@ class TransactionReference1M<TReference>(override val from: TransactionNode<*>,
             val rows = query(parentColumn.table)
                     .where { parentColumn within ids }
                     .executeOn(process.transaction)
-                    .toSet()
 
             val toStubs = to.fetchStubs(process, rows)
             fromStubs.forEach { stub ->

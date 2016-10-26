@@ -10,7 +10,7 @@ class TransactionQueryBinding<T : Any>(val query: QueryStatement,
     override fun executeOn(transaction: Transaction): List<T> {
         val result = query.executeOn(transaction)
         val process = TransactionProcess(transaction)
-        val stubs = node.fetchStubs(process, result.toSet()) // TODO: make use of sequences
+        val stubs = node.fetchStubs(process, result) // TODO: make use of sequences
         process.queueNode(node)
         process.execute()
         return stubs.map { it.getOrCreateInstance(process) as T }

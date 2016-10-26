@@ -20,7 +20,7 @@ class TransactionReferenceMM<TReference>(override val from: TransactionNode<*>,
                     }
                     .select(toColumn.reference.table)
                     .select(fromColumn)
-                    .executeOn(process.transaction).toSet()
+                    .executeOn(process.transaction)
 
             val toStubs = to.fetchStubs(process, rows)
             fromStubs.forEach { stub ->

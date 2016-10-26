@@ -19,7 +19,7 @@ abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(types: 
     /**
      * Fetches set of [TData] instances for specified [keys] from the associated source
      */
-    protected abstract fun fetch(process: TProcess, keys: Set<TKey>): Set<TData>
+    protected abstract fun fetch(process: TProcess, keys: Set<TKey>): Sequence<TData>
 
     /**
      * Gets identity value of [TKey] type from [data]
@@ -67,12 +67,12 @@ abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(types: 
         return newStub
     }
 
-    fun fetchIdentities(process: TProcess, ids: Set<TKey>): List<GraphStub<TProcess, TData, TKey>> {
+    fun fetchIdentities(process: TProcess, ids: Collection<TKey>): List<GraphStub<TProcess, TData, TKey>> {
         process.queueNode(this)
         return ids.map { id -> getOrCreateStub(process, id) }
     }
 
-    fun fetchStubs(process: TProcess, rows: Set<TData>): List<GraphStub<TProcess, TData, TKey>> {
+    fun fetchStubs(process: TProcess, rows: Sequence<TData>): List<GraphStub<TProcess, TData, TKey>> {
         var enqueue = false
         val stubs = rows.map { row ->
             val rowId = id(row)
@@ -82,7 +82,7 @@ abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(types: 
                     fetch(row)
                 }
             }
-        }
+        }.toList()
         if (enqueue)
             process.queueNode(this)
         return stubs

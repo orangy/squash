@@ -33,16 +33,16 @@ interface Y {
 
 class MapProcess : GraphProcess<MapProcess>()
 
-fun MapNode(type: KClass<*>, items: Set<Map<String, Any?>>) = MapNode(listOf(type), items)
-class MapNode(types: List<KClass<*>>, val items: Set<Map<String, Any?>>) : GraphNode<MapProcess, Map<String, Any?>, Int>(types) {
-    override fun fetch(process: MapProcess, keys: Set<Int>): Set<Map<String, Any?>> = items.filter { it["id"] in keys }.toSet()
+fun MapNode(type: KClass<*>, items: Sequence<Map<String, Any?>>) = MapNode(listOf(type), items)
+class MapNode(types: List<KClass<*>>, val items: Sequence<Map<String, Any?>>) : GraphNode<MapProcess, Map<String, Any?>, Int>(types) {
+    override fun fetch(process: MapProcess, keys: Set<Int>): Sequence<Map<String, Any?>> = items.filter { it["id"] in keys }
     override fun id(data: Map<String, Any?>): Int = data["id"] as Int
     override fun dataValue(data: Map<String, Any?>, name: String, type: Type): Any? = data[name]
 }
 
 class GProcessTests {
     fun setupHierarchy(): GraphNode<MapProcess, Map<String, Any?>, Int> {
-        val hrows = setOf(
+        val hrows = sequenceOf(
                 mapOf("id" to 1, "pid" to null, "name" to "!"),
                 mapOf("id" to 2, "pid" to 1, "name" to "A"),
                 mapOf("id" to 3, "pid" to 1, "name" to "B"),
@@ -73,7 +73,7 @@ class GProcessTests {
             override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.id }.distinct()
                 if (ids.isNotEmpty()) {
-                    val rows = hrows.filter { it["pid"] in ids }.toSet()
+                    val rows = hrows.filter { it["pid"] in ids }.asSequence()
                     val toStubs = to.fetchStubs(process, rows)
 
                     fromStubs.forEach { stub ->
@@ -138,8 +138,8 @@ class GProcessTests {
     }
 
     @Test fun testParentChild() {
-        val arows = setOf(mapOf("id" to 1, "name" to "Metal"))
-        val brows = setOf(
+        val arows = sequenceOf(mapOf("id" to 1, "name" to "Metal"))
+        val brows = sequenceOf(
                 mapOf("id" to 2, "pid" to 1, "caption" to "Chemical Element", "value" to 42),
                 mapOf("id" to 3, "pid" to 1, "caption" to "Heavy Thing", "value" to 999)
         )
@@ -154,7 +154,7 @@ class GProcessTests {
             override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.id }.distinct()
                 if (ids.isNotEmpty()) {
-                    val rows = brows.filter { it["pid"] in ids }.toSet()
+                    val rows = brows.filter { it["pid"] in ids }.asSequence()
                     val toStubs = to.fetchStubs(process, rows)
 
                     fromStubs.forEach { stub ->
@@ -202,7 +202,7 @@ class GProcessTests {
     }
 
     @Test fun multipleTypes() {
-        val rows = setOf(mapOf("id" to 1, "name" to "John", "age" to 42))
+        val rows = sequenceOf(mapOf("id" to 1, "name" to "John", "age" to 42))
         val node = MapNode(listOf(X::class, Y::class), rows)
         val process = MapProcess()
         node.fetchIdentities(process, setOf(1))
