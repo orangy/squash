@@ -18,13 +18,12 @@ open class JDBCDataConversion {
     open fun convertValueToDatabase(value: Any?): Any? {
         if (value == null)
             return null
-        val type: KClass<*> = value.javaClass.kotlin
-        return when {
-            type.java.isEnum -> (value as Enum<*>).ordinal
-            value is LocalDate -> Date.valueOf(value)
-            value is LocalTime -> Time.valueOf(value)
-            value is LocalDateTime -> Timestamp.valueOf(value)
-            value is JDBCBinaryObject -> value.bytes
+        return when (value) {
+            is Enum<*> -> value.ordinal
+            is LocalDate -> Date.valueOf(value)
+            is LocalTime -> Time.valueOf(value)
+            is LocalDateTime -> Timestamp.valueOf(value)
+            is JDBCBinaryObject -> value.bytes
             else -> value
         }
     }
@@ -51,7 +50,7 @@ open class JDBCDataConversion {
     open fun convertValueFromDatabase(value: Any?, type: KClass<*>): Any? {
         return when {
             value == null -> null
-            value is Int && type.java.isEnum -> type.java.enumConstants[value]
+            value is Int && type.java.superclass == java.lang.Enum::class.java -> type.java.enumConstants[value]
             value is Clob -> value.characterStream.readText()
             value is Timestamp -> value.toLocalDateTime()
             value is Date -> value.toLocalDate()
