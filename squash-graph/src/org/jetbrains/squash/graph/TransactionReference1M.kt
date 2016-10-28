@@ -17,12 +17,14 @@ class TransactionReference1M<TReference>(override val from: TransactionNode<*>,
                     .where { parentColumn within ids }
                     .executeOn(process.transaction)
 
-            val toStubs = to.fetchStubs(process, rows)
+            val children = rows.groupBy { it.columnValue(parentColumn) }
             fromStubs.forEach { stub ->
                 val parentId = stub.id
-                val references = toStubs.filter {
-                    it.data!!.columnValue(parentColumn) == parentId
-                }
+                val parentChildren = children[parentId]
+                val references = if (parentChildren != null) {
+                    to.fetchStubs(process, parentChildren.asSequence())
+                } else
+                    emptyList()
                 stub.references!!.put(referenceName, references)
             }
         } else {
