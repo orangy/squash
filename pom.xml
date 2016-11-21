@@ -145,7 +145,7 @@
                         </goals>
                         <configuration>
                             <id>bintray</id>
-                            <url>https://api.bintray.com/maven/kotlin/ktor/ktor</url>
+                            <url>https://api.bintray.com/maven/kotlin/squash/squash</url>
                         </configuration>
                     </execution>
                 </executions>
@@ -179,7 +179,7 @@
                     <sourceLinks>
                         <link>
                             <dir>${project.basedir}/src</dir>
-                            <url>http://github.com/Kotlin/ktor</url>
+                            <url>http://github.com/orangy/squash</url>
                         </link>
                     </sourceLinks>
                 </configuration>
