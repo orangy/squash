@@ -22,6 +22,8 @@
         <module>squash-h2</module>
         <module>squash-postgres</module>
         <module>squash-sqlite</module>
+
+        <module>squash-benchmarks</module>
     </modules>
 
     <repositories>
