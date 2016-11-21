@@ -26,14 +26,6 @@
         <module>squash-benchmarks</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>bintray-kotlin-kotlinx.support</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/kotlin/kotlinx.support</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -59,8 +51,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-support-jdk8</artifactId>
-            <version>0.1-alpha-2</version>
-            <type>pom</type>
+            <version>0.3</version>
         </dependency>
 
         <dependency>
@@ -72,17 +63,9 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.5</version>
+            <version>1.7.21</version>
         </dependency>
     </dependencies>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>bintray-kotlin-dokka</id>
-            <name>bintray-kotlin-dokka</name>
-            <url>https://dl.bintray.com/kotlin/dokka</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -152,6 +135,35 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>com.devexperts.bintray</groupId>
+                <artifactId>bintray-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bintray-deploy</id>
+                        <goals>
+                            <goal>publish</goal>
+                        </goals>
+                        <configuration>
+                            <id>bintray</id>
+                            <url>https://api.bintray.com/maven/kotlin/ktor/ktor</url>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>dokka-maven-plugin</artifactId>
                 <version>${dokka.version}</version>
@@ -173,5 +185,55 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.devexperts.bintray</groupId>
+                    <artifactId>bintray-maven-plugin</artifactId>
+                    <version>1.3</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray</id>
+            <url>https://api.bintray.com/maven/kotlin/squash/squash</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/orangy/squash.git</connection>
+        <developerConnection>scm:git:git@github.com:orangy/squash.git</developerConnection>
+        <url>https://github.com/orangy/squash</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>bintray-kotlin-kotlinx.support</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/kotlin/kotlinx.support</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>devexperts-maven</id>
+            <url>https://dl.bintray.com/devexperts/Maven</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>bintray-kotlin-dokka</id>
+            <name>bintray-kotlin-dokka</name>
+            <url>https://dl.bintray.com/kotlin/dokka</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+
 </project>
