@@ -4,7 +4,7 @@
     <parent>
         <artifactId>squash</artifactId>
         <groupId>org.jetbrains.squash</groupId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
 
     <artifactId>squash-benchmarks</artifactId>
@@ -28,17 +28,17 @@
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-h2</artifactId>
-            <version>0.3-SNAPSHOT</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-sqlite</artifactId>
-            <version>0.3-SNAPSHOT</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-postgres</artifactId>
-            <version>0.3-SNAPSHOT</version>
+            <version>0.3</version>
         </dependency>
 
         <dependency>
