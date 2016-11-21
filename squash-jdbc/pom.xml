@@ -4,7 +4,7 @@
     <parent>
         <artifactId>squash</artifactId>
         <groupId>org.jetbrains.squash</groupId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>squash-jdbc</artifactId>
