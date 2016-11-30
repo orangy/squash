@@ -14,7 +14,7 @@ interface DatabaseTests {
     fun createConnection(): DatabaseConnection
     fun createTransaction(): Transaction = createConnection().createTransaction()
 
-    fun <R> withTables(vararg tables: Table, statement: Transaction.() -> R): R = withTransaction {
+    fun <R> withTables(vararg tables: TableDefinition, statement: Transaction.() -> R): R = withTransaction {
         databaseSchema().create(tables.toList())
         statement()
     }

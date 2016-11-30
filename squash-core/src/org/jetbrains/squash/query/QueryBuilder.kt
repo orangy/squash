@@ -28,15 +28,15 @@ fun <Q : QueryBuilder> Q.copy(): QueryStatement = query().apply {
 /**
  * Adds a join operation to the structure
  */
-fun <Q : QueryBuilder> Q.innerJoin(target: Table, on: Expression<Boolean>): Q = apply {
+fun <Q : QueryBuilder> Q.innerJoin(target: CompoundElement, on: Expression<Boolean>): Q = apply {
     compound.add(QueryCompound.InnerJoin(target, on))
 }
 
-fun <Q : QueryBuilder> Q.leftJoin(target: Table, on: Expression<Boolean>): Q = apply {
+fun <Q : QueryBuilder> Q.leftJoin(target: CompoundElement, on: Expression<Boolean>): Q = apply {
     compound.add(QueryCompound.LeftOuterJoin(target, on))
 }
 
-fun <Q : QueryBuilder> Q.rightJoin(target: Table, on: Expression<Boolean>): Q = apply {
+fun <Q : QueryBuilder> Q.rightJoin(target: CompoundElement, on: Expression<Boolean>): Q = apply {
     compound.add(QueryCompound.RightOuterJoin(target, on))
 }
 
@@ -50,7 +50,7 @@ fun <Q : QueryBuilder> Q.select(vararg expression: Expression<*>): Q = apply {
 /**
  * Adds [table] to the structure
  */
-fun <Q : QueryBuilder> Q.from(table: Table): Q = apply {
+fun <Q : QueryBuilder> Q.from(table: CompoundElement): Q = apply {
     compound.add(QueryCompound.From(table))
 }
 

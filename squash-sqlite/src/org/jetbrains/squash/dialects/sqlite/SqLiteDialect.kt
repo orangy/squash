@@ -26,7 +26,7 @@ object SqLiteDialect : BaseSQLDialect("SQLite") {
             return super.primaryKeyDefinitionSQL(builder, key, table)
         }
 
-        override fun foreignKeys(table: Table): List<SQLStatement> {
+        override fun foreignKeys(table: TableDefinition): List<SQLStatement> {
             return listOf() // SqLite doesn't support FK in ALTER statement
         }
 

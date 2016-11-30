@@ -422,4 +422,18 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
+    @Test fun selectFromNestedQuery() {
+        withCities {
+            val query = query()
+                    .from(query().from(Citizens).select(Citizens.name, Citizens.id).alias("Citizens"))
+                    .orderBy(Citizens.name)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT * FROM (SELECT Citizens.name, Citizens.id FROM Citizens) AS Citizens ORDER BY ${nullsLast("Citizens.name")}"
+            }
+
+            val rows = query.execute().map { it.get<String>("name") }.toList()
+            assertEquals(listOf("Alex", "Andrey", "Eugene", "Sergey", "Something"), rows)
+        }
+    }
 }

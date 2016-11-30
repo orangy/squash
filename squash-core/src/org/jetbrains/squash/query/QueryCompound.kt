@@ -3,10 +3,10 @@ package org.jetbrains.squash.query
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 
-sealed class QueryCompound(val table: Table) {
-    class From(table: Table) : QueryCompound(table)
-    class InnerJoin(target: Table, val condition: Expression<Boolean>) : QueryCompound(target)
-    class LeftOuterJoin(target: Table, val condition: Expression<Boolean>) : QueryCompound(target)
-    class RightOuterJoin(target: Table, val condition: Expression<Boolean>) : QueryCompound(target)
+sealed class QueryCompound(val element: CompoundElement) {
+    class From(element: CompoundElement) : QueryCompound(element)
+    class InnerJoin(element: CompoundElement, val condition: Expression<Boolean>) : QueryCompound(element)
+    class LeftOuterJoin(element: CompoundElement, val condition: Expression<Boolean>) : QueryCompound(element)
+    class RightOuterJoin(element: CompoundElement, val condition: Expression<Boolean>) : QueryCompound(element)
 }
 

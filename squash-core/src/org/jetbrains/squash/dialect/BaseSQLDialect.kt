@@ -19,7 +19,9 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         return if (isSqlIdentifier(id)) id else "\"$id\""
     }
 
+    @Suppress("NOTHING_TO_INLINE")
     inline private fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
+
     protected open fun isSqlIdentifier(id: String): Boolean {
         if (id.isEmpty()) return false
         if (id.toUpperCase() in SQL92_2003.keywords) return false
@@ -84,6 +86,9 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             }
             is FunctionExpression -> {
                 appendFunctionExpression(this, expression)
+            }
+            is DialectExpression -> {
+                expression.appendTo(this)
             }
             else -> error("Expression '$expression' is not supported by ${this@BaseSQLDialect}")
         }
@@ -234,7 +239,9 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
         val tables = query.compound.filterIsInstance<QueryCompound.From>()
         builder.append(" FROM ")
-        tables.joinTo(builder) { tableDeclarationName(it.table) }
+        tables.forEach {
+            appendCompoundElementSQL(builder, it.element)
+        }
 
         val innerJoins = query.compound.filter { it !is QueryCompound.From }
         if (innerJoins.any()) {
@@ -254,7 +261,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
                     }
                     is QueryCompound.From -> error("From clauses should have been filtered out")
                 }
-                builder.append(tableDeclarationName(join.table))
+                appendCompoundElementSQL(builder, join.element)
                 builder.append(" ON ")
                 appendExpression(builder, condition)
             }
@@ -269,16 +276,20 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendOrderSQL(builder, query)
     }
 
-    private fun tableName(table: Table): String = when (table) {
-        is AliasTable<*> -> idSQL(table.label)
-        is Table -> nameSQL(table.tableName)
-        else -> error("Table '$table' is not supported by ${this@BaseSQLDialect}")
-    }
-
-    private fun tableDeclarationName(table: Table): String = when (table) {
-        is AliasTable<*> -> nameSQL(table.tableName) + " AS " + idSQL(table.label)
-        is Table -> nameSQL(table.tableName)
-        else -> error("Table '$table' is not supported by ${this@BaseSQLDialect}")
+    fun appendCompoundElementSQL(builder: SQLStatementBuilder, element: CompoundElement): Unit = with(builder) {
+        when (element) {
+            is Table -> builder.append(nameSQL(element.tableName))
+            is AliasCompoundElement -> {
+                appendCompoundElementSQL(this, element.element)
+                builder.append(" AS " + nameSQL(element.label))
+            }
+            is QueryStatement -> {
+                append("(")
+                appendSelectSQL(this, element)
+                append(")")
+            }
+            else -> error("Compound '$element' is not supported by ${this@BaseSQLDialect}")
+        }
     }
 
     override fun <T> statementSQL(statement: Statement<T>): SQLStatement = when (statement) {

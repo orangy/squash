@@ -1,5 +1,6 @@
 package org.jetbrains.squash.schema
 
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
 
 /**
@@ -8,8 +9,8 @@ import org.jetbrains.squash.dialect.*
 interface DatabaseSchema {
     fun tables(): Sequence<SchemaTable>
 
-    fun create(tables: List<org.jetbrains.squash.definition.Table>)
-    fun createStatements(tables: List<org.jetbrains.squash.definition.Table>): List<SQLStatement>
+    fun create(tables: List<TableDefinition>)
+    fun createStatements(tables: List<TableDefinition>): List<SQLStatement>
 
     data class DatabaseSchemaValidationItem(val message: String)
 

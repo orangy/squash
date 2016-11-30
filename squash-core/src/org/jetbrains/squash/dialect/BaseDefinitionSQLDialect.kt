@@ -4,7 +4,7 @@ import org.jetbrains.squash.definition.*
 
 open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDialect {
 
-    override fun tableSQL(table: Table): List<SQLStatement> {
+    override fun tableSQL(table: TableDefinition): List<SQLStatement> {
         val tableSQL = SQLStatementBuilder().apply {
             append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.tableName)}")
             if (table.tableColumns.any()) {
@@ -23,7 +23,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         return listOf(tableSQL) + indices
     }
 
-    protected open fun indicesSQL(table: Table): List<SQLStatement> =
+    protected open fun indicesSQL(table: TableDefinition): List<SQLStatement> =
             table.constraints.elements.filterIsInstance<IndexConstraint>().map {
                 SQLStatementBuilder().apply {
                     val unique = if (it.unique) " UNIQUE" else ""
@@ -37,14 +37,14 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 }.build()
             }
 
-    protected open fun appendPrimaryKey(builder: SQLStatementBuilder, table: Table) {
+    protected open fun appendPrimaryKey(builder: SQLStatementBuilder, table: TableDefinition) {
         val primaryKey = table.constraints.primaryKey ?: createAutoPrimaryKeyConstraint(table)
         if (primaryKey != null) {
             primaryKeyDefinitionSQL(builder, primaryKey, table)
         }
     }
 
-    protected open fun createAutoPrimaryKeyConstraint(table: Table): PrimaryKeyConstraint? {
+    protected open fun createAutoPrimaryKeyConstraint(table: TableDefinition): PrimaryKeyConstraint? {
         val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
         if (autoIncrement.any()) {
             val name = Identifier("PK_${dialect.nameSQL(table.tableName)}")
@@ -62,7 +62,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         append(")")
     }
 
-    override fun foreignKeys(table: Table): List<SQLStatement> = table.constraints.elements.filterIsInstance<ForeignKeyConstraint>()
+    override fun foreignKeys(table: TableDefinition): List<SQLStatement> = table.constraints.elements.filterIsInstance<ForeignKeyConstraint>()
             .map { key ->
                 SQLStatementBuilder().apply {
                     append("ALTER TABLE ${dialect.nameSQL(table.tableName)} DROP CONSTRAINT IF EXISTS ${dialect.idSQL(key.name)};")
@@ -112,7 +112,9 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 append(" DEFAULT ")
                 dialect.appendLiteralSQL(builder, column.value)
             }
-
+            is DialectColumn<*> -> {
+                column.appendTo(this)
+            }
             else -> error("Column class '${column.javaClass.simpleName}' is not supported by $this")
         }
     }

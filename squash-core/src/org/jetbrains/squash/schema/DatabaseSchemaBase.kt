@@ -7,14 +7,14 @@ import java.util.*
 
 abstract class DatabaseSchemaBase(open val transaction: Transaction) : DatabaseSchema {
 
-    override fun create(tables: List<Table>) {
+    override fun create(tables: List<TableDefinition>) {
         val statements = createStatements(tables)
         for (statement in statements) {
             transaction.executeStatement(statement)
         }
     }
 
-    override fun createStatements(tables: List<Table>): List<SQLStatement> {
+    override fun createStatements(tables: List<TableDefinition>): List<SQLStatement> {
         val statements = ArrayList<SQLStatement>()
         if (tables.isEmpty())
             return statements
