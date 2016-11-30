@@ -38,7 +38,6 @@ abstract class GraphTests : DatabaseTests {
         val citizen = withCities {
             connection.monitor {
                 before {
-                    println(it)
                     queries++
                 }
             }
