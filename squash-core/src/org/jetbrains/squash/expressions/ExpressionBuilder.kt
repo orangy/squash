@@ -1,7 +1,6 @@
 package org.jetbrains.squash.expressions
 
 import org.jetbrains.squash.query.*
-import org.jetbrains.squash.statements.*
 import kotlin.internal.*
 
 infix fun Expression<Boolean>.and(other: Expression<Boolean>): Expression<Boolean> = AndExpression(this, other)

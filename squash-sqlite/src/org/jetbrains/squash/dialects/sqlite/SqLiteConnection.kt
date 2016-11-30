@@ -1,9 +1,7 @@
 package org.jetbrains.squash.dialects.sqlite
 
 import org.jetbrains.squash.connection.*
-import org.jetbrains.squash.dialects.sqlite.*
 import org.jetbrains.squash.drivers.*
-import org.sqlite.*
 import java.sql.*
 
 class SqLiteConnection(connector: () -> Connection) : JDBCConnection(SqLiteDialect, SqLiteDataConversion(), connector) {

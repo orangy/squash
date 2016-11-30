@@ -4,7 +4,6 @@ import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.results.*
-import org.jetbrains.squash.statements.*
 import org.junit.*
 import kotlin.test.*
 

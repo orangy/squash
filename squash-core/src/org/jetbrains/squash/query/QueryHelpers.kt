@@ -8,6 +8,7 @@ import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 
 fun query(table: Table) = query().from(table)
+fun query(): QueryStatement = QueryStatement()
 
 fun Table.where(selector: () -> Expression<Boolean>) = query(this).where(selector)
 fun Table.select(selector: () -> Expression<*>) = query(this).select(selector)

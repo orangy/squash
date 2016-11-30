@@ -2,7 +2,6 @@ package org.jetbrains.squash.benchmarks
 
 import com.opentable.db.postgres.embedded.*
 import org.jetbrains.squash.dialects.postgres.*
-import org.jetbrains.squash.dialects.sqlite.*
 import org.openjdk.jmh.annotations.*
 
 open class PgQueryBenchmark : QueryBenchmark() {

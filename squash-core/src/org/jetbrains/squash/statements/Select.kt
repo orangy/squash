@@ -5,5 +5,4 @@ import org.jetbrains.squash.results.*
 
 open class QueryStatement() : QueryBuilder(), Statement<Response>, CompoundElement
 
-fun query(): QueryStatement = QueryStatement()
 

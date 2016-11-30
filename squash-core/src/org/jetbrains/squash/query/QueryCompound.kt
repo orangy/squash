@@ -1,6 +1,5 @@
 package org.jetbrains.squash.query
 
-import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 
 sealed class QueryCompound(val element: CompoundElement) {
