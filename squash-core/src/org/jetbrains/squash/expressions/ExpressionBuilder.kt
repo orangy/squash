@@ -1,6 +1,7 @@
 package org.jetbrains.squash.expressions
 
 import org.jetbrains.squash.query.*
+import org.jetbrains.squash.statements.*
 import kotlin.internal.*
 
 infix fun Expression<Boolean>.and(other: Expression<Boolean>): Expression<Boolean> = AndExpression(this, other)
@@ -44,5 +45,5 @@ infix fun <V> List<V>.contains(value: Expression<V>): InExpression<V> = InExpres
 infix fun <V> Expression<V>.within(values: Collection<V>): InExpression<V> = InExpression(this, values)
 
 fun <V> literal(value: V) = LiteralExpression(value)
-fun <V> subquery(body: QueryBuilder.() -> Unit) = SubQueryExpression<V>(query().apply(body))
+fun <V> subquery(body: QueryBuilder.() -> Unit) = SubQueryExpression<V>(QueryStatement().apply(body))
 infix fun Expression<String>.like(literal: String): Expression<Boolean> = LikeExpression(this, LiteralExpression(literal))

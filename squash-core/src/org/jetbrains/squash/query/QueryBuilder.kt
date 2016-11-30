@@ -15,7 +15,7 @@ open class QueryBuilder : Query {
     override val having = mutableListOf<Expression<Boolean>>()
 }
 
-fun <Q : QueryBuilder> Q.copy(): QueryStatement = query().apply {
+fun QueryStatement.copy(): QueryStatement = QueryStatement().apply {
     compound.addAll(this@copy.compound)
     selection.addAll(this@copy.selection)
     filter.addAll(this@copy.filter)

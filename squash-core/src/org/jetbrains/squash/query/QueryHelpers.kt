@@ -7,12 +7,15 @@ import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.statements.*
 
-fun query(table: Table) = query().from(table)
-fun query(): QueryStatement = QueryStatement()
+fun from(element: CompoundElement) = QueryStatement().from(element)
 
-fun Table.where(selector: () -> Expression<Boolean>) = query(this).where(selector)
-fun Table.select(selector: () -> Expression<*>) = query(this).select(selector)
-fun Table.select(vararg expression: Expression<*>) = query(this).select(*expression)
+fun select(): QueryStatement = QueryStatement()
+fun select(vararg expression: Expression<*>): QueryStatement = QueryStatement().select(*expression)
+fun select(selector: () -> Expression<*>) = QueryStatement().select(selector)
+
+fun Table.where(selector: () -> Expression<Boolean>) = from(this).where(selector)
+fun Table.select(selector: () -> Expression<*>) = from(this).select(selector)
+fun Table.select(vararg expression: Expression<*>) = from(this).select(*expression)
 
 fun <Q : QueryBuilder> Q.innerJoin(target: Table, on: () -> Expression<Boolean>): Q = innerJoin(target, on())
 fun <Q : QueryBuilder> Q.select(expression: () -> Expression<*>): Q = select(expression())

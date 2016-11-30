@@ -33,7 +33,7 @@ abstract class GraphTests : DatabaseTests {
         println(citizenBinding)
 */
 
-        val query = query(Citizens).where { Citizens.id eq "andrey" }
+        val query = from(Citizens).where { Citizens.id eq "andrey" }
         var queries = 0
         val citizen = withCities {
             connection.monitor {
@@ -67,7 +67,7 @@ abstract class GraphTests : DatabaseTests {
             }
         }
 
-        val query = query(Citizens).where { Citizens.id eq "andrey" }
+        val query = from(Citizens).where { Citizens.id eq "andrey" }
         var queries = 0
         val citizen = withCities {
             connection.monitor {
@@ -99,7 +99,7 @@ abstract class GraphTests : DatabaseTests {
                 }
             }
 
-            val query = query(Citizens).where { Citizens.id eq "eugene" }.select(Citizens.name, Citizens.id)
+            val query = from(Citizens).where { Citizens.id eq "eugene" }.select(Citizens.name, Citizens.id)
             val binding = query.bind<Citizen>(Citizens)
 
             binding.execute().single()
@@ -118,7 +118,7 @@ abstract class GraphTests : DatabaseTests {
                 }
             }
 
-            val query = query(Cities)
+            val query = from(Cities)
             val binding = query.bind<InhabitedCity>(Cities) {
                 references(InhabitedCity::citizens, Citizens.cityId.column)
             }
@@ -150,7 +150,7 @@ abstract class GraphTests : DatabaseTests {
                 }
             }
 
-            val query = query(Citizens)
+            val query = from(Citizens)
                     .select(Citizens.name, Citizens.id, Citizens.cityId)
                     .orderBy { Citizens.name }
                     .where { Citizens.cityId neq (null as Int?) }
@@ -180,7 +180,7 @@ abstract class GraphTests : DatabaseTests {
                 }
             }
 
-            val query = query(Citizens)
+            val query = from(Citizens)
                     .select(Citizens.name, Citizens.id)
                     .orderBy { Citizens.name }
 
@@ -210,7 +210,7 @@ abstract class GraphTests : DatabaseTests {
                 }
             }
 
-            val query = query(HierarchyTable).orderBy { HierarchyTable.name }
+            val query = from(HierarchyTable).orderBy { HierarchyTable.name }
             val binding = query.bind<Hierarchy>(HierarchyTable) {
                 reference(Hierarchy::parent, HierarchyTable.parent_id.column)
                 references(Hierarchy::children, HierarchyTable.parent_id.column)
@@ -259,7 +259,7 @@ abstract class GraphTests : DatabaseTests {
                 }
             }
 
-            val query = query(HierarchyTable).orderBy { HierarchyTable.name }.where { HierarchyTable.name like "%1" }
+            val query = from(HierarchyTable).orderBy { HierarchyTable.name }.where { HierarchyTable.name like "%1" }
             val binding = query.bind<Hierarchy>(HierarchyTable) {
                 reference(Hierarchy::parent, HierarchyTable.parent_id.column)
                 references(Hierarchy::children, HierarchyTable.parent_id.column)

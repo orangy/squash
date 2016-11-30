@@ -11,7 +11,7 @@ abstract class MonitorTests : DatabaseTests {
     @Test fun selectLiteral() {
         withTables() {
             val eugene = literal("eugene")
-            val query = query().select { eugene }
+            val query = select { eugene }
 
             var beforeTriggered = false
             var afterTriggered = false

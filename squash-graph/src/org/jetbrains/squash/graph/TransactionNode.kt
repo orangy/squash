@@ -11,7 +11,7 @@ open class TransactionNode<TKey>(types: List<KClass<*>>, val identityColumn: Col
     : GraphNode<TransactionProcess, ResultRow, TKey>(types) {
 
     override fun fetch(process: TransactionProcess, keys: Set<TKey>): Sequence<ResultRow> {
-        return query(identityColumn.table).where { identityColumn within keys }.executeOn(process.transaction)
+        return from(identityColumn.table).where { identityColumn within keys }.executeOn(process.transaction)
     }
 
     override fun id(data: ResultRow): TKey {

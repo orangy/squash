@@ -84,17 +84,17 @@ abstract class QueryBenchmark {
 
     @Benchmark
     fun iterateQuery() = with(transaction) {
-        query(LoadTable).select(LoadTable.name, LoadTable.value).execute().sumBy { it.columnValue(LoadTable.value) }
+        from(LoadTable).select(LoadTable.name, LoadTable.value).execute().sumBy { it.columnValue(LoadTable.value) }
     }
 
     @Benchmark
     fun iterateQueryWhere() = with(transaction) {
-        query(LoadTable).select(LoadTable.name, LoadTable.value).where { LoadTable.value gt (rows / 2) }.execute().sumBy { it.columnValue(LoadTable.value) }
+        from(LoadTable).select(LoadTable.name, LoadTable.value).where { LoadTable.value gt (rows / 2) }.execute().sumBy { it.columnValue(LoadTable.value) }
     }
 
     @Benchmark
     fun iterateMapping() = with(transaction) {
-        query(LoadTable).select(LoadTable.name, LoadTable.value).bind<Load>(LoadTable)
+        from(LoadTable).select(LoadTable.name, LoadTable.value).bind<Load>(LoadTable)
                 .execute().sumBy { it.value }
     }
 }

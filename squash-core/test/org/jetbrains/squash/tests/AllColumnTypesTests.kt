@@ -43,7 +43,7 @@ abstract class AllColumnTypesTests : DatabaseTests {
     @Test fun query() {
         withTables(AllColumnTypes) {
             insertData()
-            val row = query(AllColumnTypes).execute().single()
+            val row = from(AllColumnTypes).execute().single()
 
             assertEquals(String::class.java, row[AllColumnTypes.varchar].javaClass)
             assertEquals("varchar", row[AllColumnTypes.varchar])

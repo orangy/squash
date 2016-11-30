@@ -15,7 +15,7 @@ abstract class QueryTests : DatabaseTests {
     @Test fun selectLiteral() {
         withTables() {
             val eugene = literal("eugene")
-            val query = query().select { eugene }
+            val query = select { eugene }
 
             connection.dialect.statementSQL(query).assertSQL {
                 "SELECT ?"
@@ -29,7 +29,7 @@ abstract class QueryTests : DatabaseTests {
     @Test fun selectFromWhere() {
         withCities {
             val eugene = literal("eugene")
-            val query = query(Citizens).where { Citizens.id eq eugene }.select(Citizens.name, Citizens.id)
+            val query = select(Citizens.name, Citizens.id).from(Citizens).where { Citizens.id eq eugene }
 
             connection.dialect.statementSQL(query).assertSQL {
                 "SELECT Citizens.name, Citizens.id FROM Citizens WHERE Citizens.id = ?"
@@ -43,9 +43,9 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromWhereIn() {
         withCities {
-            val query = query(Citizens)
+            val query = select(Citizens.name, Citizens.id)
+                    .from(Citizens)
                     .where { listOf("eugene", "sergey") contains Citizens.id }
-                    .select(Citizens.name, Citizens.id)
                     .orderBy(Citizens.id)
 
             connection.dialect.statementSQL(query).assertSQL {
@@ -64,7 +64,7 @@ abstract class QueryTests : DatabaseTests {
     @Ignore @Test fun selectFromAliasWhere() {
         withCities {
             val eugene = literal("eugene")
-            val query = query().from(Citizens.alias("C"))
+            val query = from(Citizens.alias("C"))
                     .where { Citizens.id eq eugene }
                     .select(Citizens.name, Citizens.id)
 
@@ -81,7 +81,7 @@ abstract class QueryTests : DatabaseTests {
     @Test fun selectOperationFromWhere() {
         withCities {
             val eugene = literal("eugene")
-            val query = query().from(Citizens)
+            val query = from(Citizens)
                     .where { Citizens.id eq eugene }
                     .select { (Citizens.cityId + 1).alias("first") }
                     .select { Citizens.cityId - 1 }
@@ -100,9 +100,8 @@ abstract class QueryTests : DatabaseTests {
     @Test fun selectFromWhereSubQuery() {
         withTables {
             val eugene = literal("eugene")
-            val query = query().from(Citizens)
+            val query = select(Citizens.name).from(Citizens)
                     .where { Citizens.id eq subquery<String> { from(Citizens).select { Citizens.id }.where { Citizens.id eq eugene } } }
-                    .select { Citizens.name }
 
             connection.dialect.statementSQL(query).assertSQL {
                 "SELECT Citizens.name FROM Citizens WHERE Citizens.id = (SELECT Citizens.id FROM Citizens WHERE Citizens.id = ?)"
@@ -113,8 +112,7 @@ abstract class QueryTests : DatabaseTests {
     @Test fun selectFromWhereWhere() {
         withTables {
             val eugene = literal("eugene")
-            val query = query().from(Citizens)
-                    .select { Citizens.name }
+            val query = select(Citizens.name).from(Citizens)
                     .where { Citizens.id eq eugene }
                     .where { Citizens.cityId eq 1 }
 
@@ -126,7 +124,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromJoin() {
         withTables {
-            val query = query(Citizens)
+            val query = from(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
                     .select { Citizens.name }
                     .select { Cities.name }
@@ -139,7 +137,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromJoinLimited() {
         withTables {
-            val query = query(Citizens)
+            val query = from(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
                     .select(Citizens)
 
@@ -153,9 +151,9 @@ abstract class QueryTests : DatabaseTests {
         withCities {
             val citizenName = Citizens.name.alias("citizenName")
             val cityName = Cities.name.alias("city")
-            val query = query(Citizens)
+            val query = select(citizenName, cityName)
+                    .from(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
-                    .select(citizenName, cityName)
 
             connection.dialect.statementSQL(query).assertSQL {
                 "SELECT Citizens.name AS citizenName, Cities.name AS city FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id"
@@ -174,7 +172,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromJoinJoin() {
         withCities {
-            val query = query().from(Citizens)
+            val query = from(Citizens)
                     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
                     .innerJoin(CitizenDataLink) { Citizens.id eq CitizenDataLink.citizen_id }
                     .innerJoin(CitizenData) { CitizenData.id eq CitizenDataLink.citizendata_id }
@@ -224,7 +222,7 @@ abstract class QueryTests : DatabaseTests {
                 it[name_ref] = "Foo"
             }.execute()
 
-            val query = query(Map)
+            val query = from(Map)
                     .innerJoin(Names) { Map.name_ref eq Names.name }
                     .innerJoin(Numbers) { Map.id_ref eq Numbers.id }
 
@@ -287,8 +285,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromOrder() {
         withCities {
-            val query = query()
-                    .from(Citizens)
+            val query = from(Citizens)
                     .select(Citizens.name, Citizens.id)
                     .orderBy(Citizens.name)
 
@@ -303,8 +300,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromOrderDescOrder() {
         withCities {
-            val query = query()
-                    .from(Citizens)
+            val query = from(Citizens)
                     .select(Citizens.name, Citizens.id, Citizens.cityId)
                     .orderByDescending(Citizens.cityId)
                     .orderBy(Citizens.name)
@@ -320,8 +316,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromOrderOrder() {
         withCities {
-            val query = query()
-                    .from(Citizens)
+            val query = from(Citizens)
                     .select(Citizens.name, Citizens.id, Citizens.cityId)
                     .orderBy(Citizens.cityId)
                     .orderBy(Citizens.name)
@@ -338,8 +333,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectCountGroupBy() {
         withCities {
-            val query = query()
-                    .from(Cities)
+            val query = from(Cities)
                     .innerJoin(Citizens) { Cities.id eq Citizens.cityId }
                     .select(Cities.name, Citizens.id.count().alias("citizens"))
                     .groupBy(Cities.name)
@@ -364,8 +358,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectMaxGroupByHaving() {
         withCities {
-            val query = query()
-                    .from(Cities)
+            val query = from(Cities)
                     .innerJoin(Citizens) { Cities.id eq Citizens.cityId }
                     .select(Cities.name, Citizens.id.max().alias("last_citizen"))
                     .groupBy(Cities.name)
@@ -390,8 +383,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectCountGroupByHavingOrder() {
         withCities {
-            val query = query()
-                    .from(Cities)
+            val query = from(Cities)
                     .innerJoin(Citizens) { Cities.id eq Citizens.cityId }
                     .select(Cities.name, Citizens.id.max().alias("last_citizen"))
                     .groupBy(Cities.name)
@@ -424,8 +416,7 @@ abstract class QueryTests : DatabaseTests {
 
     @Test fun selectFromNestedQuery() {
         withCities {
-            val query = query()
-                    .from(query().from(Citizens).select(Citizens.name, Citizens.id).alias("Citizens"))
+            val query = from(select(Citizens.name, Citizens.id).from(Citizens).alias("Citizens"))
                     .orderBy(Citizens.name)
 
             connection.dialect.statementSQL(query).assertSQL {
