@@ -112,8 +112,8 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 append(" DEFAULT ")
                 dialect.appendLiteralSQL(builder, column.value)
             }
-            is DialectColumn<*> -> {
-                column.appendTo(this)
+            is DialectExtension -> {
+                column.appendTo(this, dialect)
             }
             else -> error("Column class '${column.javaClass.simpleName}' is not supported by $this")
         }
@@ -151,6 +151,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 else
                     append(sqlType + " COLLATE ${type.collate}")
             }
+            is DialectExtension -> type.appendTo(builder, dialect)
             else -> error("Column type '$type' is not supported by $this")
         }
     }

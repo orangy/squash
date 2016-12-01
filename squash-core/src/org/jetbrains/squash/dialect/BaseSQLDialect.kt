@@ -22,7 +22,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     @Suppress("NOTHING_TO_INLINE")
     inline private fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
 
-    protected open fun isSqlIdentifier(id: String): Boolean {
+    open fun isSqlIdentifier(id: String): Boolean {
         if (id.isEmpty()) return false
         if (id.toUpperCase() in SQL92_2003.keywords) return false
         return id[0].isIdentifierStart() && id.all { it.isIdentifierStart() || it in '0'..'9' }
@@ -37,7 +37,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun <T> appendDeclarationExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
+    open fun <T> appendDeclarationExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
         when (expression) {
             is AllTableColumnsExpression -> {
                 append(nameSQL(expression.table.tableName))
@@ -55,7 +55,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun <T> appendExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
+    override fun <T> appendExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
         when (expression) {
             is LiteralExpression -> appendLiteralSQL(this, expression.literal)
             is AliasColumn<T> -> {
@@ -87,14 +87,14 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             is FunctionExpression -> {
                 appendFunctionExpression(this, expression)
             }
-            is DialectExpression -> {
-                expression.appendTo(this)
+            is DialectExtension -> {
+                expression.appendTo(this, this@BaseSQLDialect)
             }
             else -> error("Expression '$expression' is not supported by ${this@BaseSQLDialect}")
         }
     }
 
-    protected open fun appendBinaryExpression(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
+    open fun appendBinaryExpression(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
         if (expression.right is LiteralExpression && expression.right.literal == null) {
             when (expression) {
                 is EqExpression<*> -> {
@@ -116,7 +116,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendBinaryOperator(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
+    open fun appendBinaryOperator(builder: SQLStatementBuilder, expression: BinaryExpression<*, *, *>) = with(builder) {
         append(when (expression) {
             is EqExpression<*> -> "="
             is NotEqExpression<*> -> "<>"
@@ -135,7 +135,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         })
     }
 
-    protected open fun <T> appendFunctionExpression(builder: SQLStatementBuilder, expression: FunctionExpression<T>) = with(builder) {
+    open fun <T> appendFunctionExpression(builder: SQLStatementBuilder, expression: FunctionExpression<T>) = with(builder) {
         when (expression) {
             is CountExpression -> {
                 append("COUNT(")
@@ -166,7 +166,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendSelectSQL(builder: SQLStatementBuilder, query: Query) {
+    open fun appendSelectSQL(builder: SQLStatementBuilder, query: Query) {
         builder.append("SELECT ")
         if (query.selection.isEmpty()) {
             builder.append("*")
@@ -179,7 +179,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendQuerySQL(builder, query)
     }
 
-    protected open fun appendOrderSQL(builder: SQLStatementBuilder, query: Query) {
+    open fun appendOrderSQL(builder: SQLStatementBuilder, query: Query) {
         if (query.order.isEmpty())
             return
 
@@ -190,7 +190,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendGroupingSQL(builder: SQLStatementBuilder, query: Query) {
+    open fun appendGroupingSQL(builder: SQLStatementBuilder, query: Query) {
         if (query.grouping.isEmpty())
             return
 
@@ -201,7 +201,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendHavingSQL(builder: SQLStatementBuilder, query: Query) {
+    open fun appendHavingSQL(builder: SQLStatementBuilder, query: Query) {
         if (query.having.isEmpty())
             return
 
@@ -212,7 +212,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendOrderExpression(builder: SQLStatementBuilder, order: QueryOrder) {
+    open fun appendOrderExpression(builder: SQLStatementBuilder, order: QueryOrder) {
         appendExpression(builder, order.expression)
         when (order) {
             is QueryOrder.Ascending -> { /* ASC is default */
@@ -222,7 +222,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         builder.append(" NULLS LAST")
     }
 
-    protected open fun appendFilterSQL(builder: SQLStatementBuilder, query: Query) {
+    open fun appendFilterSQL(builder: SQLStatementBuilder, query: Query) {
         if (query.filter.isEmpty())
             return
 
@@ -233,7 +233,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendCompoundSQL(builder: SQLStatementBuilder, query: Query) {
+    open fun appendCompoundSQL(builder: SQLStatementBuilder, query: Query) {
         if (query.compound.isEmpty())
             return
 
@@ -268,7 +268,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
-    protected open fun appendQuerySQL(builder: SQLStatementBuilder, query: Query): Unit = with(builder) {
+    open fun appendQuerySQL(builder: SQLStatementBuilder, query: Query): Unit = with(builder) {
         appendCompoundSQL(builder, query)
         appendFilterSQL(builder, query)
         appendGroupingSQL(builder, query)
@@ -276,7 +276,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendOrderSQL(builder, query)
     }
 
-    fun appendCompoundElementSQL(builder: SQLStatementBuilder, element: CompoundElement): Unit = with(builder) {
+    override fun appendCompoundElementSQL(builder: SQLStatementBuilder, element: CompoundElement): Unit = with(builder) {
         when (element) {
             is Table -> builder.append(nameSQL(element.tableName))
             is AliasCompoundElement -> {
@@ -301,11 +301,11 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         else -> error("Statement '$statement' is not supported by ${this@BaseSQLDialect}")
     }
 
-    protected open fun queryStatementSQL(query: QueryStatement): SQLStatement {
+    open fun queryStatementSQL(query: QueryStatement): SQLStatement {
         return SQLStatementBuilder().apply { appendSelectSQL(this, query) }.build()
     }
 
-    protected open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
+    open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("UPDATE ")
         append(nameSQL(statement.table.tableName))
         append(" SET ")
@@ -321,21 +321,21 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendQuerySQL(this, statement)
     }.build()
 
-    protected open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
+    open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("DELETE FROM ")
         append(nameSQL(statement.table.tableName))
         append(" ")
         appendQuerySQL(this, statement)
     }.build()
 
-    protected open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
+    open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" ")
         appendSelectSQL(this, statement)
     }.build()
 
-    protected open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLStatementBuilder().apply {
+    open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLStatementBuilder().apply {
         append("INSERT INTO ")
         append(nameSQL(statement.table.tableName))
         append(" (")
