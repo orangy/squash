@@ -20,5 +20,9 @@ open class JDBCConnection(override val dialect: SQLDialect, val conversion: JDBC
                 DriverManager.getConnection(url, user, password)
             }
         }
+
+        fun create(dialect: SQLDialect, dataSource: DataSource): DatabaseConnection {
+            return JDBCConnection(dialect, JDBCDataConversion()) { dataSource.connection }
+        }
     }
 }
