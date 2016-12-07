@@ -41,6 +41,40 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
+    @Test fun selectFromLimit() {
+        withCities {
+            val query = select(Citizens.name, Citizens.id)
+                    .from(Citizens)
+                    .orderBy(Citizens.id)
+                    .limit(1)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY ${nullsLast("Citizens.id")} LIMIT ?"
+            }
+
+            val row = query.execute().single()
+            assertEquals("alex", row[Citizens.id])
+            assertEquals("Alex", row[Citizens.name])
+        }
+    }
+
+    @Test fun selectFromLimitOffset() {
+        withCities {
+            val query = select(Citizens.name, Citizens.id)
+                    .from(Citizens)
+                    .orderBy(Citizens.id)
+                    .limit(1,1)
+
+            connection.dialect.statementSQL(query).assertSQL {
+                "SELECT Citizens.name, Citizens.id FROM Citizens ORDER BY ${nullsLast("Citizens.id")} LIMIT ? OFFSET ?"
+            }
+
+            val row = query.execute().single()
+            assertEquals("andrey", row[Citizens.id])
+            assertEquals("Andrey", row[Citizens.name])
+        }
+    }
+
     @Test fun selectFromWhereIn() {
         withCities {
             val query = select(Citizens.name, Citizens.id)
@@ -61,20 +95,21 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
-    @Ignore @Test fun selectFromAliasWhere() {
+    @Test fun selectFromAliasWhere() {
         withCities {
             val eugene = literal("eugene")
-            val query = from(Citizens.alias("C"))
-                    .where { Citizens.id eq eugene }
-                    .select(Citizens.name, Citizens.id)
+            val c = Citizens.alias("C")
+            val query = from(c)
+                    .where { Citizens.id(c) eq eugene }
+                    .select(Citizens.name(c), Citizens.id(c))
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT C.name, C.id FROM Citizens as C WHERE C.id = ?"
+                "SELECT C.name, C.id FROM Citizens AS C WHERE C.id = ?"
             }
 
             val row = query.execute().single()
-            assertEquals("eugene", row[Citizens.id])
-            assertEquals("Eugene", row[Citizens.name])
+            assertEquals("eugene", row[Citizens.id(c)])
+            assertEquals("Eugene", row[Citizens.name(c)])
         }
     }
 

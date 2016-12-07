@@ -14,11 +14,11 @@ class TransactionReferenceMM<TReference>(override val from: TransactionNode<*>,
     override fun resolveStubs(process: TransactionProcess, fromStubs: List<GraphStub<TransactionProcess, *, *>>) {
         val ids = fromStubs.map { it.id }.toSet()
         if (ids.isNotEmpty()) {
-            val rows = from(toColumn.reference.table)
-                    .innerJoin(toColumn.table) {
+            val rows = from(toColumn.reference.compound)
+                    .innerJoin(toColumn.compound) {
                         (toColumn.reference eq toColumn) and (fromColumn within ids)
                     }
-                    .select(toColumn.reference.table)
+                    .select(toColumn.reference.compound)
                     .select(fromColumn)
                     .executeOn(process.transaction)
 

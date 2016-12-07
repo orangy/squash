@@ -1,5 +1,6 @@
 package org.jetbrains.squash.connection
 
+import kotlinx.support.jdk7.*
 import org.jetbrains.squash.dialect.*
 
 /**
@@ -22,3 +23,4 @@ interface DatabaseConnection : AutoCloseable {
     fun createTransaction(): Transaction
 }
 
+fun <T> DatabaseConnection.transaction(body: Transaction.() -> T): T = createTransaction().use { it.body() }

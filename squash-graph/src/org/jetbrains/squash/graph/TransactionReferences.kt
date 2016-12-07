@@ -24,7 +24,7 @@ inline fun <T : Any, reified TProperty, TReference> TransactionBindingsNode<*>.r
 
 inline fun <T : Any, reified TProperty, TReference> TransactionBindingsNode<*>.references(property: KProperty1<T, List<TProperty>>,
                                                                               parentColumn: ReferenceColumn<TReference>) {
-    val targetColumn = parentColumn.table.constraints.primaryKey!!.columns.single()
+    val targetColumn = parentColumn.compound.constraints.primaryKey!!.columns.single()
     val propertyType = TProperty::class
     val toNode = bindings.bind(propertyType, targetColumn)
     val reference = TransactionReference1M(this, toNode, parentColumn, property.name)

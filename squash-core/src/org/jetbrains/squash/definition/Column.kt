@@ -1,5 +1,7 @@
 package org.jetbrains.squash.definition
 
+import org.jetbrains.squash.query.*
+
 /**
  * Represents a column in a database [Table]
  *
@@ -9,37 +11,35 @@ package org.jetbrains.squash.definition
  */
 interface Column<out V> : NamedExpression<Name, V> {
     /**
-     * [Table] to which this column belongs
+     * [CompoundElement] to which this column belongs
      */
-    val table: Table
+    val compound: CompoundElement
 
     /**
      * Database type of the column
      */
     val type: ColumnType
+
+    /**
+     * List of additional properties of the column, like autoincrement, nullable, etc
+     */
+    val properties: List<ColumnProperty>
 }
 
-data class DataColumn<out V>(override val table: Table, override val name: Name, override val type: ColumnType) : Column<V> {
+inline fun <reified T : ColumnProperty> Column<*>.hasProperty(): Boolean {
+    return properties.any { it is T }
+}
+
+inline fun <reified T : ColumnProperty> Column<*>.propertyOrNull(): T? {
+    return properties.filterIsInstance<T>().singleOrNull()
+}
+
+open class ColumnDefinition<out V>(final override val compound: TableDefinition, name: Identifier, override val type: ColumnType) : Column<V> {
     override fun toString(): String = "$name: $type"
+    override val properties = mutableListOf<ColumnProperty>()
+    override val name = QualifiedIdentifier<Name>(compound.compoundName, name)
 }
 
-class NullableColumn<out V, out TColumn : Column<V>>(val column: TColumn) : Column<V?> {
-    override val table: Table get() = column.table
-    override val type: ColumnType = NullableColumnType(column.type)
-    override val name: Name get() = column.name
-
-    override fun toString(): String = "$column?"
-}
-
-class ReferenceColumn<out V>(override val table: Table, override val name: Name, val reference: Column<V>) : Column<V> {
-    override val type: ColumnType = ReferenceColumnType(reference.type)
+class ReferenceColumn<out V>(compound: TableDefinition, name: Identifier, val reference: Column<V>) : ColumnDefinition<V>(compound, name, ReferenceColumnType(reference.type)) {
     override fun toString(): String = "&$reference"
-}
-
-class DefaultValueColumn<out V>(val column: Column<V>, val value: V) : Column<V> by column {
-    override fun toString(): String = "$column = $value"
-}
-
-class AutoIncrementColumn<out V>(val column: Column<V>) : Column<V> by column {
-    override fun toString(): String = "$column++"
 }

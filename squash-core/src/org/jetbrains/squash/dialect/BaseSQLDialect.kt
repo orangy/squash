@@ -40,7 +40,13 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     open fun <T> appendDeclarationExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit = with(builder) {
         when (expression) {
             is AllTableColumnsExpression -> {
-                append(nameSQL(expression.table.tableName))
+                val element = expression.element
+                val name = when (element) {
+                    is Table -> nameSQL(element.compoundName)
+                    is AliasCompoundElement -> nameSQL(element.label)
+                    else -> error("Expression '$element' is not supported by ${this@BaseSQLDialect}")
+                }
+                append(name)
                 append(".*")
             }
             is AliasExpression<T> -> {
@@ -190,6 +196,28 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
     }
 
+    open fun appendModifiersSQL(builder: SQLStatementBuilder, query: Query) {
+        if (query.modifiers.isEmpty())
+            return
+        query.modifiers.forEach {
+            appendModifierSQL(builder, it)
+        }
+    }
+
+    open fun appendModifierSQL(builder: SQLStatementBuilder, modifier: QueryModifier) {
+        when (modifier) {
+            is QueryLimit -> {
+                builder.append(" LIMIT ?")
+                builder.appendArgument(modifier.limit)
+                if (modifier.offset != 0L) {
+                    builder.append(" OFFSET ?")
+                    builder.appendArgument(modifier.offset)
+                }
+            }
+            else -> error("Query modifier $modifier is not supported by ${this@BaseSQLDialect}")
+        }
+    }
+
     open fun appendGroupingSQL(builder: SQLStatementBuilder, query: Query) {
         if (query.grouping.isEmpty())
             return
@@ -274,11 +302,12 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         appendGroupingSQL(builder, query)
         appendHavingSQL(builder, query)
         appendOrderSQL(builder, query)
+        appendModifiersSQL(builder, query)
     }
 
     override fun appendCompoundElementSQL(builder: SQLStatementBuilder, element: CompoundElement): Unit = with(builder) {
         when (element) {
-            is Table -> builder.append(nameSQL(element.tableName))
+            is Table -> builder.append(nameSQL(element.compoundName))
             is AliasCompoundElement -> {
                 appendCompoundElementSQL(this, element.element)
                 builder.append(" AS " + nameSQL(element.label))
@@ -307,7 +336,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("UPDATE ")
-        append(nameSQL(statement.table.tableName))
+        append(nameSQL(statement.table.compoundName))
         append(" SET ")
         val values = statement.values.toList() // fix order
         values.forEachIndexed { index, value ->
@@ -323,21 +352,21 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
 
     open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("DELETE FROM ")
-        append(nameSQL(statement.table.tableName))
+        append(nameSQL(statement.table.compoundName))
         append(" ")
         appendQuerySQL(this, statement)
     }.build()
 
     open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
         append("INSERT INTO ")
-        append(nameSQL(statement.table.tableName))
+        append(nameSQL(statement.table.compoundName))
         append(" ")
         appendSelectSQL(this, statement)
     }.build()
 
     open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLStatementBuilder().apply {
         append("INSERT INTO ")
-        append(nameSQL(statement.table.tableName))
+        append(nameSQL(statement.table.compoundName))
         append(" (")
         val values = statement.values.entries.toList() // fix order
         values.forEachIndexed { index, value ->
@@ -353,11 +382,6 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
         append(")")
     }.build()
-
-    enum class ColumnProperty {
-        NULLABLE, AUTOINCREMENT, DEFAULT
-    }
-
 
     override fun toString(): String = "SQLDialect '$name'"
 }

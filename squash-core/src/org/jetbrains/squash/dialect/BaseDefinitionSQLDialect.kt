@@ -6,10 +6,10 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
 
     override fun tableSQL(table: TableDefinition): List<SQLStatement> {
         val tableSQL = SQLStatementBuilder().apply {
-            append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.tableName)}")
-            if (table.tableColumns.any()) {
+            append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.compoundName)}")
+            if (table.compoundColumns.any()) {
                 append(" (")
-                table.tableColumns.forEachIndexed { index, column ->
+                table.compoundColumns.forEachIndexed { index, column ->
                     if (index > 0)
                         append(", ")
                     columnDefinitionSQL(this, column)
@@ -27,7 +27,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             table.constraints.elements.filterIsInstance<IndexConstraint>().map {
                 SQLStatementBuilder().apply {
                     val unique = if (it.unique) " UNIQUE" else ""
-                    append("CREATE$unique INDEX IF NOT EXISTS ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.tableName)} (")
+                    append("CREATE$unique INDEX IF NOT EXISTS ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.compoundName)} (")
                     it.columns.forEachIndexed { index, column ->
                         if (index > 0)
                             append(", ")
@@ -45,9 +45,9 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     }
 
     protected open fun createAutoPrimaryKeyConstraint(table: TableDefinition): PrimaryKeyConstraint? {
-        val autoIncrement = table.tableColumns.filterIsInstance<AutoIncrementColumn<*>>()
+        val autoIncrement = table.compoundColumns.filter { it.hasProperty<AutoIncrementProperty>() }
         if (autoIncrement.any()) {
-            val name = Identifier("PK_${dialect.nameSQL(table.tableName)}")
+            val name = Identifier("PK_${dialect.nameSQL(table.compoundName)}")
             val primaryKey = PrimaryKeyConstraint(name, autoIncrement)
             table.constraints.primaryKey = primaryKey
             return primaryKey
@@ -65,8 +65,8 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     override fun foreignKeys(table: TableDefinition): List<SQLStatement> = table.constraints.elements.filterIsInstance<ForeignKeyConstraint>()
             .map { key ->
                 SQLStatementBuilder().apply {
-                    append("ALTER TABLE ${dialect.nameSQL(table.tableName)} DROP CONSTRAINT IF EXISTS ${dialect.idSQL(key.name)};")
-                    append("ALTER TABLE ${dialect.nameSQL(table.tableName)} ADD ")
+                    append("ALTER TABLE ${dialect.nameSQL(table.compoundName)} DROP CONSTRAINT IF EXISTS ${dialect.idSQL(key.name)};")
+                    append("ALTER TABLE ${dialect.nameSQL(table.compoundName)} ADD ")
                     appendForeignKey(this, key)
                 }.build()
             }
@@ -74,8 +74,8 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     protected open fun appendForeignKey(builder: SQLStatementBuilder, key: ForeignKeyConstraint) = with(builder) {
         append("CONSTRAINT ${dialect.idSQL(key.name)} FOREIGN KEY (")
         append(key.sources.map { dialect.idSQL(it.name) }.joinToString())
-        val destinationTable = key.destinations.first().table
-        append(") REFERENCES ${dialect.nameSQL(destinationTable.tableName)}(")
+        val destinationTable = key.destinations.first().compound
+        append(") REFERENCES ${dialect.nameSQL(destinationTable.compoundName)}(")
         append(key.destinations.map { dialect.idSQL(it.name) }.joinToString())
         append(")")
     }
@@ -83,35 +83,20 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
     protected open fun columnDefinitionSQL(builder: SQLStatementBuilder, column: Column<*>): Unit = with(builder) {
         append(dialect.idSQL(column.name))
         append(" ")
-        columnTypeSQL(this, column, emptySet())
+        columnTypeSQL(this, column)
+        columnPropertiesSQL(this, column)
     }
 
-    protected open fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>, properties: Set<BaseSQLDialect.ColumnProperty>): Unit = with(builder) {
+    protected open fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>): Unit = with(builder) {
         when (column) {
-            is DataColumn -> {
-                columnTypeSQL(this, column.type, properties)
-            }
-
             is ReferenceColumn -> {
-                columnTypeSQL(this, column.reference.type, properties)
+                columnTypeSQL(this, column.reference.type)
             }
 
-            is NullableColumn<*, *> -> {
-                require(BaseSQLDialect.ColumnProperty.AUTOINCREMENT !in properties) { "Column ${column.name} cannot be both AUTOINCREMENT and NULL" }
-                columnTypeSQL(this, column.column, properties + BaseSQLDialect.ColumnProperty.NULLABLE)
+            is ColumnDefinition -> {
+                columnTypeSQL(this, column.type)
             }
 
-            is AutoIncrementColumn -> {
-                require(BaseSQLDialect.ColumnProperty.NULLABLE !in properties) { "Column ${column.name} cannot be both AUTOINCREMENT and NULL" }
-                columnTypeSQL(this, column.column, properties + BaseSQLDialect.ColumnProperty.AUTOINCREMENT).toString()
-                append(" AUTO_INCREMENT")
-            }
-
-            is DefaultValueColumn<*> -> {
-                columnTypeSQL(this, column.column, properties + BaseSQLDialect.ColumnProperty.DEFAULT).toString()
-                append(" DEFAULT ")
-                dialect.appendLiteralSQL(builder, column.value)
-            }
             is DialectExtension -> {
                 column.appendTo(this, dialect)
             }
@@ -119,12 +104,31 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
         }
     }
 
-    protected open fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType, properties: Set<BaseSQLDialect.ColumnProperty>): Unit = with(builder) {
-        columnTypeSQL(builder, type)
-        if (BaseSQLDialect.ColumnProperty.NULLABLE in properties) {
-            append(" NULL")
-        } else {
-            append(" NOT NULL")
+    protected open fun columnPropertiesSQL(builder: SQLStatementBuilder, column: Column<*>): Unit = with(builder) {
+        require(!column.hasProperty<NullableProperty>() || !column.hasProperty<AutoIncrementProperty>()) {
+            "Column ${column.name} cannot be both AUTOINCREMENT and NULL"
+        }
+        columnNullableProperty(builder, column.propertyOrNull<NullableProperty>())
+        columnAutoIncrementProperty(builder, column.propertyOrNull<AutoIncrementProperty>())
+        columnDefaultProperty(builder, column.propertyOrNull<DefaultValueProperty<*>>())
+    }
+
+    open fun columnNullableProperty(builder: SQLStatementBuilder, property: NullableProperty?) {
+        if (property != null)
+            builder.append(" NULL")
+        else
+            builder.append(" NOT NULL")
+    }
+
+    open fun columnAutoIncrementProperty(builder: SQLStatementBuilder, property: AutoIncrementProperty?) {
+        if (property != null)
+            builder.append(" AUTO_INCREMENT")
+    }
+
+    open fun columnDefaultProperty(builder: SQLStatementBuilder, property: DefaultValueProperty<*>?) {
+        if (property != null) {
+            builder.append(" DEFAULT ")
+            dialect.appendLiteralSQL(builder, property.value)
         }
     }
 

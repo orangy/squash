@@ -23,7 +23,7 @@ abstract class DatabaseSchemaBase(open val transaction: Transaction) : DatabaseS
 
         val existingTables = tables().toList()
         for (table in tables) {
-            if (existingTables.any { it.name == table.tableName.id })
+            if (existingTables.any { it.name == table.compoundName.id })
                 continue
 
             val tableDefinition = definition.tableSQL(table)
@@ -36,7 +36,7 @@ abstract class DatabaseSchemaBase(open val transaction: Transaction) : DatabaseS
     }
 
     override fun validate(tables: List<Table>): List<DatabaseSchema.DatabaseSchemaValidationItem> {
-        val tableMap = tables.associateBy { it.tableName.id.toLowerCase() }
+        val tableMap = tables.associateBy { it.compoundName.id.toLowerCase() }
         val validationResult = mutableListOf<DatabaseSchema.DatabaseSchemaValidationItem>()
         transaction.databaseSchema().tables().forEach { tableSchema ->
             val tableDefinition = tableMap[tableSchema.name.toLowerCase()]
@@ -44,7 +44,7 @@ abstract class DatabaseSchemaBase(open val transaction: Transaction) : DatabaseS
                 validationResult.add(DatabaseSchema.DatabaseSchemaValidationItem("Table definition not found for schema table '$tableSchema"))
             else {
                 val columnsSchema = tableSchema.columns().associateBy { it.name.toLowerCase() }
-                val columnsDefinition = tableDefinition.tableColumns.associateBy { it.name.id.toLowerCase() }
+                val columnsDefinition = tableDefinition.compoundColumns.associateBy { it.name.id.toLowerCase() }
                 val allNames = columnsDefinition.keys + columnsSchema.keys
                 for (name in allNames) {
                     val columnSchema = columnsSchema[name]

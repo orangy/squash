@@ -13,6 +13,7 @@ open class QueryBuilder : Query {
     override val order = mutableListOf<QueryOrder>()
     override val grouping = mutableListOf<Expression<*>>()
     override val having = mutableListOf<Expression<Boolean>>()
+    override val modifiers = mutableListOf<QueryModifier>()
 }
 
 fun QueryStatement.copy(): QueryStatement = QueryStatement().apply {
@@ -47,10 +48,10 @@ fun <Q : QueryBuilder> Q.select(vararg expression: Expression<*>): Q = apply {
 }
 
 /**
- * Adds [table] to the structure
+ * Adds [element] to the structure
  */
-fun <Q : QueryBuilder> Q.from(table: CompoundElement): Q = apply {
-    compound.add(QueryCompound.From(table))
+fun <Q : QueryBuilder> Q.from(element: CompoundElement): Q = apply {
+    compound.add(QueryCompound.From(element))
 }
 
 /**
@@ -83,4 +84,11 @@ fun <Q : QueryBuilder> Q.groupBy(vararg expression: Expression<*>): Q = apply {
  */
 fun <Q : QueryBuilder> Q.having(predicate: Expression<Boolean>): Q = apply {
     having.add(predicate)
+}
+
+/**
+ * Adds [predicate] to the Query, filtering grouped result set by only rows matching it
+ */
+fun <Q : QueryBuilder> Q.limit(limit: Long, offset: Long = 0L): Q = apply {
+    modifiers.add(QueryLimit(limit, offset))
 }

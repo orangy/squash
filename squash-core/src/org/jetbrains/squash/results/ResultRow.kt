@@ -2,6 +2,7 @@ package org.jetbrains.squash.results
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
+import org.jetbrains.squash.query.*
 import kotlin.reflect.*
 
 /**
@@ -25,10 +26,12 @@ operator inline fun <reified V> ResultRow.get(column: Column<V>): V = columnValu
 
 fun <V> ResultRow.columnValue(type: KClass<*>, column: Column<V>): V {
     val label = if (column is AliasColumn) column.label.id else column.name.id
-    return columnValue(type, label, column.table.tableName.id) as V
+    val compoundName = (column.compound as? NamedCompoundElement)?.compoundName?.id
+    return columnValue(type, label, compoundName) as V
 }
 
 fun <V> ResultRow.columnValue(column: Column<V>): V {
     val label = if (column is AliasColumn) column.label.id else column.name.id
-    return columnValue(column.type.runtimeType, label, column.table.tableName.id) as V
+    val compoundName = (column.compound as? NamedCompoundElement)?.compoundName?.id
+    return columnValue(column.type.runtimeType, label, compoundName) as V
 }

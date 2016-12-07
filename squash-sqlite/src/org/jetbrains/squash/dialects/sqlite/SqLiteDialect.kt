@@ -6,34 +6,28 @@ import org.jetbrains.squash.query.*
 
 object SqLiteDialect : BaseSQLDialect("SQLite") {
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
-        override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>, properties: Set<ColumnProperty>) {
-            when (column) {
-                is AutoIncrementColumn -> {
-                    require(column.column.type is IntColumnType || column.column.type is LongColumnType) {
-                        "Autoincrement column for '${column.column.type}' is not supported by $this"
-                    }
-                    require(BaseSQLDialect.ColumnProperty.NULLABLE !in properties) { "Column ${column.name} cannot be both AUTOINCREMENT and NULL" }
-                    //columnTypeSQL(builder, column.column, properties + BaseSQLDialect.ColumnProperty.AUTOINCREMENT).toString()
-                    builder.append("INTEGER NOT NULL PRIMARY KEY")
+        override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>) {
+            if (column.hasProperty<AutoIncrementProperty>()) {
+                require(column.type is IntColumnType || column.type is LongColumnType) {
+                    "AutoIncrement column for '${column.type}' is not supported by $this"
                 }
-                else -> super.columnTypeSQL(builder, column, properties)
-            }
+                require(!column.hasProperty<NullableProperty>()) { "Column ${column.name} cannot be both AUTOINCREMENT and NULL" }
+                builder.append("INTEGER PRIMARY KEY")
+            } else super.columnTypeSQL(builder, column)
+        }
+
+        override fun columnAutoIncrementProperty(builder: SQLStatementBuilder, property: AutoIncrementProperty?) {
+            // do nothing, we already handled AutoIncrementProperty as SERIAL
         }
 
         override fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, key: PrimaryKeyConstraint, table: Table): SQLStatementBuilder {
-            if (key.columns.all { it is AutoIncrementColumn }) // ignore PK from autoincrement columns
+            if (key.columns.all { it.hasProperty<AutoIncrementProperty>() }) // ignore PK from autoincrement columns
                 return builder
             return super.primaryKeyDefinitionSQL(builder, key, table)
         }
 
         override fun foreignKeys(table: TableDefinition): List<SQLStatement> {
             return listOf() // SqLite doesn't support FK in ALTER statement
-        }
-
-        override fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType) {
-            when (type) {
-                else -> super.columnTypeSQL(builder, type)
-            }
         }
     }
 

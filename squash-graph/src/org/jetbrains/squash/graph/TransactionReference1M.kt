@@ -13,7 +13,7 @@ class TransactionReference1M<TReference>(override val from: TransactionNode<*>,
     override fun resolveStubs(process: TransactionProcess, fromStubs: List<GraphStub<TransactionProcess, *, *>>) {
         val ids = fromStubs.map { it.id }.toSet()
         if (ids.isNotEmpty()) {
-            val rows = from(parentColumn.table)
+            val rows = from(parentColumn.compound)
                     .where { parentColumn within ids }
                     .executeOn(process.transaction)
 

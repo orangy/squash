@@ -17,10 +17,10 @@ abstract class GraphTests : DatabaseTests {
         val citizenBinding = bindings {
             import<City>(cityBinding)
             extend<City, InhabitedCity> {
-                references(InhabitedCity::citizens, Citizens.cityId.column)
+                references(InhabitedCity::citizens, Citizens.cityId)
             }
             bind<Citizen>(Citizens.id) {
-                reference(Citizen::city, Citizens.cityId.column)
+                reference(Citizen::city, Citizens.cityId)
                 references(Citizen::data, CitizenDataLink.citizen_id, CitizenDataLink.citizendata_id)
             }
         }
@@ -59,10 +59,10 @@ abstract class GraphTests : DatabaseTests {
     @Test fun cyclicBinding() {
         val bindings = bindings {
             bind<InhabitedCity>(Cities.id) {
-                references(InhabitedCity::citizens, Citizens.cityId.column)
+                references(InhabitedCity::citizens, Citizens.cityId)
             }
             bind<Citizen>(Citizens.id) {
-                reference(Citizen::city, Citizens.cityId.column)
+                reference(Citizen::city, Citizens.cityId)
                 references(Citizen::data, CitizenDataLink.citizen_id, CitizenDataLink.citizendata_id)
             }
         }
@@ -120,7 +120,7 @@ abstract class GraphTests : DatabaseTests {
 
             val query = from(Cities)
             val binding = query.bind<InhabitedCity>(Cities) {
-                references(InhabitedCity::citizens, Citizens.cityId.column)
+                references(InhabitedCity::citizens, Citizens.cityId)
             }
 
             binding.execute().toList()
@@ -156,7 +156,7 @@ abstract class GraphTests : DatabaseTests {
                     .where { Citizens.cityId neq (null as Int?) }
 
             val binding = query.bind<Citizen>(Citizens) {
-                reference(Citizen::city, Citizens.cityId.column)
+                reference(Citizen::city, Citizens.cityId)
             }
 
             binding.execute().toList()
@@ -212,8 +212,8 @@ abstract class GraphTests : DatabaseTests {
 
             val query = from(HierarchyTable).orderBy { HierarchyTable.name }
             val binding = query.bind<Hierarchy>(HierarchyTable) {
-                reference(Hierarchy::parent, HierarchyTable.parent_id.column)
-                references(Hierarchy::children, HierarchyTable.parent_id.column)
+                reference(Hierarchy::parent, HierarchyTable.parent_id)
+                references(Hierarchy::children, HierarchyTable.parent_id)
             }
 
             binding.execute().toList()
@@ -261,8 +261,8 @@ abstract class GraphTests : DatabaseTests {
 
             val query = from(HierarchyTable).orderBy { HierarchyTable.name }.where { HierarchyTable.name like "%1" }
             val binding = query.bind<Hierarchy>(HierarchyTable) {
-                reference(Hierarchy::parent, HierarchyTable.parent_id.column)
-                references(Hierarchy::children, HierarchyTable.parent_id.column)
+                reference(Hierarchy::parent, HierarchyTable.parent_id)
+                references(Hierarchy::children, HierarchyTable.parent_id)
             }
 
             binding.execute().toList()

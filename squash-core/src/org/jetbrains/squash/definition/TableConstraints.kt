@@ -16,15 +16,15 @@ interface TableConstraint {
     val name: Name
 }
 
-class PrimaryKeyConstraint(override val name: Name, val columns: List<Column<*>>) : TableConstraint {
+class PrimaryKeyConstraint(override val name: Name, val columns: List<ColumnDefinition<*>>) : TableConstraint {
     override fun toString(): String = "[PK] $columns"
 }
 
-class ForeignKeyConstraint(override val name: Name, val sources: List<Column<*>>, val destinations: List<Column<*>>) : TableConstraint {
+class ForeignKeyConstraint(override val name: Name, val sources: List<ColumnDefinition<*>>, val destinations: List<ColumnDefinition<*>>) : TableConstraint {
     override fun toString(): String = "[FK] $sources -> $destinations"
 }
 
-class IndexConstraint(override val name: Name, val columns: List<Column<*>>, val unique: Boolean) : TableConstraint {
+class IndexConstraint(override val name: Name, val columns: List<ColumnDefinition<*>>, val unique: Boolean) : TableConstraint {
     override fun toString(): String = if (unique) "[UIX] $columns" else "[IX] $columns"
 }
 

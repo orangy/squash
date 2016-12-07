@@ -26,3 +26,5 @@ interface DatabaseSchema {
         val nullable: Boolean
     }
 }
+
+fun DatabaseSchema.create(vararg tables: TableDefinition) = create(tables.asList())

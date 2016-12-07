@@ -14,7 +14,7 @@ open class InsertValuesStatement<T : Table, R>(val table: T) : Statement<R> {
         if (values.containsKey(column)) {
             error("$column is already initialized")
         }
-        if (column !is NullableColumn<*, *> && value == null) {
+        if (column.properties.all { it !is NullableProperty } && value == null) {
             error("Trying to set null to not nullable column $column")
         }
         values[column] = value

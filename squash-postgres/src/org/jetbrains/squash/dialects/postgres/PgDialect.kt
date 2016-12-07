@@ -5,16 +5,21 @@ import org.jetbrains.squash.dialect.*
 
 object PgDialect : BaseSQLDialect("Postgres") {
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
-        override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>, properties: Set<ColumnProperty>) {
-            when (column) {
-                is AutoIncrementColumn -> {
-                    require(column.column.type is IntColumnType || column.column.type is LongColumnType) {
-                        "Autoincrement column for '${column.column.type}' is not supported by $this"
-                    }
-                    builder.append("SERIAL")
+        override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>) {
+            if (column.hasProperty<AutoIncrementProperty>()) {
+                require(column.type is IntColumnType || column.type is LongColumnType) {
+                    "AutoIncrement column for '${column.type}' is not supported by $this"
                 }
-                else -> super.columnTypeSQL(builder, column, properties)
-            }
+                builder.append("SERIAL")
+            } else super.columnTypeSQL(builder, column)
+        }
+
+        override fun columnAutoIncrementProperty(builder: SQLStatementBuilder, property: AutoIncrementProperty?) {
+            // do nothing, we already handled AutoIncrementProperty as SERIAL
+        }
+
+        override fun columnPropertiesSQL(builder: SQLStatementBuilder, column: Column<*>) {
+            super.columnPropertiesSQL(builder, column)
         }
 
         override fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType) {

@@ -9,4 +9,5 @@ interface Query {
     val order: List<QueryOrder>
     val grouping: List<Expression<*>>
     val having: List<Expression<Boolean>>
+    val modifiers : List<QueryModifier>
 }

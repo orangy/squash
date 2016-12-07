@@ -20,7 +20,7 @@ open class DeleteQueryStatement<T : Table>(val table: T) : QueryBuilder(), State
         if (values.containsKey(column)) {
             error("$column is already initialized")
         }
-        if (column !is NullableColumn<*, *> && value == null) {
+        if (column.properties.all { it !is NullableProperty } && value == null) {
             error("Trying to set null to not nullable column $column")
         }
         values[column] = literal(value)

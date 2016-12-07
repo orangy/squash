@@ -31,4 +31,4 @@ class SubQueryExpression<out V>(val query: Query) : Expression<V>
 
 class LikeExpression(left: Expression<String>, right: LiteralExpression<String>) : BinaryExpression<String, String, Boolean>(left, right)
 class InExpression<out V>(val value: Expression<V>, val values: Collection<V>) : Expression<Boolean>
-class AllTableColumnsExpression(val table: Table) : Expression<Unit>
+class AllTableColumnsExpression(val element: CompoundElement) : Expression<Unit>

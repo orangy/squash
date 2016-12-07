@@ -7,7 +7,7 @@ import org.jetbrains.squash.tests.*
 val pg = EmbeddedPostgres.builder().start()
 
 class PgDatabaseTests : DatabaseTests {
-    override val idColumnType: String get() = "SERIAL"
+    override val idColumnType: String get() = "SERIAL NOT NULL"
     override fun primaryKey(table: String, column: String): String = ", CONSTRAINT PK_$table PRIMARY KEY ($column)"
     override fun autoPrimaryKey(table: String, column: String): String = primaryKey(table, column)
 
