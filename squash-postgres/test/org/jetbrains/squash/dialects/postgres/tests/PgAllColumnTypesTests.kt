@@ -1,11 +1,12 @@
 package org.jetbrains.squash.dialects.postgres.tests
 
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.tests.*
 
 class PgAllColumnTypesTests : AllColumnTypesTests(), DatabaseTests by PgDatabaseTests() {
     override val allColumnsTableSQL: String
         get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +
-                "id $idColumnType, " +
+                "id ${getIdColumnType(IntColumnType)}, " +
                 "\"varchar\" VARCHAR(42) NOT NULL, " +
                 "\"char\" CHAR NOT NULL, " +
                 "enum INT NOT NULL, " +
@@ -16,6 +17,7 @@ class PgAllColumnTypesTests : AllColumnTypesTests(), DatabaseTests by PgDatabase
                 "datetime TIMESTAMP NOT NULL, " +
                 "text TEXT NOT NULL, " +
                 "\"binary\" BYTEA NOT NULL, " +
+                "\"blob\" BYTEA NOT NULL, " +
                 "uuid UUID NOT NULL, " +
                 "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (\"varchar\"))"
 }

@@ -20,5 +20,6 @@ object AllColumnTypes : TableDefinition() {
     val datetime = datetime("datetime")
     val text = text("text")
     val binary = binary("binary", 128)
+    val blob = blob("blob")
     val uuid = uuid("uuid")
 }

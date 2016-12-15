@@ -7,8 +7,9 @@ import org.jetbrains.squash.dialect.*
 import kotlin.test.*
 
 interface DatabaseTests {
-    val idColumnType: String
-    fun primaryKey(table: String, column: String): String
+    val blobType : String
+    fun getIdColumnType(columnType: ColumnType): String
+    fun primaryKey(name: String, vararg column: String): String
     fun autoPrimaryKey(table: String, column: String): String
 
     fun createConnection(): DatabaseConnection

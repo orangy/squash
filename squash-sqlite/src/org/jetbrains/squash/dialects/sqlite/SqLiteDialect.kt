@@ -8,16 +8,19 @@ object SqLiteDialect : BaseSQLDialect("SQLite") {
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
         override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>) {
             if (column.hasProperty<AutoIncrementProperty>()) {
-                require(column.type is IntColumnType || column.type is LongColumnType) {
-                    "AutoIncrement column for '${column.type}' is not supported by $this"
-                }
                 require(!column.hasProperty<NullableProperty>()) { "Column ${column.name} cannot be both AUTOINCREMENT and NULL" }
-                builder.append("INTEGER PRIMARY KEY")
+                val type = column.type
+                val autoincrement = when (type) {
+                    is IntColumnType -> "INTEGER"
+                    is LongColumnType -> "INTEGER" // it's always RowID anyway
+                    else -> error("AutoIncrement column for '$type' is not supported by $this")
+                }
+                builder.append("$autoincrement PRIMARY KEY")
             } else super.columnTypeSQL(builder, column)
         }
 
         override fun columnAutoIncrementProperty(builder: SQLStatementBuilder, property: AutoIncrementProperty?) {
-            // do nothing, we already handled AutoIncrementProperty as SERIAL
+            // do nothing, we already handled AutoIncrementProperty as automatic rowid mapping
         }
 
         override fun primaryKeyDefinitionSQL(builder: SQLStatementBuilder, key: PrimaryKeyConstraint, table: Table): SQLStatementBuilder {

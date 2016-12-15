@@ -8,7 +8,6 @@ import org.jetbrains.squash.tests.*
 
 fun <R> DatabaseTests.withCities(statement: Transaction.() -> R) :R {
     return withTables(Cities, CitizenData, Citizens, CitizenDataLink) {
-
         val spbId = insertInto(Cities).values {
             it[name] = "St. Petersburg"
         }.fetch(Cities.id).execute()

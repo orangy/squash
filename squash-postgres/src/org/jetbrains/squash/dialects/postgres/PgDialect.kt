@@ -7,10 +7,14 @@ object PgDialect : BaseSQLDialect("Postgres") {
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
         override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>) {
             if (column.hasProperty<AutoIncrementProperty>()) {
-                require(column.type is IntColumnType || column.type is LongColumnType) {
-                    "AutoIncrement column for '${column.type}' is not supported by $this"
+                require(!column.hasProperty<NullableProperty>()) { "Column ${column.name} cannot be both AUTOINCREMENT and NULL" }
+                val type = column.type
+                val autoincrement = when (type) {
+                    is IntColumnType -> "SERIAL"
+                    is LongColumnType -> "BIGSERIAL"
+                    else -> error("AutoIncrement column for '$type' is not supported by $this")
                 }
-                builder.append("SERIAL")
+                builder.append(autoincrement)
             } else super.columnTypeSQL(builder, column)
         }
 

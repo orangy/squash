@@ -1,5 +1,6 @@
 package org.jetbrains.squash.tests
 
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.tests.data.*
 import org.junit.*
 import kotlin.test.*
@@ -16,7 +17,7 @@ abstract class SchemaTests : DatabaseTests {
     @Test
     fun singleTableSchema() {
         withTransaction {
-            executeStatement("CREATE TABLE TEST(ID $idColumnType, NAME VARCHAR(255))")
+            executeStatement("CREATE TABLE TEST(ID ${getIdColumnType(IntColumnType)}, NAME VARCHAR(255))")
             executeStatement("INSERT INTO TEST (NAME) VALUES ('test')")
 
             val schema = databaseSchema()
@@ -35,11 +36,24 @@ abstract class SchemaTests : DatabaseTests {
     fun citiesDDL() {
         withCities {
             connection.dialect.definition.tableSQL(Cities).assertSQL {
-                "CREATE TABLE IF NOT EXISTS Cities (id $idColumnType, name VARCHAR(50) NOT NULL${autoPrimaryKey("Cities", "id")})"
+                "CREATE TABLE IF NOT EXISTS Cities " +
+                        "(id ${getIdColumnType(IntColumnType)}, name VARCHAR(50) NOT NULL" +
+                        "${autoPrimaryKey("Cities", "id")})"
             }
             connection.dialect.definition.tableSQL(Citizens).assertSQL {
-                "CREATE TABLE IF NOT EXISTS Citizens (id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL" +
+                "CREATE TABLE IF NOT EXISTS Citizens " +
+                        "(id VARCHAR(10) NOT NULL, name VARCHAR(50) NOT NULL, city_id INT NULL" +
                         "${primaryKey("Citizens", "id")})"
+            }
+            connection.dialect.definition.tableSQL(CitizenData).assertSQL {
+                "CREATE TABLE IF NOT EXISTS CitizenData " +
+                        "(id ${getIdColumnType(LongColumnType)}, comment VARCHAR(30) NOT NULL, \"value\" INT NOT NULL, image $blobType NULL" +
+                        "${autoPrimaryKey("CitizenData", "id")})"
+            }
+            connection.dialect.definition.tableSQL(CitizenDataLink).assertSQL {
+                "CREATE TABLE IF NOT EXISTS CitizenDataLink " +
+                        "(Citizens_id VARCHAR(10) NOT NULL, CitizenData_id BIGINT NOT NULL" +
+                        "${primaryKey("CitizenDataLink_Citizens_id_CitizenData_id", "Citizens_id", "CitizenData_id")})"
             }
         }
     }

@@ -1,6 +1,7 @@
 package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.connection.*
+import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
@@ -14,7 +15,7 @@ import kotlin.test.*
 @Suppress("unused")
 abstract class AllColumnTypesTests : DatabaseTests {
     protected open val allColumnsTableSQL: String get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +
-            "id $idColumnType, " +
+            "id ${getIdColumnType(IntColumnType)}, " +
             "\"varchar\" VARCHAR(42) NOT NULL, " +
             "\"char\" CHAR NOT NULL, " +
             "enum INT NOT NULL, " +
@@ -25,6 +26,7 @@ abstract class AllColumnTypesTests : DatabaseTests {
             "datetime DATETIME NOT NULL, " +
             "text TEXT NOT NULL, " +
             "\"binary\" VARBINARY(128) NOT NULL, " +
+            "\"blob\" $blobType NOT NULL, " +
             "uuid UUID NOT NULL, " +
             "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (\"varchar\"))"
 
@@ -93,6 +95,7 @@ abstract class AllColumnTypesTests : DatabaseTests {
             it[datetime] = LocalDateTime.of(LocalDate.of(1976, 11, 24), LocalTime.of(8, 22))
             it[text] = "Lorem Ipsum"
             it[binary] = byteArrayOf(1, 2, 3)
+            it[blob] = BinaryObject.fromByteArray(this@insertData, byteArrayOf(1, 2, 3))
             it[uuid] = UUID.fromString("7cb64fe4-4938-4e88-8d94-17e929d40c99")
         }.execute()
     }
