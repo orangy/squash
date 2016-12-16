@@ -27,11 +27,13 @@ operator inline fun <reified V> ResultRow.get(column: Column<V>): V = columnValu
 fun <V> ResultRow.columnValue(type: KClass<*>, column: Column<V>): V {
     val label = if (column is AliasColumn) column.label.id else column.name.id
     val compoundName = (column.compound as? NamedCompoundElement)?.compoundName?.id
+    @Suppress("UNCHECKED_CAST")
     return columnValue(type, label, compoundName) as V
 }
 
 fun <V> ResultRow.columnValue(column: Column<V>): V {
     val label = if (column is AliasColumn) column.label.id else column.name.id
     val compoundName = (column.compound as? NamedCompoundElement)?.compoundName?.id
+    @Suppress("UNCHECKED_CAST")
     return columnValue(column.type.runtimeType, label, compoundName) as V
 }

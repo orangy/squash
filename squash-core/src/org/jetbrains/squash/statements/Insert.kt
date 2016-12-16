@@ -35,7 +35,8 @@ fun <T : Table> InsertStatementSeed<T>.values(body: T.(InsertValuesStatement<T, 
 }
 
 fun <T : Table, R> InsertValuesStatement<T, Unit>.fetch(column: Column<R>): InsertValuesStatement<T, R> {
-    @Suppress("CAST_NEVER_SUCCEEDS")
+    require(generatedKeyColumn == null) { "Only one fetch column is supported."}
+    @Suppress("UNCHECKED_CAST")
     return (this as InsertValuesStatement<T, R>).apply {
         generatedKeyColumn = column
     }
