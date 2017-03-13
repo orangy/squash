@@ -5,7 +5,7 @@
     <groupId>org.jetbrains.squash</groupId>
     <artifactId>squash</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.2.2</version>
 
     <properties>
         <kotlin.version>1.1.0</kotlin.version>
@@ -201,7 +201,7 @@
         <connection>scm:git:https://github.com/orangy/squash.git</connection>
         <developerConnection>scm:git:git@github.com:orangy/squash.git</developerConnection>
         <url>https://github.com/orangy/squash</url>
-        <tag>HEAD</tag>
+        <tag>squash-0.2.2</tag>
     </scm>
 
     <repositories>
