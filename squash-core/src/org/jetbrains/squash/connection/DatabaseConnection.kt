@@ -1,6 +1,5 @@
 package org.jetbrains.squash.connection
 
-import kotlinx.support.jdk7.*
 import org.jetbrains.squash.dialect.*
 
 /**
