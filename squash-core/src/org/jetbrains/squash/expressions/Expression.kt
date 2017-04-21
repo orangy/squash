@@ -1,6 +1,5 @@
 package org.jetbrains.squash.expressions
 
-import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.query.*
 
 /**

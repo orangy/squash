@@ -2,7 +2,6 @@ package org.jetbrains.squash.statements
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.query.*
-import java.util.*
 import kotlin.internal.*
 
 open class InsertStatementSeed<T : Table>(val table: T)

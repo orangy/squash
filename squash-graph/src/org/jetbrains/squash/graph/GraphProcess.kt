@@ -1,7 +1,6 @@
 package org.jetbrains.squash.graph
 
 import java.lang.reflect.*
-import java.util.*
 
 open class GraphProcess<TProcess : GraphProcess<TProcess>>() : DynamicAccessor<GraphStub<TProcess, *, *>> {
     private val queue = LinkedHashSet<GraphNode<TProcess, *, *>>()

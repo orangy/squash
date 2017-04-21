@@ -3,7 +3,6 @@ package org.jetbrains.squash.schema
 import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
-import java.util.*
 
 abstract class DatabaseSchemaBase(open val transaction: Transaction) : DatabaseSchema {
 

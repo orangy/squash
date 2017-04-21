@@ -8,7 +8,7 @@
     <version>0.2.3-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.1.0</kotlin.version>
+        <kotlin.version>1.1.1</kotlin.version>
         <dokka.version>0.9.13</dokka.version>
     </properties>
 
@@ -203,14 +203,6 @@
         <url>https://github.com/orangy/squash</url>
         <tag>HEAD</tag>
     </scm>
-
-    <repositories>
-        <repository>
-            <id>bintray-kotlin-kotlinx.support</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/kotlin/kotlinx.support</url>
-        </repository>
-    </repositories>
 
     <pluginRepositories>
         <pluginRepository>

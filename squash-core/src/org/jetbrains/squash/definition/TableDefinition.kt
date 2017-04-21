@@ -1,7 +1,5 @@
 package org.jetbrains.squash.definition
 
-import org.jetbrains.squash.query.*
-
 /**
  * Represents a definition of a table in a database
  */
