@@ -124,7 +124,7 @@ abstract class QueryTests : DatabaseTests {
                     .select { Citizens.cityId * 1 }
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT Citizens.city_id + ? AS \"first\", Citizens.city_id - ?, Citizens.city_id / ?, Citizens.city_id * ? FROM Citizens WHERE Citizens.id = ?"
+                "SELECT Citizens.city_id + ? AS ${quote}first${quote}, Citizens.city_id - ?, Citizens.city_id / ?, Citizens.city_id * ? FROM Citizens WHERE Citizens.id = ?"
             }
 
             val row = query.execute().single()
@@ -194,13 +194,13 @@ abstract class QueryTests : DatabaseTests {
                 "SELECT Citizens.name AS citizenName, Cities.name AS city FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id"
             }
 
-            val rows = query.execute().toList()
+            val rows = query.execute().toList().sortedBy { it[citizenName] }
             assertEquals(3, rows.size)
             assertEquals("Andrey", rows[0][citizenName])
             assertEquals("St. Petersburg", rows[0][cityName])
-            assertEquals("Sergey", rows[1][citizenName])
+            assertEquals("Eugene", rows[1][citizenName])
             assertEquals("Munich", rows[1][cityName])
-            assertEquals("Eugene", rows[2][citizenName])
+            assertEquals("Sergey", rows[2][citizenName])
             assertEquals("Munich", rows[2][cityName])
         }
     }
@@ -262,7 +262,7 @@ abstract class QueryTests : DatabaseTests {
                     .innerJoin(Numbers) { Map.id_ref eq Numbers.id }
 
             connection.dialect.statementSQL(query).assertSQL {
-                "SELECT * FROM \"Map\" INNER JOIN \"Names\" ON \"Map\".name_ref = \"Names\".name INNER JOIN Numbers ON \"Map\".id_ref = Numbers.id"
+                "SELECT * FROM ${quote}Map${quote} INNER JOIN ${quote}Names${quote} ON ${quote}Map${quote}.name_ref = ${quote}Names${quote}.name INNER JOIN Numbers ON ${quote}Map${quote}.id_ref = Numbers.id"
             }
 
             val rows = query.execute().toList()
@@ -280,13 +280,13 @@ abstract class QueryTests : DatabaseTests {
                 "SELECT Citizens.name AS citizenName, Cities.name AS cityName FROM Citizens INNER JOIN Cities ON Cities.id = Citizens.city_id"
             }
 
-            val rows = query.execute().toList()
+            val rows = query.execute().toList().sortedBy { it[Inhabitants.citizenName] }
             assertEquals(3, rows.size)
             assertEquals("Andrey", rows[0][Inhabitants.citizenName])
             assertEquals("St. Petersburg", rows[0][Inhabitants.cityName])
-            assertEquals("Sergey", rows[1][Inhabitants.citizenName])
+            assertEquals("Eugene", rows[1][Inhabitants.citizenName])
             assertEquals("Munich", rows[1][Inhabitants.cityName])
-            assertEquals("Eugene", rows[2][Inhabitants.citizenName])
+            assertEquals("Sergey", rows[2][Inhabitants.citizenName])
             assertEquals("Munich", rows[2][Inhabitants.cityName])
         }
     }

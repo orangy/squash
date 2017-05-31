@@ -16,19 +16,19 @@ import kotlin.test.*
 abstract class AllColumnTypesTests : DatabaseTests {
     protected open val allColumnsTableSQL: String get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +
             "id ${getIdColumnType(IntColumnType)}, " +
-            "\"varchar\" VARCHAR(42) NOT NULL, " +
-            "\"char\" CHAR NOT NULL, " +
+            "${quote}varchar${quote} VARCHAR(42) NOT NULL, " +
+            "${quote}char${quote} CHAR NOT NULL, " +
             "enum INT NOT NULL, " +
-            "\"decimal\" DECIMAL(5, 2) NOT NULL, " +
+            "${quote}decimal${quote} DECIMAL(5, 2) NOT NULL, " +
             "long BIGINT NOT NULL, " +
-            "\"date\" DATE NOT NULL, " +
+            "${quote}date${quote} DATE NOT NULL, " +
             "bool BOOLEAN NOT NULL, " +
             "datetime DATETIME NOT NULL, " +
             "text TEXT NOT NULL, " +
-            "\"binary\" VARBINARY(128) NOT NULL, " +
-            "\"blob\" $blobType NOT NULL, " +
+            "${quote}binary${quote} VARBINARY(128) NOT NULL, " +
+            "${quote}blob${quote} $blobType NOT NULL, " +
             "uuid UUID NOT NULL, " +
-            "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (\"varchar\"))"
+            "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (id))"
 
     @Test fun sql() {
         withTransaction {

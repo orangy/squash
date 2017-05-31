@@ -18,6 +18,7 @@
         <module>squash-graph</module>
 
         <module>squash-h2</module>
+        <module>squash-mysql</module>
         <module>squash-postgres</module>
         <module>squash-sqlite</module>
 

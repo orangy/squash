@@ -36,7 +36,7 @@ abstract class DefinitionTests : DatabaseTests {
 
         withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
-                "CREATE TABLE IF NOT EXISTS \"unnamedTableWithQuotesSQL\$TestTable$1\" (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT \"PK_unnamedTableWithQuotesSQL\$TestTable$1\" PRIMARY KEY (id))"
+                "CREATE TABLE IF NOT EXISTS ${quote}unnamedTableWithQuotesSQL\$TestTable$1${quote} (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT ${quote}PK_unnamedTableWithQuotesSQL\$TestTable$1${quote} PRIMARY KEY (id))"
             }
         }
     }
@@ -49,7 +49,7 @@ abstract class DefinitionTests : DatabaseTests {
 
         withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
-                "CREATE TABLE IF NOT EXISTS \"SELECT\" (\"FROM\" INT NOT NULL, \"JOIN\" VARCHAR(42) NOT NULL, CONSTRAINT PK_SELECT PRIMARY KEY (\"FROM\"))"
+                "CREATE TABLE IF NOT EXISTS ${quote}SELECT${quote} (${quote}FROM${quote} INT NOT NULL, ${quote}JOIN${quote} VARCHAR(42) NOT NULL, CONSTRAINT PK_SELECT PRIMARY KEY (${quote}FROM${quote}))"
             }
         }
     }

@@ -17,8 +17,8 @@ abstract class SchemaTests : DatabaseTests {
     @Test
     fun singleTableSchema() {
         withTransaction {
-            executeStatement("CREATE TABLE TEST(ID ${getIdColumnType(IntColumnType)}, NAME VARCHAR(255))")
-            executeStatement("INSERT INTO TEST (NAME) VALUES ('test')")
+            executeStatement("CREATE TABLE TEST(ID INT NOT NULL, NAME VARCHAR(255))")
+            executeStatement("INSERT INTO TEST (ID, NAME) VALUES (1, 'test')")
 
             val schema = databaseSchema()
             val tables = schema.tables().toList()
@@ -47,7 +47,7 @@ abstract class SchemaTests : DatabaseTests {
             }
             connection.dialect.definition.tableSQL(CitizenData).assertSQL {
                 "CREATE TABLE IF NOT EXISTS CitizenData " +
-                        "(id ${getIdColumnType(LongColumnType)}, comment VARCHAR(30) NOT NULL, \"value\" INT NOT NULL, image $blobType NULL" +
+                        "(id ${getIdColumnType(LongColumnType)}, comment VARCHAR(30) NOT NULL, ${quote}value${quote} INT NOT NULL, image $blobType NULL" +
                         "${autoPrimaryKey("CitizenData", "id")})"
             }
             connection.dialect.definition.tableSQL(CitizenDataLink).assertSQL {

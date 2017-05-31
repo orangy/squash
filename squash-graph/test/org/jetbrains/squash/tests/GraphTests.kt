@@ -133,7 +133,7 @@ abstract class GraphTests : DatabaseTests {
         }
         with(cities[1]) {
             assertEquals("Munich", name)
-            assertEquals("sergey, eugene", citizens.joinToString { it.id })
+            assertEquals("eugene, sergey", citizens.sortedBy { it.id }.joinToString { it.id })
         }
         with(cities[2]) {
             assertEquals("Prague", name)

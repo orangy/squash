@@ -9,6 +9,7 @@ import kotlin.test.*
 val pg = EmbeddedPostgres.builder().start()
 
 class PgDatabaseTests : DatabaseTests {
+    override val quote = "\""
     override val blobType = "BYTEA"
     override fun getIdColumnType(columnType: ColumnType): String = when (columnType) {
         is IntColumnType -> "SERIAL NOT NULL"

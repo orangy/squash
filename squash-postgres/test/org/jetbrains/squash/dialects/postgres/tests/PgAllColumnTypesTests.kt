@@ -19,5 +19,5 @@ class PgAllColumnTypesTests : AllColumnTypesTests(), DatabaseTests by PgDatabase
                 "\"binary\" BYTEA NOT NULL, " +
                 "\"blob\" BYTEA NOT NULL, " +
                 "uuid UUID NOT NULL, " +
-                "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (\"varchar\"))"
+                "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (id))"
 }
