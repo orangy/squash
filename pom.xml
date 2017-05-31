@@ -8,8 +8,8 @@
     <version>0.2.3-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.1.1</kotlin.version>
-        <dokka.version>0.9.13</dokka.version>
+        <kotlin.version>1.1.2</kotlin.version>
+        <dokka.version>0.9.14</dokka.version>
     </properties>
 
     <modules>
