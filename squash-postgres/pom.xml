@@ -47,10 +47,18 @@
             <version>9.4.1212</version>
         </dependency>
 
+<!--
         <dependency>
             <groupId>com.opentable.components</groupId>
             <artifactId>otj-pg-embedded</artifactId>
             <version>0.7.1</version>
+            <scope>test</scope>
+        </dependency>
+-->
+        <dependency>
+            <groupId>ru.yandex.qatools.embed</groupId>
+            <artifactId>postgresql-embedded</artifactId>
+            <version>2.2</version>
             <scope>test</scope>
         </dependency>
 

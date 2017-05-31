@@ -1,12 +1,13 @@
 package org.jetbrains.squash.dialects.postgres.tests
 
-import com.opentable.db.postgres.embedded.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialects.postgres.*
 import org.jetbrains.squash.tests.*
+import ru.yandex.qatools.embed.postgresql.*
+import java.nio.file.*
 import kotlin.test.*
 
-val pg = EmbeddedPostgres.builder().start()
+val pgUrl = EmbeddedPostgres().start(EmbeddedPostgres.cachedRuntimeConfig(Paths.get("target/pg_embedded")))
 
 class PgDatabaseTests : DatabaseTests {
     override val quote = "\""
@@ -20,7 +21,7 @@ class PgDatabaseTests : DatabaseTests {
     override fun primaryKey(name: String, vararg column: String): String = ", CONSTRAINT PK_$name PRIMARY KEY (${column.joinToString()})"
     override fun autoPrimaryKey(table: String, column: String): String = primaryKey(table, column)
 
-    override fun createConnection() = PgConnection.create("localhost:${pg.port}/", "postgres")
+    override fun createConnection() = PgConnection.create(pgUrl)
     override fun createTransaction() = createConnection().createTransaction().apply {
         executeStatement("SET search_path TO pg_temp")
     }

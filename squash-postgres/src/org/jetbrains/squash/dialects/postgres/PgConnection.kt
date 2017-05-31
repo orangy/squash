@@ -8,10 +8,15 @@ class PgConnection(connector: () -> Connection) : JDBCConnection(PgDialect, PgDa
     override fun createTransaction(): Transaction = PgTransaction(this)
 
     companion object {
-        fun create(url: String, user: String = "", password: String = ""): DatabaseConnection {
-            Class.forName("org.postgresql.Driver").newInstance()
-            val jdbcUrl = "jdbc:postgresql://$url"
+        private val driver = Class.forName("org.postgresql.Driver").newInstance()
+
+        fun create(host: String, user: String = "", password: String = ""): DatabaseConnection {
+            val jdbcUrl = "jdbc:postgresql://$host"
             return PgConnection { DriverManager.getConnection(jdbcUrl, user, password) }
+        }
+
+        fun create(url: String): DatabaseConnection {
+            return PgConnection { DriverManager.getConnection(url) }
         }
     }
 }
