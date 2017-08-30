@@ -1,3 +1,4 @@
+[![JetBrains team project](http://jb.gg/badges/team.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![Download](https://api.bintray.com/packages/kotlin/squash/squash/images/download.svg) ](https://bintray.com/kotlin/squash/squash/_latestVersion)
 [![TeamCity (simple build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/KotlinTools_Squash_Build.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_Squash_Build&branch_KotlinTools_Squash=%3Cdefault%3E&tab=buildTypeStatusDiv)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
