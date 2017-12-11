@@ -35,6 +35,7 @@ object Citizens : TableDefinition() {
 ```
 
 Insert data:
+
 ```kotlin
 insertInto(Citizens).values {
     it[id] = "eugene"
@@ -44,8 +45,9 @@ insertInto(Citizens).values {
 ```
 
 Query tables:
+
 ```kotlin
-val row = query(Citizens)
+val row = from(Citizens)
     .where { Citizens.id eq "eugene" }
     .select(Citizens.name, Citizens.id)
     .execute()
@@ -56,8 +58,9 @@ assertEquals("Eugene", row[Citizens.name])
 ```
 
 Join:
+
 ```kotlin
-query(Citizens)
+from(Citizens)
     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
     .select(Citizens.name, Cities.name)
 ```
