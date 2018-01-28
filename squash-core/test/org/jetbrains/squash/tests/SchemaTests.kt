@@ -2,7 +2,6 @@ package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.tests.data.*
-import org.junit.*
 import kotlin.test.*
 
 abstract class SchemaTests : DatabaseTests {

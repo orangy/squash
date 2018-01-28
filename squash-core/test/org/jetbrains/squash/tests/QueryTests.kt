@@ -6,7 +6,6 @@ import org.jetbrains.squash.query.*
 import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
-import org.junit.*
 import kotlin.test.*
 
 abstract class QueryTests : DatabaseTests {

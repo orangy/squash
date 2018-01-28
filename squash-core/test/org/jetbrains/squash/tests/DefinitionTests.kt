@@ -1,7 +1,6 @@
 package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.definition.*
-import org.junit.*
 import kotlin.test.*
 
 @Suppress("unused")

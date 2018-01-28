@@ -1,7 +1,6 @@
 package org.jetbrains.squash.tests
 
 import org.jetbrains.squash.graph.*
-import org.junit.*
 import java.lang.reflect.*
 import kotlin.reflect.*
 import kotlin.test.*

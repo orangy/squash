@@ -5,7 +5,6 @@ import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.graph.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.tests.data.*
-import org.junit.*
 import kotlin.test.*
 
 abstract class GraphTests : DatabaseTests {
