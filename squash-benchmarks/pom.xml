@@ -4,7 +4,7 @@
     <parent>
         <artifactId>squash</artifactId>
         <groupId>org.jetbrains.squash</groupId>
-        <version>0.2.4</version>
+        <version>0.2.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>squash-benchmarks</artifactId>
