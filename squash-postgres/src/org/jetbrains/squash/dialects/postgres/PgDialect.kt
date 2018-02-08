@@ -32,6 +32,7 @@ object PgDialect : BaseSQLDialect("Postgres") {
                 is BlobColumnType -> builder.append("BYTEA")
                 is BinaryColumnType -> builder.append("BYTEA")
                 is DateTimeColumnType -> builder.append("TIMESTAMP")
+                is OffsetDateTimeColumnType -> builder.append("TIMESTAMP WITH TIME ZONE")
                 else -> super.columnTypeSQL(builder, type)
             }
         }
