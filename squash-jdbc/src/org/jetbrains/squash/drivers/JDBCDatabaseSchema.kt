@@ -8,7 +8,7 @@ open class JDBCDatabaseSchema(final override val transaction: JDBCTransaction) :
     protected val catalogue: String? = transaction.jdbcTransaction.catalog
     protected val metadata: DatabaseMetaData = transaction.jdbcTransaction.metaData
 
-    override fun tables(): Sequence<DatabaseSchema.SchemaTable> {
+    override suspend fun tables(): Sequence<DatabaseSchema.SchemaTable> {
         val resultSet = metadata.getTables(catalogue, currentSchema(), "%", arrayOf("TABLE"))
         return JDBCResponse(transaction.connection.conversion, resultSet)
             .map { SchemaTable(it["TABLE_NAME"], this) }

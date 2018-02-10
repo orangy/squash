@@ -7,7 +7,7 @@ import kotlin.reflect.*
 
 class TransactionQueryBinding<T : Any>(val query: QueryStatement,
                                        val node: TransactionBindingsNode<*>) : TransactionExecutable<List<T>> {
-    override fun executeOn(transaction: Transaction): List<T> {
+    override suspend fun executeOn(transaction: Transaction): List<T> {
         val result = query.executeOn(transaction)
         val process = TransactionProcess(transaction)
         val stubs = node.fetchStubs(process, result) // TODO: make use of sequences

@@ -5,7 +5,7 @@ import org.jetbrains.squash.results.*
 import org.jetbrains.squash.schema.*
 
 class PgDatabaseSchema(transaction: JDBCTransaction) : JDBCDatabaseSchema(transaction) {
-    override fun tables(): Sequence<DatabaseSchema.SchemaTable> {
+    override suspend fun tables(): Sequence<DatabaseSchema.SchemaTable> {
         val schema = currentSchema()
         val tableTypes = if (schema.startsWith("pg_temp_")) arrayOf("TEMPORARY TABLE") else arrayOf("TABLE")
         val resultSet = metadata.getTables(catalogue, currentSchema(), null, tableTypes)

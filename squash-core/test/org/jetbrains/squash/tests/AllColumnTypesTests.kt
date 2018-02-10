@@ -1,5 +1,6 @@
 package org.jetbrains.squash.tests
 
+import kotlinx.coroutines.*
 import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.query.*
@@ -82,7 +83,7 @@ abstract class AllColumnTypesTests : DatabaseTests {
         }
     }
 
-    private fun Transaction.insertData() {
+    private fun Transaction.insertData() = runBlocking {
         insertInto(AllColumnTypes).values {
             it[varchar] = "varchar"
             it[char] = "c"

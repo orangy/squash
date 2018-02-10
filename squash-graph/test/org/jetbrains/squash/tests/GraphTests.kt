@@ -1,5 +1,6 @@
 package org.jetbrains.squash.tests
 
+import kotlinx.coroutines.*
 import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.graph.*
@@ -200,7 +201,7 @@ abstract class GraphTests : DatabaseTests {
         assertEquals(listOf("First comment for Eugene" to DataKind.Normal, "Second comment for Eugene" to DataKind.Extended), citizens[2].data.map(transform))
     }
 
-    @Test fun mapHierarchy() {
+    @Test fun mapHierarchy(): Unit = runBlocking {
         var queries = 0
         val items = withHierarchy {
             connection.monitor {
@@ -249,7 +250,7 @@ abstract class GraphTests : DatabaseTests {
         }
     }
 
-    @Test fun mapPartialHierarchy() {
+    @Test fun mapPartialHierarchy(): Unit = runBlocking {
         var queries = 0
         val items = withHierarchy {
             connection.monitor {

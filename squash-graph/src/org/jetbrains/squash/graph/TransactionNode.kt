@@ -10,7 +10,7 @@ import kotlin.reflect.*
 open class TransactionNode<TKey>(types: List<KClass<*>>, val identityColumn: Column<TKey>)
     : GraphNode<TransactionProcess, ResultRow, TKey>(types) {
 
-    override fun fetch(process: TransactionProcess, keys: Set<TKey>): Sequence<ResultRow> {
+    override suspend fun fetch(process: TransactionProcess, keys: Set<TKey>): Sequence<ResultRow> {
         return from(identityColumn.compound).where { identityColumn within keys }.executeOn(process.transaction)
     }
 

@@ -1,5 +1,6 @@
 package org.jetbrains.squash.benchmarks
 
+import kotlinx.coroutines.*
 import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.drivers.*
@@ -52,14 +53,14 @@ abstract class QueryBenchmark {
         connection.close()
     }
 
-    fun <R> withTransaction(body: Transaction.() -> R): R {
-        return connection.createTransaction().use {
+    fun <R> withTransaction(body: suspend Transaction.() -> R): R = runBlocking {
+        connection.createTransaction().use {
             body(it)
         }
     }
 
-    fun <R> withJDBCTransaction(body: JDBCTransaction.() -> R): R {
-        return connection.createTransaction().use {
+    fun <R> withJDBCTransaction(body: suspend JDBCTransaction.() -> R): R = runBlocking {
+        connection.createTransaction().use {
             body(it as JDBCTransaction)
         }
     }

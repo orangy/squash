@@ -1,5 +1,6 @@
 package org.jetbrains.squash.tests.data
 
+import kotlinx.coroutines.*
 import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.statements.*
@@ -17,8 +18,8 @@ interface Hierarchy {
     val children: List<Hierarchy>
 }
 
-fun <R> DatabaseTests.withHierarchy(statement: Transaction.() -> R): R {
-    return withTables(HierarchyTable) {
+fun <R> DatabaseTests.withHierarchy(statement: suspend Transaction.() -> R): R = runBlocking {
+    return@runBlocking withTables(HierarchyTable) {
         val rootId = insertInto(HierarchyTable).values {
             it[name] = "!"
         }.fetch(HierarchyTable.id).execute()

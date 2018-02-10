@@ -1,13 +1,14 @@
 package org.jetbrains.squash.tests.data
 
+import kotlinx.coroutines.*
 import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.*
 
-fun <R> DatabaseTests.withCities(statement: Transaction.() -> R) :R {
-    return withTables(Cities, CitizenData, Citizens, CitizenDataLink) {
+fun <R> DatabaseTests.withCities(statement: suspend Transaction.() -> R) :R = runBlocking {
+    return@runBlocking withTables(Cities, CitizenData, Citizens, CitizenDataLink) {
         val spbId = insertInto(Cities).values {
             it[name] = "St. Petersburg"
         }.fetch(Cities.id).execute()

@@ -7,14 +7,14 @@ import org.jetbrains.squash.dialect.*
  * Provides facilities for querying and modifying database schema
  */
 interface DatabaseSchema {
-    fun tables(): Sequence<SchemaTable>
+    suspend fun tables(): Sequence<SchemaTable>
 
-    fun create(tables: List<TableDefinition>)
-    fun createStatements(tables: List<TableDefinition>): List<SQLStatement>
+    suspend fun create(tables: List<TableDefinition>)
+    suspend fun createStatements(tables: List<TableDefinition>): List<SQLStatement>
 
     data class DatabaseSchemaValidationItem(val message: String)
 
-    fun validate(tables: List<org.jetbrains.squash.definition.Table>): List<DatabaseSchemaValidationItem>
+    suspend fun validate(tables: List<org.jetbrains.squash.definition.Table>): List<DatabaseSchemaValidationItem>
 
     interface SchemaTable {
         val name: String
@@ -27,4 +27,4 @@ interface DatabaseSchema {
     }
 }
 
-fun DatabaseSchema.create(vararg tables: TableDefinition) = create(tables.asList())
+suspend fun DatabaseSchema.create(vararg tables: TableDefinition) = create(tables.asList())

@@ -10,7 +10,7 @@ class TransactionReference1M<TReference>(override val from: TransactionNode<*>,
                                          val parentColumn: ReferenceColumn<TReference>,
                                          val referenceName: String) : GraphReference<TransactionProcess> {
 
-    override fun resolveStubs(process: TransactionProcess, fromStubs: List<GraphStub<TransactionProcess, *, *>>) {
+    override suspend fun resolveStubs(process: TransactionProcess, fromStubs: List<GraphStub<TransactionProcess, *, *>>) {
         val ids = fromStubs.map { it.id }.toSet()
         if (ids.isNotEmpty()) {
             val rows = from(parentColumn.compound)

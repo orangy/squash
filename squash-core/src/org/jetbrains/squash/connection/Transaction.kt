@@ -17,37 +17,37 @@ interface Transaction : AutoCloseable {
     /**
      * Executes [sql] on this [Transaction] and returns a [Response]
      */
-    fun executeStatement(sql: String): Response
+    suspend fun executeStatement(sql: String): Response
 
     /**
      * Executes an SQL [statement] with arguments on this [Transaction] and returns a [Response]
      */
-    fun executeStatement(statement: SQLStatement): Response
+    suspend fun executeStatement(statement: SQLStatement): Response
 
     /**
      * Commits this [Transaction]
      */
-    fun commit()
+    suspend fun commit()
 
     /**
      * Rollbacks this [Transaction]
      */
-    fun rollback()
+    suspend fun rollback()
 
     /**
      * Builds and executes structured [statement] on this [Transaction]
      */
-    fun <T> executeStatement(statement: Statement<T>): T
+    suspend fun <T> executeStatement(statement: Statement<T>): T
 
     /**
      * Executes [TransactionExecutable] on this [Transaction]
      */
-    fun <T> TransactionExecutable<T>.execute(): T = executeOn(this@Transaction)
+    suspend fun <T> TransactionExecutable<T>.execute(): T = executeOn(this@Transaction)
 
     /**
      * Fetches database schema on this [Transaction] and returns an instance of [DatabaseSchema]
      */
-    fun databaseSchema(): DatabaseSchema
+    suspend fun databaseSchema(): DatabaseSchema
 
     fun createBlob(bytes: ByteArray): BinaryObject
 }

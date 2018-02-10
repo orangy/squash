@@ -7,7 +7,7 @@ class TransactionReferenceLink<TReference>(override val from: TransactionNode<*>
                                            val linkColumn: Column<TReference>,
                                            val propertyName: String) : GraphReference<TransactionProcess> {
 
-    override fun resolveStubs(process: TransactionProcess, fromStubs: List<GraphStub<TransactionProcess, *, *>>) {
+    override suspend fun resolveStubs(process: TransactionProcess, fromStubs: List<GraphStub<TransactionProcess, *, *>>) {
         val ids = fromStubs.mapNotNull { it.dataValue(linkColumn.name.id, linkColumn.type.runtimeType.java) }
                 .toSet() as Set<TReference>
 

@@ -204,7 +204,12 @@
         <url>https://github.com/orangy/squash</url>
         <tag>HEAD</tag>
     </scm>
-    <pluginRepositories>
+    <repositories>
+        <repository>
+            <id>bintray-kotlin-kotlinx</id>
+            <url>https://kotlin.bintray.com/kotlinx</url>
+        </repository>
+    </repositories>    <pluginRepositories>
         <pluginRepository>
             <id>jcenter</id>
             <url>http://jcenter.bintray.com</url>
@@ -215,7 +220,6 @@
         </pluginRepository>
         <pluginRepository>
             <id>bintray-kotlin-dokka</id>
-            <name>bintray-kotlin-dokka</name>
             <url>https://dl.bintray.com/kotlin/dokka</url>
         </pluginRepository>
     </pluginRepositories>

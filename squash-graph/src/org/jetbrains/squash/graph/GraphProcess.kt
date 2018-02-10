@@ -18,7 +18,7 @@ open class GraphProcess<TProcess : GraphProcess<TProcess>>() : DynamicAccessor<G
 
     fun queueNode(node: GraphNode<TProcess, *, *>) = queue.add(node)
 
-    fun execute() {
+    suspend fun execute() {
         while (queue.isNotEmpty()) {
             val item = queue.first()
             queue.remove(item)

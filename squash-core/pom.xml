@@ -10,6 +10,16 @@
     <artifactId>squash-core</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-io</artifactId>
+            <version>0.1.0-beta-1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>

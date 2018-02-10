@@ -24,7 +24,7 @@ class PgDatabaseTests : DatabaseTests {
     override fun autoPrimaryKey(table: String, column: String): String = primaryKey(table, column)
 
     override fun createConnection() = PgConnection.create(pgUrl)
-    override fun createTransaction() = createConnection().createTransaction().apply {
+    override suspend fun createTransaction() = createConnection().createTransaction().apply {
         executeStatement("SET search_path TO pg_temp")
     }
 }

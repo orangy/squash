@@ -55,7 +55,7 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
         }
     }
 
-    override fun <T> executeStatement(statement: Statement<T>): T {
+    override suspend fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
         val returnColumn: Column<*>? = if (statement is InsertValuesStatement<*, *>) statement.generatedKeyColumn else null
         connection.monitor.beforeStatement(this, statementSQL)
@@ -66,7 +66,7 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
         return result
     }
 
-    override fun executeStatement(statement: SQLStatement): Response {
+    override suspend fun executeStatement(statement: SQLStatement): Response {
         try {
             val preparedStatement = jdbcTransaction.prepareStatement(statement)
             connection.monitor.beforeStatement(this, statement)
@@ -97,17 +97,17 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
         return preparedStatement
     }
 
-    override fun executeStatement(sql: String): Response = executeStatement(SQLStatement(sql, emptyList()))
+    override suspend fun executeStatement(sql: String): Response = executeStatement(SQLStatement(sql, emptyList()))
 
-    override fun commit() {
+    override suspend fun commit() {
         _jdbcTransaction?.commit()
     }
 
-    override fun rollback() {
+    override suspend fun rollback() {
         _jdbcTransaction?.rollback()
     }
 
-    override fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(this)
+    override suspend fun databaseSchema(): DatabaseSchema = JDBCDatabaseSchema(this)
 
     override fun close() {
         _jdbcTransaction?.close()

@@ -19,7 +19,7 @@ abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(types: 
     /**
      * Fetches set of [TData] instances for specified [keys] from the associated source
      */
-    protected abstract fun fetch(process: TProcess, keys: Set<TKey>): Sequence<TData>
+    protected abstract suspend fun fetch(process: TProcess, keys: Set<TKey>): Sequence<TData>
 
     /**
      * Gets identity value of [TKey] type from [data]
@@ -34,7 +34,7 @@ abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(types: 
     /**
      * Pushes stubs from the [process] to the next state
      */
-    fun execute(process: TProcess) {
+    suspend fun execute(process: TProcess) {
         val stubs = process.stubMap(this)
 
         // TODO: performance
@@ -88,7 +88,7 @@ abstract class GraphNode<TProcess : GraphProcess<TProcess>, TData, TKey>(types: 
         return stubs
     }
 
-    fun fetchReferences(process: TProcess, stubs: List<GraphStub<TProcess, TData, TKey>>) {
+    suspend fun fetchReferences(process: TProcess, stubs: List<GraphStub<TProcess, TData, TKey>>) {
         val unprocessedStubs = stubs.filter { it.state == GraphStub.State.Fetched }
         // mark as resolved to avoid repeated processing in loops
         unprocessedStubs.forEach {

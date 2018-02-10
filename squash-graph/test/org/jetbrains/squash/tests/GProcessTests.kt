@@ -1,5 +1,6 @@
 package org.jetbrains.squash.tests
 
+import kotlinx.coroutines.*
 import org.jetbrains.squash.graph.*
 import java.lang.reflect.*
 import kotlin.reflect.*
@@ -34,7 +35,7 @@ class MapProcess : GraphProcess<MapProcess>()
 
 fun MapNode(type: KClass<*>, items: Sequence<Map<String, Any?>>) = MapNode(listOf(type), items)
 class MapNode(types: List<KClass<*>>, val items: Sequence<Map<String, Any?>>) : GraphNode<MapProcess, Map<String, Any?>, Int>(types) {
-    override fun fetch(process: MapProcess, keys: Set<Int>): Sequence<Map<String, Any?>> = items.filter { it["id"] in keys }
+    override suspend fun fetch(process: MapProcess, keys: Set<Int>): Sequence<Map<String, Any?>> = items.filter { it["id"] in keys }
     override fun id(data: Map<String, Any?>): Int = data["id"] as Int
     override fun dataValue(data: Map<String, Any?>, name: String, type: Type): Any? = data[name]
 }
@@ -54,7 +55,7 @@ class GProcessTests {
             override val to = node
             override val from = node
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
+            override suspend fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.dataValue("pid", Int::class.java) }.filterNotNull().toSet()
                 if (ids.isNotEmpty()) {
                     val toStubs = to.fetchIdentities(process, ids)
@@ -69,7 +70,7 @@ class GProcessTests {
             override val to = node
             override val from = node
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
+            override suspend fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.id }.distinct()
                 if (ids.isNotEmpty()) {
                     val rows = hrows.filter { it["pid"] in ids }.asSequence()
@@ -110,7 +111,7 @@ class GProcessTests {
         }
     }
 
-    @Test fun testHierarchyFromTop() {
+    @Test fun testHierarchyFromTop(): Unit = runBlocking {
         val node = setupHierarchy()
         val process = MapProcess()
         node.fetchIdentities(process, setOf(1))
@@ -123,7 +124,7 @@ class GProcessTests {
         checkHierarchy(root)
     }
 
-    @Test fun testHierarchyFromLeaf() {
+    @Test fun testHierarchyFromLeaf(): Unit = runBlocking {
         val node = setupHierarchy()
         val process = MapProcess()
         node.fetchIdentities(process, setOf(3))
@@ -136,7 +137,7 @@ class GProcessTests {
         checkHierarchy(a1.parent!!)
     }
 
-    @Test fun testParentChild() {
+    @Test fun testParentChild(): Unit = runBlocking {
         val arows = sequenceOf(mapOf("id" to 1, "name" to "Metal"))
         val brows = sequenceOf(
                 mapOf("id" to 2, "pid" to 1, "caption" to "Chemical Element", "value" to 42),
@@ -150,7 +151,7 @@ class GProcessTests {
             override val to = nodeB
             override val from = nodeA
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
+            override suspend fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.id }.distinct()
                 if (ids.isNotEmpty()) {
                     val rows = brows.filter { it["pid"] in ids }.asSequence()
@@ -169,7 +170,7 @@ class GProcessTests {
             override val from = nodeB
             override val to = nodeA
 
-            override fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
+            override suspend fun resolveStubs(process: MapProcess, fromStubs: List<GraphStub<MapProcess, *, *>>) {
                 val ids = fromStubs.map { it.dataValue("pid", Int::class.java) }.filterNotNull().toSet()
                 if (ids.isNotEmpty()) {
                     val toStubs = to.fetchIdentities(process, ids)
@@ -200,7 +201,7 @@ class GProcessTests {
         }
     }
 
-    @Test fun multipleTypes() {
+    @Test fun multipleTypes(): Unit = runBlocking {
         val rows = sequenceOf(mapOf("id" to 1, "name" to "John", "age" to 42))
         val node = MapNode(listOf(X::class, Y::class), rows)
         val process = MapProcess()
