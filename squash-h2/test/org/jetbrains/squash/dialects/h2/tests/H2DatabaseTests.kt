@@ -7,6 +7,7 @@ import org.jetbrains.squash.tests.*
 import kotlin.test.*
 
 class H2DatabaseTests : DatabaseTests {
+    override val indexIfNotExists: String = " IF NOT EXISTS"
     override val quote = "\""
     override val blobType = "BLOB"
     override fun getIdColumnType(columnType: ColumnType): String = when (columnType) {

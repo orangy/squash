@@ -12,5 +12,10 @@ open class PgQueryBenchmark : QueryBenchmark() {
         pg = EmbeddedPostgres.start()
     }
 
-    override fun createTransaction() = PgConnection.create("localhost:${pg.port}/", "postgres").createTransaction()
+    @TearDown
+    fun stopPostgres() {
+        pg.close()
+    }
+
+    override fun createConnection() = PgConnection.create("localhost:${pg.port}/", "postgres")
 }

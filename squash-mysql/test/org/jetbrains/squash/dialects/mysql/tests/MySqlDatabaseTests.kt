@@ -9,12 +9,14 @@ import org.jetbrains.squash.connection.*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialects.mysql.*
 import org.jetbrains.squash.tests.*
+import java.util.*
 import kotlin.test.*
 
 //val mariadb = DB.newEmbeddedDB(3306).also { it.start() }
 val config: MysqldConfig = aMysqldConfig(Version.v5_7_latest)
         .withPort(3306)
         .withUser("user", "")
+        .withTimeZone(TimeZone.getDefault())
         .build()
 
 val mysql: EmbeddedMysql = anEmbeddedMysql(config)
@@ -23,6 +25,7 @@ val mysql: EmbeddedMysql = anEmbeddedMysql(config)
 
 class MySqlDatabaseTests : DatabaseTests {
     override val quote = "`"
+    override val indexIfNotExists: String = ""
     override val blobType = "BLOB"
     override fun getIdColumnType(columnType: ColumnType): String = when (columnType) {
         is IntColumnType -> "INT NOT NULL AUTO_INCREMENT"

@@ -10,7 +10,7 @@ object MySqlDialect : BaseSQLDialect("MySQL") {
         return if (isSqlIdentifier(id)) id else "`$id`"
     }
 
-    private val mysqlKeywords = setOf("LONG")
+    private val mysqlKeywords = setOf("LONG", "LOAD")
     override fun isSqlIdentifier(id: String): Boolean {
         if (id.toUpperCase() in mysqlKeywords) return false
         return super.isSqlIdentifier(id)
@@ -32,6 +32,23 @@ object MySqlDialect : BaseSQLDialect("MySQL") {
     }
 
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
+        override fun indicesSQL(table: TableDefinition): List<SQLStatement> =
+            table.constraints.elements.filterIsInstance<IndexConstraint>().map {
+                SQLStatementBuilder().apply {
+                    val unique = if (it.unique) " UNIQUE" else ""
+                    val indexName = dialect.idSQL(it.name)
+                    val tableName = dialect.idSQL(table.compoundName)
+
+                    append("CREATE$unique INDEX $indexName ON $tableName (")
+                    it.columns.forEachIndexed { index, column ->
+                        if (index > 0)
+                            append(", ")
+                        append(dialect.idSQL(column.name))
+                    }
+                    append(")")
+                }.build()
+            }
+
         override fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType): Unit {
             when (type) {
                 is UUIDColumnType -> builder.append("BINARY(16)")

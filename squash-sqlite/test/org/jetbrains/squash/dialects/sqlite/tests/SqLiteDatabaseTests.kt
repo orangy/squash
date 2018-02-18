@@ -7,6 +7,7 @@ import org.jetbrains.squash.tests.*
 import kotlin.test.*
 
 class SqLiteDatabaseTests : DatabaseTests {
+    override val indexIfNotExists: String = " IF NOT EXISTS"
     override val quote = "\""
     override val blobType = "BLOB"
 

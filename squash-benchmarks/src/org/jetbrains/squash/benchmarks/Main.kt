@@ -3,34 +3,42 @@ package org.jetbrains.squash.benchmarks
 /*
 rows = 100000
 
-Benchmark                               Mode  Cnt   Score   Error  Units
+Benchmark                               Mode  Cnt    Score    Error  Units
 
-H2QueryBenchmark.iterateJdbc            avgt   10   21.300 ±  3.258  ms/op
-H2QueryBenchmark.iterateJdbcName        avgt   10   28.475 ±  4.347  ms/op
-H2QueryBenchmark.iterateJdbcObject      avgt   10   20.977 ±  3.832  ms/op
-H2QueryBenchmark.iterateMapping         avgt   10   48.772 ± 10.844  ms/op
-H2QueryBenchmark.iterateQuery           avgt   10   38.918 ±  6.280  ms/op
-H2QueryBenchmark.iterateQueryWhere      avgt   10   40.673 ±  5.529  ms/op
+H2QueryBenchmark.iterateJdbc            avgt   10   17.550 ±  5.258  ms/op
+H2QueryBenchmark.iterateJdbcName        avgt   10   21.838 ±  5.289  ms/op
+H2QueryBenchmark.iterateJdbcObject      avgt   10   19.614 ±  7.932  ms/op
+H2QueryBenchmark.iterateMapping         avgt   10   44.539 ±  9.057  ms/op
+H2QueryBenchmark.iterateQuery           avgt   10   40.585 ± 14.006  ms/op
+H2QueryBenchmark.iterateQueryWhere      avgt   10   43.762 ±  5.420  ms/op
 
-PgQueryBenchmark.iterateJdbc            avgt   10   72.763 ±  1.816  ms/op
-PgQueryBenchmark.iterateJdbcName        avgt   10   73.546 ±  1.116  ms/op
-PgQueryBenchmark.iterateJdbcObject      avgt   10   78.501 ± 11.667  ms/op
-PgQueryBenchmark.iterateMapping         avgt   10   89.469 ±  0.882  ms/op
-PgQueryBenchmark.iterateQuery           avgt   10   80.785 ±  0.944  ms/op
-PgQueryBenchmark.iterateQueryWhere      avgt   10   54.750 ±  0.885  ms/op
+MySqlQueryBenchmark.iterateJdbc         avgt   10   42.771 ±  0.880  ms/op
+MySqlQueryBenchmark.iterateJdbcName     avgt   10   44.969 ±  0.847  ms/op
+MySqlQueryBenchmark.iterateJdbcObject   avgt   10   44.249 ±  1.077  ms/op
+MySqlQueryBenchmark.iterateMapping      avgt   10   68.215 ±  1.362  ms/op
+MySqlQueryBenchmark.iterateQuery        avgt   10   61.319 ±  1.196  ms/op
+MySqlQueryBenchmark.iterateQueryWhere   avgt   10   42.460 ±  1.202  ms/op
 
-SqLiteQueryBenchmark.iterateJdbc        avgt   10   51.163 ±  1.596  ms/op
-SqLiteQueryBenchmark.iterateJdbcName    avgt   10   52.438 ±  4.282  ms/op
-SqLiteQueryBenchmark.iterateJdbcObject  avgt   10   48.491 ±  3.911  ms/op
-SqLiteQueryBenchmark.iterateMapping     avgt   10  102.348 ± 13.197  ms/op
-SqLiteQueryBenchmark.iterateQuery       avgt   10   85.798 ±  3.819  ms/op
-SqLiteQueryBenchmark.iterateQueryWhere  avgt   10   77.219 ± 11.202  ms/op
+PgQueryBenchmark.iterateJdbc            avgt   10   86.689 ±  1.614  ms/op
+PgQueryBenchmark.iterateJdbcName        avgt   10   89.428 ±  0.862  ms/op
+PgQueryBenchmark.iterateJdbcObject      avgt   10  104.058 ± 90.815  ms/op
+PgQueryBenchmark.iterateMapping         avgt   10  104.205 ±  2.572  ms/op
+PgQueryBenchmark.iterateQuery           avgt   10   97.656 ±  1.448  ms/op
+PgQueryBenchmark.iterateQueryWhere      avgt   10   71.603 ±  1.424  ms/op
+
+SqLiteQueryBenchmark.iterateJdbc        avgt   10   24.481 ±  1.072  ms/op
+SqLiteQueryBenchmark.iterateJdbcName    avgt   10   23.852 ±  0.353  ms/op
+SqLiteQueryBenchmark.iterateJdbcObject  avgt   10   32.431 ±  2.004  ms/op
+SqLiteQueryBenchmark.iterateMapping     avgt   10   91.309 ±  4.503  ms/op
+SqLiteQueryBenchmark.iterateQuery       avgt   10   84.763 ±  3.710  ms/op
+SqLiteQueryBenchmark.iterateQueryWhere  avgt   10   44.895 ±  5.184  ms/op
 */
 
 fun main(args: Array<String>) {
     benchmark(args) {
         run<H2QueryBenchmark>()
-        run<SqLiteQueryBenchmark>()
+        run<MySqlQueryBenchmark>()
         run<PgQueryBenchmark>()
+        run<SqLiteQueryBenchmark>()
     }
 }

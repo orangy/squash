@@ -27,7 +27,7 @@ object CitizenDataLink : TableDefinition() {
 object CitizenData : TableDefinition() {
     val id = long("id").autoIncrement().primaryKey()
     val comment = varchar("comment", 30)
-    val value = enumeration<DataKind>("value")
+    val value = enumeration<DataKind>("value").index()
     val image = blob("image").nullable()
 }
 

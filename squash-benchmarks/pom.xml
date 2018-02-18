@@ -10,7 +10,7 @@
     <artifactId>squash-benchmarks</artifactId>
 
     <properties>
-        <jmh.version>1.15</jmh.version>
+        <jmh.version>1.20</jmh.version>
     </properties>
 
     <dependencies>
@@ -32,6 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
+            <artifactId>squash-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-sqlite</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -44,8 +49,14 @@
         <dependency>
             <groupId>com.opentable.components</groupId>
             <artifactId>otj-pg-embedded</artifactId>
-            <version>0.7.1</version>
+            <version>0.11.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.wix</groupId>
+            <artifactId>wix-embedded-mysql</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

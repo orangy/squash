@@ -1,6 +1,7 @@
 package org.jetbrains.squash.drivers
 
 import org.jetbrains.squash.connection.*
+import java.math.*
 import java.sql.*
 import java.time.*
 import kotlin.reflect.*
@@ -32,6 +33,8 @@ open class JDBCDataConversion {
             type.javaObjectType.isInstance(value) -> value
             value is Long && type.javaObjectType == Int::class.javaObjectType -> value.toInt()
             value is Int && type.javaObjectType == Long::class.javaObjectType -> value.toLong()
+            value is BigInteger && type.javaObjectType == Int::class.javaObjectType -> value.toInt()
+            value is BigInteger && type.javaObjectType == Long::class.javaObjectType -> value.toLong()
             else -> error("Cannot convert value of type `${value.javaClass}` to type `$type`")
         }
     }
