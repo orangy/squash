@@ -13,7 +13,7 @@ Squash is a data access and manipulation DSL library for relational databases.
   Schema can also be generated from definitions, which is ideal for fast prototyping and tests.
 * *Unopinionated*. There is no prescribed way on how to manage your transactions, connections, or data objects.
 * *Extensible*. Connection, that manages SQL execution and result set mapping, can be extended to support specific database engine needs.
-  Dialect, responsible for building relevant SQL statements and queries, can be overriden or replaced to support specific SQL language variants.
+  Dialect, responsible for building relevant SQL statements and queries, can be overridden or replaced to support specific SQL language variants.
 * *Kotlin*.
 
 Quick Samples
