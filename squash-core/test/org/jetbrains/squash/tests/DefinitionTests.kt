@@ -32,10 +32,11 @@ abstract class DefinitionTests : DatabaseTests {
             val id = integer("id").primaryKey()
             val name = varchar("name", length = 42)
         }
+        val tableName = TestTable.compoundName.id
 
         withTransaction {
             connection.dialect.definition.tableSQL(TestTable).assertSQL {
-                "CREATE TABLE IF NOT EXISTS ${quote}unnamedTableWithQuotesSQL\$TestTable$1${quote} (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT ${quote}PK_unnamedTableWithQuotesSQL\$TestTable$1${quote} PRIMARY KEY (id))"
+                "CREATE TABLE IF NOT EXISTS ${quote}$tableName${quote} (id INT NOT NULL, name VARCHAR(42) NOT NULL, CONSTRAINT ${quote}PK_$tableName${quote} PRIMARY KEY (id))"
             }
         }
     }
