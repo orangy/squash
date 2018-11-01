@@ -17,7 +17,7 @@ abstract class DefinitionTests : DatabaseTests {
     }
 
     @Test fun tableExists() {
-        val TestTable = object : TableDefinition() {
+		val TestTable = object : TableDefinition("Test") {
             val id = integer("id").primaryKey()
             val name = varchar("name", length = 42)
         }
@@ -28,7 +28,7 @@ abstract class DefinitionTests : DatabaseTests {
     }
 
     @Test fun unnamedTableWithQuotesSQL() {
-        val TestTable = object : TableDefinition() {
+		val TestTable = object : TableDefinition("unnamedTableWithQuotesSQL\$TestTable\$1") {
             val id = integer("id").primaryKey()
             val name = varchar("name", length = 42)
         }
