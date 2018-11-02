@@ -4,10 +4,11 @@ import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialects.postgres.*
 import org.jetbrains.squash.tests.*
 import ru.yandex.qatools.embed.postgresql.*
+import ru.yandex.qatools.embed.postgresql.distribution.*
 import java.nio.file.*
 import kotlin.test.*
 
-val pgUrl = EmbeddedPostgres().start(EmbeddedPostgres.cachedRuntimeConfig(Paths.get("target/pg_embedded")))
+val pgUrl by lazy { EmbeddedPostgres(Version.V9_6_8).start(EmbeddedPostgres.cachedRuntimeConfig(Paths.get("target/pg_embedded"))) }
 
 class PgDatabaseTests : DatabaseTests {
     override val indexIfNotExists: String = " IF NOT EXISTS"

@@ -1,16 +1,17 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Benchmarks" type="JetRunConfigurationType" factoryName="Kotlin" singleton="true">
+    <module name="squash-benchmarks" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <extension name="org.jetbrains.fluid.java.FluidRunConfigurationExtension" fluid.enabledBundledTracers="false" fluid.enabledBundledTracers.list="" />
-    <option name="MAIN_CLASS_NAME" value="org.jetbrains.squash.benchmarks.MainKt" />
     <option name="VM_PARAMETERS" value="" />
     <option name="PROGRAM_PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="PASS_PARENT_ENVS" value="true" />
-    <module name="squash-benchmarks" />
-    <envs />
-    <method />
+    <option name="MAIN_CLASS_NAME" value="org.jetbrains.squash.benchmarks.MainKt" />
+    <option name="WORKING_DIRECTORY" value="" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
   </configuration>
 </component>
