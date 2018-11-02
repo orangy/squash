@@ -10,6 +10,6 @@ class PgDatabaseSchema(transaction: JDBCTransaction) : JDBCDatabaseSchema(transa
         val tableTypes = if (schema.startsWith("pg_temp_")) arrayOf("TEMPORARY TABLE") else arrayOf("TABLE")
         val resultSet = metadata.getTables(catalogue, currentSchema(), null, tableTypes)
         val response = JDBCResponse(transaction.connection.conversion, resultSet)
-        return response.rows.map { SchemaTable(it["TABLE_NAME"], this) }
+        return response.map { SchemaTable(it["TABLE_NAME"], this) }
     }
 }

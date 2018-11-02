@@ -35,4 +35,8 @@ open class JDBCDataConversion {
             else -> error("Cannot convert value of type `${value.javaClass}` to type `$type`")
         }
     }
+
+    open fun fetch(resultSet: ResultSet, dbColumnIndex: Int, column: JDBCResponseColumn): Any? {
+        return resultSet.getObject(dbColumnIndex)
+    }
 }
