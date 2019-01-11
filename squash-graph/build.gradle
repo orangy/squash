@@ -1,0 +1,21 @@
+dependencies {
+    compile project(':squash-core')
+    compile 'net.bytebuddy:byte-buddy:1.4.22'
+    testCompile project(':squash-core')
+    testCompile project(path: ':squash-core', configuration: 'testClasses')
+}
+
+configurations {
+    testClasses {
+        extendsFrom(testRuntime)
+    }
+}
+
+task testJar(type: Jar) {
+    classifier = 'test'
+    from sourceSets.test.output
+}
+
+artifacts {
+    testClasses testJar
+}

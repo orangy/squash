@@ -1,0 +1,18 @@
+configurations {
+    testClasses {
+        extendsFrom(testRuntime)
+    }
+}
+
+task testJar(type: Jar) {
+    classifier = 'test'
+    from sourceSets.test.output
+}
+
+artifacts {
+    testClasses testJar
+}
+
+compileKotlin {
+    kotlinOptions.freeCompilerArgs += "-Xallow-kotlin-package"
+}
