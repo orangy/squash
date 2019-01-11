@@ -1,0 +1,11 @@
+dependencies {
+    compile project(':squash-core')
+    compile project(':squash-graph')
+    compile project(':squash-jdbc')
+    compile 'org.xerial:sqlite-jdbc:3.25.2'
+    testCompile project(':squash-core')
+    testCompile project(':squash-graph')
+    testCompile project(path: ':squash-core', configuration: 'testClasses')
+    testCompile project(path: ':squash-graph', configuration: 'testClasses')
+}
+

@@ -1,0 +1,9 @@
+rootProject.name = 'squash'
+include(':squash-core')
+include(':squash-jdbc')
+include(':squash-graph')
+include(':squash-h2')
+include(':squash-mysql')
+include(':squash-postgres')
+include(':squash-sqlite')
+include(':squash-benchmarks')
