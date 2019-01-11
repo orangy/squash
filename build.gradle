@@ -26,8 +26,11 @@ subprojects {
         }
     }
 
-    sourceSets.main.java.setSrcDirs(["src"])
-    sourceSets.test.java.setSrcDirs(["test"])
+    sourceSets.all {
+        kotlin.setSrcDirs(["$name/src"])
+        java.setSrcDirs(["$name/src"])
+        resources.setSrcDirs(["$name/resources"])
+    }
 
     dependencies {
         compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.0'
