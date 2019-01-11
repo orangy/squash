@@ -12,15 +12,16 @@ import java.sql.*
 open class JDBCTransaction(override val connection: JDBCConnection) : Transaction {
     private var _jdbcTransaction: Connection? = null
 
-    val jdbcTransaction: Connection get() {
-        return _jdbcTransaction?.apply { checkValid(this) } ?: run {
-            _jdbcTransaction = connection.connector()
-            _jdbcTransaction!!
+    val jdbcTransaction: Connection
+        get() {
+            return _jdbcTransaction?.apply { checkValid(this) } ?: run {
+                _jdbcTransaction = connection.connector()
+                _jdbcTransaction!!
+            }
         }
-    }
 
     private fun checkValid(connection: Connection) {
-        check(!connection.isClosed) { "Connection $connection is already closed."}
+        check(!connection.isClosed) { "Connection $connection is already closed." }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -61,7 +62,8 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
 
     override suspend fun <T> executeStatement(statement: Statement<T>): T {
         val statementSQL = connection.dialect.statementSQL(statement)
-        val returnColumn: Column<*>? = if (statement is InsertValuesStatement<*, *>) statement.generatedKeyColumn else null
+        val returnColumn: Column<*>? =
+            if (statement is InsertValuesStatement<*, *>) statement.generatedKeyColumn else null
         connection.monitor.beforeStatement(this, statementSQL)
         val preparedStatement = jdbcTransaction.prepareStatement(statementSQL, returnColumn)
         preparedStatement.execute()
@@ -76,17 +78,14 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
             connection.monitor.beforeStatement(this, statement)
             val executionResult = preparedStatement.execute()
             val result = when (executionResult) {
-                true -> JDBCResponse(
-                    connection.conversion,
-                    preparedStatement.resultSet
-                )
+                true -> JDBCResponse(connection.conversion, preparedStatement.resultSet)
                 false -> Response.Empty
             }
             connection.monitor.afterStatement(this, statement, result)
             return result
         } catch (ex: SQLException) {
             if (DriverManager.getLogWriter() != null) {
-                DriverManager.println("SQLStatement: " + statement.toString())
+                DriverManager.println("SQLStatement: $statement")
                 throw ex
             } else {
                 throw JDBCException(ex, statement)

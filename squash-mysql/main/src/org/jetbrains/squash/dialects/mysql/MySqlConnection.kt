@@ -5,7 +5,7 @@ import org.jetbrains.squash.drivers.jdbc.*
 import java.sql.*
 
 class MySqlConnection(connector: () -> Connection) : JDBCConnection(MySqlDialect, MySqlDataConversion(), connector) {
-    override fun createTransaction() = MySqlTransaction(this)
+    override suspend fun createTransaction() = MySqlTransaction(this)
 
     companion object {
         fun create(url: String, user: String = "", password: String = ""): DatabaseConnection {

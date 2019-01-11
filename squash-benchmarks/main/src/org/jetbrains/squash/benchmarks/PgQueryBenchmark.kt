@@ -1,7 +1,5 @@
 package org.jetbrains.squash.benchmarks
 
-import org.jetbrains.squash.dialects.postgres.*
-import org.jetbrains.squash.drivers.jdbc.postgres.*
 import org.jetbrains.squash.drivers.postgres.jdbc.*
 import org.openjdk.jmh.annotations.*
 import ru.yandex.qatools.embed.postgresql.*
@@ -23,5 +21,5 @@ open class PgQueryBenchmark : QueryBenchmark() {
         pg.stop()
     }
 
-    override fun createConnection() = PgConnection.create(pgUrl)
+    override fun createConnection() = PgJdbcConnection.create(pgUrl)
 }

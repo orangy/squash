@@ -5,17 +5,17 @@ import org.jetbrains.squash.dialects.postgres.*
 import org.jetbrains.squash.drivers.jdbc.*
 import java.sql.*
 
-class PgConnection(connector: () -> Connection) : JDBCConnection(
+class PgJdbcConnection(connector: () -> Connection) : JDBCConnection(
     PgDialect,
     PgDataConversion(), connector) {
-    override fun createTransaction() = PgTransaction(this)
+    override suspend fun createTransaction() = PgTransaction(this)
 
     companion object {
         private val driver = Class.forName("org.postgresql.Driver").newInstance()
 
         fun create(host: String, user: String = "", password: String = ""): DatabaseConnection {
             val jdbcUrl = "jdbc:postgresql://$host"
-            return PgConnection {
+            return PgJdbcConnection {
                 DriverManager.getConnection(
                     jdbcUrl,
                     user,
@@ -24,8 +24,8 @@ class PgConnection(connector: () -> Connection) : JDBCConnection(
             }
         }
 
-        fun create(url: String): DatabaseConnection {
-            return PgConnection { DriverManager.getConnection(url) }
+        fun create(connectionString: String): DatabaseConnection {
+            return PgJdbcConnection { DriverManager.getConnection(connectionString) }
         }
     }
 }

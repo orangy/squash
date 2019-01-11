@@ -1,9 +1,10 @@
 repositories {
     maven { url 'https://dl.bintray.com/e5l/ktor' }
+    maven { url 'https://dl.bintray.com/kotlin/kotlinx' }
 }
 
 dependencies {
     compile project(':squash-core')
 
-    compile 'io.ktor.clients:ktor-client-postgre:0.0.1'
+    compile 'io.ktor.clients:ktor-client-sql:0.0.1'
 }

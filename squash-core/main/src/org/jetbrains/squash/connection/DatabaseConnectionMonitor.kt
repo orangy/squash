@@ -7,4 +7,4 @@ interface DatabaseConnectionMonitor {
     fun after(callback: Transaction.(statement: SQLStatement, result: Any?) -> Unit)
 }
 
-operator inline fun DatabaseConnectionMonitor.invoke(configure: DatabaseConnectionMonitor.() -> Unit) = configure()
+inline operator fun DatabaseConnectionMonitor.invoke(configure: DatabaseConnectionMonitor.() -> Unit) = configure()

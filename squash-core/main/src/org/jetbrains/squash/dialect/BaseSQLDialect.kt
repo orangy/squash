@@ -20,7 +20,7 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     @Suppress("NOTHING_TO_INLINE")
-    inline private fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
+    private inline fun Char.isIdentifierStart(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this == '_'
 
     open fun isSqlIdentifier(id: String): Boolean {
         if (id.isEmpty()) return false
@@ -29,8 +29,6 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     override fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?) {
-        if (value != null)
-            builder.append("?")
         when (value) {
             null -> builder.append("NULL")
             else -> builder.appendArgument(value)
@@ -207,10 +205,10 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     open fun appendModifierSQL(builder: SQLStatementBuilder, modifier: QueryModifier) {
         when (modifier) {
             is QueryLimit -> {
-                builder.append(" LIMIT ?")
+                builder.append(" LIMIT ")
                 builder.appendArgument(modifier.limit)
                 if (modifier.offset != 0L) {
-                    builder.append(" OFFSET ?")
+                    builder.append(" OFFSET ")
                     builder.appendArgument(modifier.offset)
                 }
             }
