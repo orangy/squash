@@ -63,3 +63,7 @@ dependencies {
     testCompile project(path: ':squash-core', configuration: 'testClasses')
     testCompile project(path: ':squash-graph', configuration: 'testClasses')
 }
+
+compileJdbcKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
