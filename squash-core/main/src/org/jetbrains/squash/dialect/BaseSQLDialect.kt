@@ -329,10 +329,10 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
     }
 
     open fun queryStatementSQL(query: QueryStatement): SQLStatement {
-        return SQLStatementBuilder().apply { appendSelectSQL(this, query) }.build()
+        return buildSQLStatement { appendSelectSQL(this, query) }
     }
 
-    open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
+    open fun updateQueryStatementSQL(statement: UpdateQueryStatement<*>): SQLStatement = buildSQLStatement {
         append("UPDATE ")
         append(nameSQL(statement.table.compoundName))
         append(" SET ")
@@ -346,23 +346,23 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         }
         append(" ")
         appendQuerySQL(this, statement)
-    }.build()
+    }
 
-    open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
+    open fun deleteQueryStatementSQL(statement: DeleteQueryStatement<*>): SQLStatement = buildSQLStatement {
         append("DELETE FROM ")
         append(nameSQL(statement.table.compoundName))
         append(" ")
         appendQuerySQL(this, statement)
-    }.build()
+    }
 
-    open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = SQLStatementBuilder().apply {
+    open fun insertQueryStatementSQL(statement: InsertQueryStatement<*>): SQLStatement = buildSQLStatement {
         append("INSERT INTO ")
         append(nameSQL(statement.table.compoundName))
         append(" ")
         appendSelectSQL(this, statement)
-    }.build()
+    }
 
-    open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = SQLStatementBuilder().apply {
+    open fun insertValuesStatementSQL(statement: InsertValuesStatement<*, *>): SQLStatement = buildSQLStatement {
         append("INSERT INTO ")
         append(nameSQL(statement.table.compoundName))
         append(" (")
@@ -379,7 +379,9 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             appendLiteralSQL(this, value.value)
         }
         append(")")
-    }.build()
+    }
+
+    override fun createSqlStatementBuilder() = SQLStatementBuilder()
 
     override fun toString(): String = "SQLDialect '$name'"
 }

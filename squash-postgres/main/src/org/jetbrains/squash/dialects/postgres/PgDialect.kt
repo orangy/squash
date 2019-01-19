@@ -4,6 +4,9 @@ import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
 
 object PgDialect : BaseSQLDialect("Postgres") {
+
+    override fun createSqlStatementBuilder() = PgSqlStatementBuilder()
+
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
         override fun columnTypeSQL(builder: SQLStatementBuilder, column: Column<*>) {
             if (column.hasProperty<AutoIncrementProperty>()) {

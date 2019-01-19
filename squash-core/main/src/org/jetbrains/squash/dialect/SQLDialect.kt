@@ -16,5 +16,6 @@ interface SQLDialect {
     fun appendLiteralSQL(builder: SQLStatementBuilder, value: Any?)
     fun <T> appendExpression(builder: SQLStatementBuilder, expression: Expression<T>): Unit
     fun appendCompoundElementSQL(builder: SQLStatementBuilder, element: CompoundElement): Unit
+    fun createSqlStatementBuilder(): SQLStatementBuilder
 }
 

@@ -5,7 +5,7 @@ import org.jetbrains.squash.definition.*
 open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDialect {
 
     override fun tableSQL(table: TableDefinition): List<SQLStatement> {
-        val tableSQL = SQLStatementBuilder().apply {
+        val tableSQL = dialect.buildSQLStatement {
             append("CREATE TABLE IF NOT EXISTS ${dialect.idSQL(table.compoundName)}")
             if (table.compoundColumns.any()) {
                 append(" (")
@@ -18,14 +18,14 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                 appendPrimaryKey(this, table)
                 append(")")
             }
-        }.build()
+        }
         val indices = indicesSQL(table)
         return listOf(tableSQL) + indices
     }
 
     protected open fun indicesSQL(table: TableDefinition): List<SQLStatement> =
             table.constraints.elements.filterIsInstance<IndexConstraint>().map {
-                SQLStatementBuilder().apply {
+                dialect.buildSQLStatement {
                     val unique = if (it.unique) " UNIQUE" else ""
                     append("CREATE$unique INDEX IF NOT EXISTS ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.compoundName)} (")
                     it.columns.forEachIndexed { index, column ->
@@ -34,7 +34,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
                         append(dialect.idSQL(column.name))
                     }
                     append(")")
-                }.build()
+                }
             }
 
     protected open fun appendPrimaryKey(builder: SQLStatementBuilder, table: TableDefinition) {
@@ -64,13 +64,13 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
 
     override fun foreignKeys(table: TableDefinition): List<SQLStatement> = table.constraints.elements.filterIsInstance<ForeignKeyConstraint>()
             .map { key ->
-                SQLStatementBuilder().apply {
+                dialect.buildSQLStatement {
                     //append("ALTER TABLE ${dialect.nameSQL(table.compoundName)} DROP CONSTRAINT IF EXISTS ${dialect.idSQL(key.name)};")
                     append("ALTER TABLE ${dialect.nameSQL(table.compoundName)} ADD ")
                     appendForeignKey(this, key)
-                }.build()
+                }
             }
-
+    
     protected open fun appendForeignKey(builder: SQLStatementBuilder, key: ForeignKeyConstraint) = with(builder) {
         append("CONSTRAINT ${dialect.idSQL(key.name)} FOREIGN KEY (")
         append(key.sources.map { dialect.idSQL(it.name) }.joinToString())

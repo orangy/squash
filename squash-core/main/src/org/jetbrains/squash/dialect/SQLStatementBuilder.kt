@@ -1,10 +1,10 @@
 package org.jetbrains.squash.dialect
 
-class SQLStatementBuilder() : Appendable {
+open class SQLStatementBuilder() : Appendable {
     private val stringBuilder = StringBuilder()
-    private val arguments = mutableListOf<SQLArgument>()
+    protected val arguments = mutableListOf<SQLArgument>()
 
-    fun <V> appendArgument(value: V) {
+    open fun <V> appendArgument(value: V) {
         append("?")
         val index = arguments.size
         arguments.add(SQLArgument(index, value))
@@ -30,3 +30,5 @@ class SQLStatementBuilder() : Appendable {
         return statementSQL
     }
 }
+
+fun SQLDialect.buildSQLStatement(body: SQLStatementBuilder.()->Unit) = createSqlStatementBuilder().apply(body).build()

@@ -34,7 +34,7 @@ object MySqlDialect : BaseSQLDialect("MySQL") {
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
         override fun indicesSQL(table: TableDefinition): List<SQLStatement> =
             table.constraints.elements.filterIsInstance<IndexConstraint>().map {
-                SQLStatementBuilder().apply {
+                buildSQLStatement {
                     val unique = if (it.unique) " UNIQUE" else ""
                     val indexName = dialect.idSQL(it.name)
                     val tableName = dialect.idSQL(table.compoundName)
@@ -46,7 +46,7 @@ object MySqlDialect : BaseSQLDialect("MySQL") {
                         append(dialect.idSQL(column.name))
                     }
                     append(")")
-                }.build()
+                }
             }
 
         override fun columnTypeSQL(builder: SQLStatementBuilder, type: ColumnType): Unit {
