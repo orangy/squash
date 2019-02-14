@@ -3,15 +3,20 @@ package org.jetbrains.squash.drivers
 import org.jetbrains.squash.results.*
 import kotlin.reflect.*
 
-class JDBCResultRow(val data: Array<Any?>, val columns: Map<String, List<JDBCResponseColumn>>, val conversion: JDBCDataConversion) : ResultRow {
+class JDBCResultRow(
+    private val data: Array<Any?>,
+    private val columns: Map<String, List<JDBCResponseColumn>>,
+    private val conversion: JDBCDataConversion
+) : ResultRow {
+    
     override fun columnValue(type: KClass<*>, columnName: String, tableName: String?): Any? {
         val dataForName = columns[columnName] ?: columns[columnName.toLowerCase()] ?: return null
         if (tableName == null) {
-            when (dataForName.size) {
-                0 -> return null
+            return when (dataForName.size) {
+                0 -> null
                 1 -> {
                     val value = data[dataForName[0].columnIndex - 1]
-                    return conversion.convertValueFromDatabase(value, type)
+                    conversion.convertValueFromDatabase(value, type)
                 }
                 else -> error("Ambiguous labels $dataForName")
             }
@@ -26,7 +31,9 @@ class JDBCResultRow(val data: Array<Any?>, val columns: Map<String, List<JDBCRes
                 foundIndex = index
             }
         }
-        if (foundIndex == -1) return null
+        if (foundIndex == -1) 
+            return null
+        
         val value = data[dataForName[foundIndex].columnIndex - 1]
         return conversion.convertValueFromDatabase(value, type)
     }

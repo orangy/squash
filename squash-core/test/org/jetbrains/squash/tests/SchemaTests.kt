@@ -45,14 +45,15 @@ abstract class SchemaTests : DatabaseTests {
                         "${primaryKey("Citizens", "id")})"
             }
             connection.dialect.definition.tableSQL(CitizenData).assertSQL {
-                "CREATE TABLE IF NOT EXISTS CitizenData " +
-                        "(id ${getIdColumnType(LongColumnType)}, comment VARCHAR(30) NOT NULL, ${quote}value${quote} INT NOT NULL, image $blobType NULL" +
-                        "${autoPrimaryKey("CitizenData", "id")})"
+                """
+                    CREATE TABLE IF NOT EXISTS CitizenData (id ${getIdColumnType(LongColumnType)}, comment VARCHAR(30) NOT NULL, ${quote}value${quote} INT NOT NULL, image $blobType NULL${autoPrimaryKey("CitizenData", "id")})
+                    CREATE INDEX$indexIfNotExists IX_CitizenData_value ON CitizenData (${quote}value${quote})
+                """
             }
             connection.dialect.definition.tableSQL(CitizenDataLink).assertSQL {
-                "CREATE TABLE IF NOT EXISTS CitizenDataLink " +
-                        "(Citizens_id VARCHAR(10) NOT NULL, CitizenData_id BIGINT NOT NULL" +
-                        "${primaryKey("CitizenDataLink_Citizens_id_CitizenData_id", "Citizens_id", "CitizenData_id")})"
+                """
+                    CREATE TABLE IF NOT EXISTS CitizenDataLink (Citizens_id VARCHAR(10) NOT NULL, CitizenData_id BIGINT NOT NULL${primaryKey("CitizenDataLink_Citizens_id_CitizenData_id", "Citizens_id", "CitizenData_id")})
+                """
             }
         }
     }

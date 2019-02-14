@@ -6,10 +6,11 @@ package org.jetbrains.squash.definition
 open class TableDefinition(name: String? = null) : Table {
     override val compoundName = Identifier(name ?: run {
         val simpleName = javaClass.simpleName
-        if (simpleName.isNotEmpty())
+        val className = if (simpleName.isNotEmpty())
             simpleName
         else // anonymous class, remove the package from full name 
-            javaClass.name.substringAfterLast('.').removeSuffix("Table")
+            javaClass.name.substringAfterLast('.')
+        className.removeSuffix("Table")
     })
 
     override fun toString(): String = "$compoundName"

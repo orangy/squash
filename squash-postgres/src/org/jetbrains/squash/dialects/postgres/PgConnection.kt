@@ -5,7 +5,7 @@ import org.jetbrains.squash.drivers.*
 import java.sql.*
 
 class PgConnection(connector: () -> Connection) : JDBCConnection(PgDialect, PgDataConversion(), connector) {
-    override fun createTransaction(): Transaction = PgTransaction(this)
+    override fun createTransaction() = PgTransaction(this)
 
     companion object {
         private val driver = Class.forName("org.postgresql.Driver").newInstance()

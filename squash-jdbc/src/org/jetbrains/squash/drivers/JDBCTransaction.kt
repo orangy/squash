@@ -32,11 +32,9 @@ open class JDBCTransaction(override val connection: JDBCConnection) : Transactio
                     return Unit as T
                 } else {
                     val response = JDBCResponse(connection.conversion, jdbcStatement.generatedKeys)
-                    val rows = response.rows
-                    if (rows.empty)
-                        return Unit as T
+                    val row = response.singleOrNull() ?: return Unit as T
                     val generatedColumn = response.columns.single()
-                    val columnValue = rows.single().columnValue(keyColumn.type.runtimeType, generatedColumn.columnIndex - 1)
+                    val columnValue = row.columnValue(keyColumn.type.runtimeType, generatedColumn.columnIndex - 1)
                     return columnValue as T
                 }
             }

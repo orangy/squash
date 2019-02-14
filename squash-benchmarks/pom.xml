@@ -10,7 +10,7 @@
     <artifactId>squash-benchmarks</artifactId>
 
     <properties>
-        <jmh.version>1.15</jmh.version>
+        <jmh.version>1.21</jmh.version>
     </properties>
 
     <dependencies>
@@ -32,6 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.squash</groupId>
+            <artifactId>squash-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.squash</groupId>
             <artifactId>squash-sqlite</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -42,9 +47,24 @@
         </dependency>
 
         <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-            <version>0.7.1</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.process</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.yandex.qatools.embed</groupId>
+            <artifactId>postgresql-embedded</artifactId>
+            <version>2.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wix</groupId>
+            <artifactId>wix-embedded-mysql</artifactId>
+            <version>4.2.0</version>
         </dependency>
     </dependencies>
 
