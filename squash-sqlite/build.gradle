@@ -1,9 +1,9 @@
 dependencies {
-    api "org.jetbrains.squash:squash-core:${project.version}"
-    api "org.jetbrains.squash:squash-graph:${project.version}"
-    api "org.jetbrains.squash:squash-jdbc:${project.version}"
+    api project(":squash-core")
+    api project(":squash-graph")
+    api project(":squash-jdbc")
     api "org.xerial:sqlite-jdbc:3.25.2"
 
-    testApi "org.jetbrains.squash:squash-core:${project.version}"
-    testApi "org.jetbrains.squash:squash-graph:${project.version}"
+    testApi project(":squash-core").sourceSets.test.output
+    testApi project(":squash-graph").sourceSets.test.output
 }

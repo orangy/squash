@@ -3,8 +3,12 @@ plugins {
 }
 
 
-allprojects {
+subprojects {
     apply plugin: 'kotlin'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+
+    group = "com.nospoonlab"
 
     repositories {
         mavenLocal()
@@ -26,6 +30,49 @@ allprojects {
         kotlinOptions {
             jvmTarget = "1.8"
             freeCompilerArgs = ["-Xallow-kotlin-package"]
+        }
+    }
+
+    def publishUser = (rootProject.findProperty("BINTRAY_USER") ?: project.findProperty("bintrayUser") ?: System.getenv("BINTRAY_USER"))?.toString()
+    def publishPassword = (rootProject.findProperty("BINTRAY_KEY") ?: project.findProperty("bintrayApiKey") ?: System.getenv("BINTRAY_API_KEY"))?.toString()
+
+    if (publishUser != null && publishPassword != null) {
+        publishing {
+            repositories {
+                maven {
+                    credentials {
+                        username = publishUser
+                        password = publishPassword
+                    }
+                    url = uri("https://api.bintray.com/maven/nospoonlab/nospoonlab/${project.property("project.repository")}/")
+                }
+            }
+            publications {
+                maven(MavenPublication) {
+                    groupId = project.group
+                    artifactId = project.name
+                    version = project.version
+
+                    from components.java
+
+                    maven(MavenPublication) {
+                        pom {
+                            name = project.name
+                            description = project.property("project.description")
+                            url = project.property("project.scm.url")
+                            licenses {
+                                license {
+                                    name = project.property("project.license.name")
+                                    url = project.property("project.license.url")
+                                }
+                            }
+                            scm {
+                                url = project.property("project.scm.url")
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
