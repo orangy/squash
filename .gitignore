@@ -4,6 +4,9 @@
 !.idea/scopes
 !.idea/scopes/*
 !.idea/vcs.xml
+build
 .gradle
 target
 *.iml
+*.iws
+*.ipr

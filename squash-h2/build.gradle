@@ -1,0 +1,8 @@
+dependencies {
+    api project(":squash-core")
+    api project(":squash-graph")
+    api project(":squash-jdbc")
+    api 'com.h2database:h2:1.4.197'
+    testApi project(":squash-graph").sourceSets.test.output
+    testApi project(":squash-core").sourceSets.test.output
+}

@@ -1,0 +1,6 @@
+dependencies {
+    api project(":squash-core")
+    api project(":squash-jdbc")
+    api project(":squash-graph")
+    api "org.postgresql:postgresql:42.1.4"
+}

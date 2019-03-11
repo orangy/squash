@@ -1,5 +1,0 @@
-<component name="DependencyValidationManager">
-  <state>
-    <deny_rule from_scope="Squash Core" to_scope="JDBC" is_deny="true" />
-  </state>
-</component>

@@ -1,0 +1,9 @@
+dependencies {
+    api project(":squash-core")
+    api project(":squash-jdbc")
+    api project(":squash-graph")
+    api 'mysql:mysql-connector-java:8.0.13'
+    testApi project(":squash-graph").sourceSets.test.output
+    testApi project(":squash-core").sourceSets.test.output
+    testApi 'com.wix:wix-embedded-mysql:4.2.0'
+}

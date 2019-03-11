@@ -1,0 +1,5 @@
+dependencies {
+    api project(":squash-core")
+    api 'net.bytebuddy:byte-buddy:1.4.22'
+    testApi project(":squash-core").sourceSets.test.output
+}

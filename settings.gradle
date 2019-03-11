@@ -1,0 +1,7 @@
+include ':squash-core'
+include ':squash-graph'
+include ':squash-h2'
+include ':squash-jdbc'
+include ':squash-mysql'
+include ':squash-postgres'
+include ':squash-sqlite'
