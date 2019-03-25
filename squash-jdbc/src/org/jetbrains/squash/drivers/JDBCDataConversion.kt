@@ -7,7 +7,7 @@ import java.time.*
 import kotlin.reflect.*
 
 open class JDBCDataConversion {
-    open fun convertValueToDatabase(value: Any?): Any? {
+    open fun convertValueToDatabase(value: Any?, connection: Connection): Any? {
         if (value == null)
             return null
         return when (value) {
