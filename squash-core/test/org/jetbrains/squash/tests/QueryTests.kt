@@ -7,6 +7,7 @@ import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
 import java.math.BigDecimal
+import java.math.BigInteger
 import kotlin.test.*
 
 abstract class QueryTests : DatabaseTests {
@@ -462,13 +463,10 @@ abstract class QueryTests : DatabaseTests {
 					.and(CityStats.name eq "population")
 				)
 			
-			println(connection.dialect.statementSQL(query))
-			
 			val result = query.execute().single()
-			assertEquals(1500000, result["minimum"], "Minimum city population does not match")
-			assertEquals(6200000, result["maximum"], "Maximum city population does not match")
-			assertEquals(BigDecimal("3433333.3333"), result["average"], "Average city population does not match")
-
+			assertEquals(BigDecimal("1500000"), result["minimum"], "Minimum city population does not match")
+			assertEquals(BigDecimal("6200000"), result["maximum"], "Maximum city population does not match")
+			assertEquals(BigInteger("3433333"), result.get<BigDecimal>("average").toBigInteger(), "Average city population does not match")
 		}
 	}
 	
