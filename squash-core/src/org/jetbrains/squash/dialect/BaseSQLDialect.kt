@@ -145,12 +145,12 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         when (expression) {
             is CountExpression -> {
                 append("COUNT(")
-                appendExpression(this, expression.value)
+                appendExpression(this, expression.value!!)
                 append(")")
             }
             is CountDistinctExpression -> {
                 append("COUNT(DISTINCT ")
-                appendExpression(this, expression.value)
+                appendExpression(this, expression.value!!)
                 append(")")
             }
 			is GeneralFunctionExpression -> {
