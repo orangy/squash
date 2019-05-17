@@ -11,7 +11,7 @@ class H2Connection(connector: () -> Connection) : JDBCConnection(H2Dialect, H2Da
     companion object {
         fun create(url: String, user: String = "", password: String = ""): DatabaseConnection {
             require(url.startsWith("jdbc:h2:")) { "H2 JDBC connection requires 'jdbc:h2:' prefix" }
-            Class.forName("org.h2.Driver").newInstance()
+            Class.forName("org.h2.Driver").getConstructor().newInstance()
             return H2Connection { DriverManager.getConnection(url, user, password) }
         }
 

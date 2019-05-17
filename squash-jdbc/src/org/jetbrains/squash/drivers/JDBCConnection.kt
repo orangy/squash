@@ -15,7 +15,7 @@ open class JDBCConnection(override val dialect: SQLDialect, val conversion: JDBC
 
     companion object {
         fun create(dialect: SQLDialect, url: String, driver: String, user: String = "", password: String = ""): DatabaseConnection {
-            Class.forName(driver).newInstance()
+            Class.forName(driver).getConstructor().newInstance()
             return JDBCConnection(dialect, JDBCDataConversion()) {
                 DriverManager.getConnection(url, user, password)
             }
