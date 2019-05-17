@@ -17,7 +17,7 @@ class CountDistinctExpression(val value:Expression<*>? = null) : FunctionExpress
 
 fun Expression<*>.count() = CountExpression(this)
 fun Expression<*>.countDistinct() = CountDistinctExpression(this)
-fun Expression<*>.min() = GeneralFunctionExpression<Long>("MIN",this)
-fun Expression<*>.max() = GeneralFunctionExpression<Long>("MAX", this)
-fun Expression<*>.sum() = GeneralFunctionExpression<Long>("SUM",this)
+fun <T> Expression<T>.min() = GeneralFunctionExpression<T>("MIN",this)
+fun <T> Expression<T>.max() = GeneralFunctionExpression<T>("MAX", this)
+fun <T> Expression<T>.sum() = GeneralFunctionExpression<T>("SUM",this)
 fun Expression<*>.average() = GeneralFunctionExpression<BigDecimal>("AVG",this)
