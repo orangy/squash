@@ -10,6 +10,12 @@ object Cities : TableDefinition() {
     val name = varchar("name", 50)
 }
 
+object CityStats : TableDefinition() {
+	val cityId = reference(Cities.id, "cityId")
+	val name = varchar("name", 50)
+	val value = long("value")
+}
+
 object Citizens : TableDefinition() {
     val id = varchar("id", 10).primaryKey()
     val name = varchar("name", length = 50)
