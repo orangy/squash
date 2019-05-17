@@ -3,8 +3,9 @@ package org.jetbrains.squash.tests
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.expressions.*
 import org.jetbrains.squash.query.*
-import org.jetbrains.squash.results.*
-import org.jetbrains.squash.statements.*
+import org.jetbrains.squash.results.get
+import org.jetbrains.squash.statements.insertInto
+import org.jetbrains.squash.statements.values
 import org.jetbrains.squash.tests.data.*
 import kotlin.test.*
 
@@ -12,7 +13,7 @@ abstract class QueryTests : DatabaseTests {
     open fun nullsLast(sql: String): String = "$sql NULLS LAST"
 
     @Test fun selectLiteral() {
-        withTables() {
+        withTables {
             val eugene = literal("eugene")
             val query = select { eugene }
 
@@ -447,7 +448,45 @@ abstract class QueryTests : DatabaseTests {
 
         }
     }
+	
+	@Test fun selectCaseStatementTrue() {
+		withTables {
+			val query = select(
+				case<Boolean>(literal(5)) {
+					whenClause(literal(6)).thenClause(literal(false))
+					whenClause(literal(5)).thenClause(literal(true))
+					whenClause(literal(4)).thenClause(literal(false))
+					elseClause(literal(false))
+			})
 
+			connection.dialect.statementSQL(query).assertSQL {
+				"SELECT CASE (?) WHEN (?) THEN ? WHEN (?) THEN ? WHEN (?) THEN ? ELSE ? END"
+			}
+			
+			val result = query.execute().single().get<Long>(0)
+			assertEquals(result, 1L)
+		}
+	}
+
+	@Test fun selectCaseStatementFalse() {
+		withTables {
+			val query = select(
+					case<Boolean>(literal(-1)) {
+						whenClause(literal(6)).thenClause(literal(false))
+						whenClause(literal(5)).thenClause(literal(true))
+						whenClause(literal(4)).thenClause(literal(false))
+						elseClause(literal(false))
+					})
+
+			connection.dialect.statementSQL(query).assertSQL {
+				"SELECT CASE (?) WHEN (?) THEN ? WHEN (?) THEN ? WHEN (?) THEN ? ELSE ? END"
+			}
+
+			val result = query.execute().single().get<Long>(0)
+			assertEquals(result, 0L)
+		}
+	}
+	
     @Test fun selectFromNestedQuery() {
         withCities {
             val query = from(select(Citizens.name, Citizens.id).from(Citizens).alias("Citizens"))
