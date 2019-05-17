@@ -449,8 +449,7 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
-	@Test
-	fun selectAggregate() {
+	@Test fun selectAggregate() {
 		withCities {
 			val query = select(
 					CityStats.value.min().alias("minimum"),
@@ -469,23 +468,7 @@ abstract class QueryTests : DatabaseTests {
 			assertEquals(1500000, result["minimum"], "Minimum city population does not match")
 			assertEquals(6200000, result["maximum"], "Maximum city population does not match")
 			assertEquals(BigDecimal("3433333.3333"), result["average"], "Average city population does not match")
-/*
-			connection.dialect.statementSQL(query).assertSQL {
-				"SELECT Cities.name, COUNT(Citizens.id) AS citizens FROM Cities INNER JOIN Citizens ON Cities.id = Citizens.city_id GROUP BY Cities.name"
-			}
 
-			query.execute().forEach {
-				val cityName = it[Cities.name]
-				val userCount = it.get<Long>("citizens")
-
-				when (cityName) {
-					"Munich" -> assertEquals(2, userCount)
-					"Prague" -> assertEquals(0, userCount)
-					"St. Petersburg" -> assertEquals(1, userCount)
-					else -> error("Unknown city $cityName")
-				}
-			}
- */
 		}
 	}
 	
