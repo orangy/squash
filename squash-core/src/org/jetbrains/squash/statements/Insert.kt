@@ -10,13 +10,22 @@ open class InsertValuesStatement<T : Table, R>(val table: T) : Statement<R> {
     val values: MutableMap<Column<*>, Any?> = LinkedHashMap()
 
     operator fun <V, S : V> set(column: Column<@Exact V>, value: S?) {
+		// Error if the column is being set more than once
         if (values.containsKey(column)) {
             error("$column is already initialized")
         }
-        if (column.properties.all { it !is NullableProperty } && value == null) {
+
+		val finalValue = value ?: if (column.hasProperty<DefaultValueProperty<S>>())
+			column.propertyOrNull<DefaultValueProperty<S>>()!!.value
+		else
+			null
+
+		// Error if the column is not nullable and it is getting set to null
+        if (column.properties.none { it is NullableProperty } && finalValue == null) {
             error("Trying to set null to not nullable column $column")
         }
-        values[column] = value
+
+        values[column] = finalValue
     }
 
     operator fun <V> get(column: Column<V>): Any? = values[column]

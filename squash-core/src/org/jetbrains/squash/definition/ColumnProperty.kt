@@ -28,6 +28,8 @@ fun <V> ReferenceColumn<V>.nullable(): ReferenceColumn<V?> = addProperty(Nullabl
  */
 fun <V, C : ColumnDefinition<V>> C.default(value: V): C = addProperty(DefaultValueProperty(value))
 
+fun <V, C : ColumnDefinition<V>> C.default(generate: () -> V?):C = addProperty(DefaultValueProperty(null, generate))
+
 object AutoIncrementProperty : ColumnProperty {
     override fun toString(): String = "++"
 }
@@ -36,8 +38,20 @@ object NullableProperty : ColumnProperty {
     override fun toString(): String = "?"
 }
 
-class DefaultValueProperty<out V>(val value: V) : ColumnProperty {
-    override fun toString(): String = "= $value"
+class DefaultValueProperty<out V>(defaultValue: V?, private val generate:(() -> V)? = null) : ColumnProperty {
+
+	val value:V? = defaultValue
+		get():V? {
+			return if (generate != null) {
+				val result = generate.invoke()
+				println("Generated Value 1: $result")
+				result ?: field
+			} else {
+				field
+			}
+		}
+
+	override fun toString(): String = "= $value"
 }
 
 
