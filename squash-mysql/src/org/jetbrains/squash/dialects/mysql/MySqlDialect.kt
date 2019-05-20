@@ -2,6 +2,9 @@ package org.jetbrains.squash.dialects.mysql
 
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.dialect.*
+import org.jetbrains.squash.dialects.mysql.expressions.MysqlDateMathFunction
+import org.jetbrains.squash.expressions.FunctionExpression
+import org.jetbrains.squash.expressions.literal
 import org.jetbrains.squash.query.*
 
 object MySqlDialect : BaseSQLDialect("MySQL") {
@@ -31,6 +34,19 @@ object MySqlDialect : BaseSQLDialect("MySQL") {
         }
     }
 
+	override fun <T> appendFunctionExpression(builder: SQLStatementBuilder, expression:FunctionExpression<T>): SQLStatementBuilder = with(builder) {
+		when (expression) {
+			is MysqlDateMathFunction -> {
+				append("${expression.name}(")
+				appendExpression(this, expression.expression)
+				append(", INTERVAL ")
+				appendExpression(this, literal(expression.interval.value))
+				append(" ${expression.interval.unit})")
+			}
+			else -> super.appendFunctionExpression(builder, expression)
+		}
+	}
+	
     override val definition: DefinitionSQLDialect = object : BaseDefinitionSQLDialect(this) {
         override fun indicesSQL(table: TableDefinition): List<SQLStatement> =
             table.constraints.elements.filterIsInstance<IndexConstraint>().map {
