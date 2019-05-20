@@ -145,29 +145,19 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         when (expression) {
             is CountExpression -> {
                 append("COUNT(")
-                appendExpression(this, expression.value)
+                appendExpression(this, expression.value!!)
                 append(")")
             }
             is CountDistinctExpression -> {
                 append("COUNT(DISTINCT ")
-                appendExpression(this, expression.value)
+                appendExpression(this, expression.value!!)
                 append(")")
             }
-            is MaxExpression -> {
-                append("MAX(")
-                appendExpression(this, expression.value)
-                append(")")
-            }
-            is MinExpression -> {
-                append("MIN(")
-                appendExpression(this, expression.value)
-                append(")")
-            }
-            is SumExpression -> {
-                append("SUM(")
-                appendExpression(this, expression.value)
-                append(")")
-            }
+			is GeneralFunctionExpression -> {
+				append("${expression.name}(")
+				appendExpression(this, expression.value)
+				append(")")
+			}
             else -> error("Function '$expression' is not supported by ${this@BaseSQLDialect}")
         }
     }

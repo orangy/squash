@@ -7,7 +7,7 @@ import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.*
 
 fun <R> DatabaseTests.withCities(statement: Transaction.() -> R) :R {
-    return withTables(Cities, CitizenData, Citizens, CitizenDataLink) {
+    return withTables(Cities, CityStats, CitizenData, Citizens, CitizenDataLink) {
         val spbId = insertInto(Cities).values {
             it[name] = "St. Petersburg"
         }.fetch(Cities.id).execute()
@@ -16,10 +16,35 @@ fun <R> DatabaseTests.withCities(statement: Transaction.() -> R) :R {
             it[name] = "Munich"
         }.fetch(Cities.id).execute()
 
-        insertInto(Cities).values {
+        val pragueId = insertInto(Cities).values {
             it[name] = "Prague"
-        }.execute()
+        }.fetch(Cities.id).execute()
+		
+		/*
+		 * Insert City Statistics
+		 */
 
+		insertInto(CityStats).values {
+			it[cityId] = spbId
+			it[name] = "population"
+			it[value] = 6200000
+		}.execute()
+		
+		insertInto(CityStats).values { 
+			it[cityId] = munichId
+			it[name] = "population"
+			it[value] = 1500000
+		}.execute()
+
+		insertInto(CityStats).values {
+			it[cityId] = pragueId
+			it[name] = "population"
+			it[value] = 2600000
+		}.execute()
+
+		/*
+		 * Insert Citizens
+		 */
         insertInto(Citizens).query()
                 .select { literal("andrey").alias("id") }
                 .select { literal("Andrey").alias("name") }

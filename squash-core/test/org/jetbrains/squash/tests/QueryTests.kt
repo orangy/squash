@@ -6,6 +6,8 @@ import org.jetbrains.squash.query.*
 import org.jetbrains.squash.results.*
 import org.jetbrains.squash.statements.*
 import org.jetbrains.squash.tests.data.*
+import java.math.BigDecimal
+import java.math.BigInteger
 import kotlin.test.*
 
 abstract class QueryTests : DatabaseTests {
@@ -448,6 +450,26 @@ abstract class QueryTests : DatabaseTests {
         }
     }
 
+	@Test fun selectAggregate() {
+		withCities {
+			val query = select(
+					CityStats.value.min().alias("minimum"),
+					CityStats.value.max().alias("maximum"),
+					CityStats.value.average().alias("average")
+				)
+				.from(Cities)
+				.innerJoin(CityStats, 
+					(Cities.id eq CityStats.cityId)
+					.and(CityStats.name eq "population")
+				)
+			
+			val result = query.execute().single()
+			assertEquals(BigDecimal("1500000"), result["minimum"], "Minimum city population does not match")
+			assertEquals(BigDecimal("6200000"), result["maximum"], "Maximum city population does not match")
+			assertEquals(BigInteger("3433333"), result.get<BigDecimal>("average").toBigInteger(), "Average city population does not match")
+		}
+	}
+	
     @Test fun selectFromNestedQuery() {
         withCities {
             val query = from(select(Citizens.name, Citizens.id).from(Citizens).alias("Citizens"))
