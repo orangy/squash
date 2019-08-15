@@ -3,7 +3,8 @@ package org.jetbrains.squash.dialects.mysql.expressions
 import org.jetbrains.squash.dialects.mysql.expressions.MysqlTimeUnit.Companion.from
 import org.jetbrains.squash.expressions.Expression
 import org.jetbrains.squash.expressions.FunctionExpression
-import org.jetbrains.squash.expressions.GeneralFunctionExpression
+import org.jetbrains.squash.expressions.ColumnFunctionExpression
+import org.jetbrains.squash.expressions.LiteralExpression
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -14,24 +15,16 @@ import java.time.temporal.ChronoUnit
 fun Expression<*>.date() = GeneralFunctionExpression<LocalDate>("DATE", this)
 
 /**
- *  Subtract a time value (using Java [ChronoUnit]) from a date
- */
-fun Expression<*>.dateSub(value:Long, timeUnit:ChronoUnit = ChronoUnit.DAYS) = MysqlDateMathFunction("DATE_SUB", this, from(value, timeUnit))
-
-/**
  * Subtracts a number of days from a date.
  */
-fun Expression<*>.dateSub(days:Long) = MysqlDateMathFunction("DATE_SUB", this, MysqlTimeUnit(days, "DAY"))
+fun Expression<*>.dateSub(expression:Expression<Number>, timeUnit:ChronoUnit = ChronoUnit.DAYS) = MysqlDateMathFunction("DATE_SUB", this, from(expression, timeUnit))
+fun Expression<*>.dateSub(value:Number, timeUnit:ChronoUnit = ChronoUnit.DAYS) = dateSub(LiteralExpression(value), timeUnit)
 
 /**
  *  Add a time value (using Java [ChronoUnit]) to a date
  */
-fun Expression<*>.dateAdd(value:Long, timeUnit:ChronoUnit = ChronoUnit.DAYS) = MysqlDateMathFunction("DATE_ADD", this, from(value, timeUnit))
-
-/**
- * Adds a number of days to a date.
- */
-fun Expression<*>.dateAdd(days:Long) = MysqlDateMathFunction("DATE_ADD", this, MysqlTimeUnit(days, "DAY"))
+fun Expression<*>.dateAdd(expression:Expression<Number>, timeUnit:ChronoUnit = ChronoUnit.DAYS) = MysqlDateMathFunction("DATE_ADD", this, from(expression, timeUnit))
+fun Expression<*>.dateAdd(value:Number, timeUnit:ChronoUnit = ChronoUnit.DAYS) = dateAdd(LiteralExpression(value), timeUnit)
 
 /**
  * Return the year part of a date.
@@ -76,7 +69,7 @@ fun Expression<*>.dayOfYear() = GeneralFunctionExpression<Int>("DAYOFYEAR", this
 class MysqlDateMathFunction(val name:String, val expression:Expression<*>, val interval: MysqlTimeUnit) : FunctionExpression<LocalDateTime>
 
 class MysqlTimeUnit(
-	val value:Long,
+	val value:Expression<Number>,
 	val unit:String
 ) {
 	
@@ -87,7 +80,7 @@ class MysqlTimeUnit(
 		/**
 		 * Creates a [MysqlTimeUnit] value from a Java [ChronoUnit].
 		 */
-		fun from(value:Long, timeUnit:ChronoUnit) = when (timeUnit) {
+		fun from(value:Expression<Number>, timeUnit:ChronoUnit) = when (timeUnit) {
 			ChronoUnit.MICROS -> MysqlTimeUnit(value, "MICROSECOND")
 			ChronoUnit.SECONDS -> MysqlTimeUnit(value, "SECOND")
 			ChronoUnit.MINUTES -> MysqlTimeUnit(value, "MINUTE")

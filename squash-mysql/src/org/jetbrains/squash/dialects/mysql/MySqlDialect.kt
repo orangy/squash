@@ -40,7 +40,7 @@ object MySqlDialect : BaseSQLDialect("MySQL") {
 				append("${expression.name}(")
 				appendExpression(this, expression.expression)
 				append(", INTERVAL ")
-				appendExpression(this, literal(expression.interval.value))
+				appendExpression(this, expression.interval.value)
 				append(" ${expression.interval.unit})")
 			}
 			else -> super.appendFunctionExpression(builder, expression)
