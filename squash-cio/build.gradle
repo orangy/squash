@@ -6,5 +6,5 @@ repositories {
 dependencies {
     compile project(':squash-core')
 
-    compile 'io.ktor.clients:ktor-client-sql:0.0.1'
+    //compile 'io.ktor.clients:ktor-client-sql:0.0.1'
 }

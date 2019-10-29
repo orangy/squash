@@ -1,5 +1,6 @@
 package org.jetbrains.squash.drivers.postgres.cio.tests
 
+/*
 import org.jetbrains.squash.definition.*
 import org.jetbrains.squash.drivers.postgres.cio.*
 import org.jetbrains.squash.drivers.postgres.jdbc.tests.*
@@ -42,3 +43,4 @@ class PgCioAllColumnTypesTests : AllColumnTypesTests(), DatabaseTests by PgCioDa
                 "uuid UUID NOT NULL, " +
                 "CONSTRAINT PK_AllColumnTypes PRIMARY KEY (id))"
 }
+*/
