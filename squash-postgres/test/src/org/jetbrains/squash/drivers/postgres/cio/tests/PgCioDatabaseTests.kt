@@ -23,7 +23,7 @@ class PgCioDatabaseTests : PgDatabaseTests() {
 }
 
 class PgCioDefinitionTests : DefinitionTests(), DatabaseTests by PgCioDatabaseTests()
-
+class PgCioQueryTests : QueryTests(), DatabaseTests by PgCioDatabaseTests()
 class PgCioAllColumnTypesTests : AllColumnTypesTests(), DatabaseTests by PgCioDatabaseTests() {
     override val allColumnsTableSQL: String
         get() = "CREATE TABLE IF NOT EXISTS AllColumnTypes (" +

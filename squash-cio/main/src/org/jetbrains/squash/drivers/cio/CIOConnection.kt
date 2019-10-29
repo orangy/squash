@@ -28,10 +28,7 @@ class CIOTransaction(override val connection: CIOConnection, private val sqlConn
 
     override suspend fun executeStatement(statement: SQLStatement): Response {
         connection.monitor.beforeStatement(this, statement)
-        var sql = statement.sql
-        for (argument in statement.arguments) {
-            sql = sql.replaceFirst("?", argument.value.toString())
-        }
+        val sql = statement.sql
         
         try {
             val queryResult = sqlConnection.execute(sql) as? SqlTables ?: return Response.Empty
