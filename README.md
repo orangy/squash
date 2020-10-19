@@ -34,6 +34,16 @@ object Citizens : TableDefinition() {
 }
 ```
 
+Connect to a database:
+
+```kotlin
+import org.jetbrains.squash.connection.DatabaseConnection
+import org.jetbrains.squash.connection.transaction
+import org.jetbrains.squash.dialects.mysql.MySqlConnection
+
+val db: DatabaseConnection = MySqlConnection.create("jdbc:mysql://localhost:3306/test", "test", "123")
+```
+
 Insert data:
 
 ```kotlin
@@ -57,10 +67,53 @@ assertEquals("eugene", row[Citizens.id])
 assertEquals("Eugene", row[Citizens.name])
 ```
 
+Logical operators:
+
+```kotlin
+val row = from(Citizens)
+    .select(Citizens.name, Citizens.id)
+    .where { 
+        Citizens.name eq "Eugene" and
+        (Citizens.cityId eq munichId)
+    }
+    .execute()
+    .single()
+```
+
+Update Data:
+
+```kotlin
+update(Citizens)
+    .set{
+        it[cityId] = londonId
+    }
+    .where{ Citizens.id eq "eugene" }
+    .execute()
+```
+
+
 Join:
 
 ```kotlin
 from(Citizens)
     .innerJoin(Cities) { Cities.id eq Citizens.cityId }
     .select(Citizens.name, Cities.name)
+```
+
+Transactions:
+
+```kotlin
+db.transaction{
+    insertInto(Citizens).values {
+        it[id] = "steven"
+        it[name] = "Steven"
+        it[cityId] = newYorkId
+    }.execute()
+    
+    insertInto(Citizens).values {
+        it[id] = "natacha"
+        it[name] = "Natacha"
+        it[cityId] = moscowId
+    }.execute()
+}
 ```
