@@ -93,6 +93,9 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
             is FunctionExpression -> {
                 appendFunctionExpression(this, expression)
             }
+			is CaseExpression<*> -> {
+				appendCaseExpression(this, expression)
+			}
             is DialectExtension -> {
                 expression.appendTo(this, this@BaseSQLDialect)
             }
@@ -141,6 +144,30 @@ open class BaseSQLDialect(val name: String) : SQLDialect {
         })
     }
 
+	open fun <T> appendCaseExpression(builder: SQLStatementBuilder, expression: CaseExpression<T>) = with(builder) {
+		if (expression.target == null) {
+			append("CASE")	
+		} else {
+			append("CASE (")
+			appendExpression(this, expression.target)
+			append(")")
+		}
+		
+		for (whenThenClause in expression.clauses) {
+			append(" WHEN (")
+				appendExpression(this, whenThenClause.whenClause)
+			append(") THEN ")
+				appendExpression(this, whenThenClause.thenClause)
+		}
+		
+		if (expression.finalClause != null) {
+			append(" ELSE ")
+				appendExpression(this, expression.finalClause!!)
+		}
+		
+		append(" END")
+	}
+	
     open fun <T> appendFunctionExpression(builder: SQLStatementBuilder, expression: FunctionExpression<T>) = with(builder) {
         when (expression) {
             is CountExpression -> {
