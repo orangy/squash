@@ -9,13 +9,13 @@ class SqLiteConnection(connector: () -> Connection) : JDBCConnection(SqLiteDiale
 
     companion object {
         fun create(url: String, user: String = "", password: String = ""): JDBCConnection {
-            Class.forName("org.sqlite.JDBC").newInstance()
+            Class.forName("org.sqlite.JDBC").getConstructor().newInstance()
             val jdbcUrl = "jdbc:sqlite://$url"
             return SqLiteConnection { DriverManager.getConnection(jdbcUrl, user, password) }
         }
 
         fun createMemoryConnection(user: String = "", password: String = ""): JDBCConnection {
-            Class.forName("org.sqlite.JDBC").newInstance()
+            Class.forName("org.sqlite.JDBC").getConstructor().newInstance()
             val jdbcUrl = "jdbc:sqlite:file:memdb1?mode=memory&cache=shared"
             return SqLiteConnection { DriverManager.getConnection(jdbcUrl, user, password) }
         }

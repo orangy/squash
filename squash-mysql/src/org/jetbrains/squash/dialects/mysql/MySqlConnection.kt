@@ -10,7 +10,7 @@ class MySqlConnection(connector: () -> Connection) : JDBCConnection(MySqlDialect
     companion object {
         fun create(url: String, user: String = "", password: String = ""): DatabaseConnection {
             require(url.startsWith("jdbc:mysql:")) { "MySQL JDBC connection requires 'jdbc:mysql:' prefix" }
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance()
+            Class.forName("com.mysql.cj.jdbc.Driver").getConstructor().newInstance()
             return MySqlConnection { DriverManager.getConnection(url, user, password) }
         }
     }
